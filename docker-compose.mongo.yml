@@ -1,0 +1,38 @@
+version: "3.9"
+
+volumes:
+  biggie_db:
+    name: biggie_db
+
+services:
+
+  mongo:
+    image: mongo:5.0.8
+    container_name: biggie_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
+    volumes:
+      - biggie_db:/data/db
+    # TODO: implement authentication for api container calls
+    # volumes:
+    #  - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+
+  mongo-express:
+    image: mongo-express:latest   # 0.54 needs authentication
+    container_name: biggie_mongoex
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+      ME_CONFIG_MONGODB_ADMINUSERNAME: "${ME_CONFIG_MONGODB_ADMINUSERNAME}"
+      ME_CONFIG_MONGODB_ADMINPASSWORD: "${ME_CONFIG_MONGODB_ADMINPASSWORD}"
+      ME_CONFIG_BASICAUTH_USERNAME: "${ME_CONFIG_BASICAUTH_USERNAME}"
+      ME_CONFIG_BASICAUTH_PASSWORD: "${ME_CONFIG_BASICAUTH_PASSWORD}"
+      ME_CONFIG_MONGODB_URL: "${MONGODB_URI}"
+    depends_on:
+      - mongo
+    profiles:
+      - monitoring

@@ -1,63 +1,65 @@
 version: "3.9"
 
-x-papel-common:
-  &papel-common
+x-biggie-common:
   environment:
-    &papel-common-env
-    BASE_URL: "${BASE_URL}"
-    APP_SUBDOMAIN: "${APP_SUBDOMAIN}"
-    APP_PORT: "${APP_PORT}"
-    SECRET_KEY: "${SECRET_KEY}"
+    &biggie-common-env
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
     DB_NAME: "${DB_NAME}"
-    DB_USER: "${DB_USER}"
-    DB_PASSWORD: "${DB_PASSWORD}"
-  volumes:
-    - ./data/to-mount:/opt/data
+    API_PUBLIC_KEY: "${API_PUBLIC_KEY}"
+    API_PRIVATE_KEY: "${API_PRIVATE_KEY}"
+    MONGODB_URI: "${MONGODB_URI}"
 
 services:
 
   nginx:
     volumes:
-      - ./setup/nginx/app_docker.conf:/etc/nginx/sites-enabled/app_docker.conf:ro
+      - ./conf/nginx/app_docker.conf:/etc/nginx/sites-enabled/app_docker.conf:ro
     depends_on:
       - api_prod
     profiles:
       - live_prod
 
   api_test:
-    <<: *papel-common
-    container_name: papel_api_test
-    image: api_img
-    build:
-      context: .
-      dockerfile: setup/app/Dockerfile
+    container_name: biggie_api_test
+    image: biggie_img
+    environment:
+      <<: *biggie-common-env
+      APP_MODE: "TEST"
+    volumes:
+      - ./data:/opt/data
     command: pytest -v
     depends_on:
-      - db
       - celery
+      - mongo
 
   api_prod:
-    <<: *papel-common
-    container_name: papel_api_prod
-    image: api_img
-    command: uvicorn main:app --host 0.0.0.0 --reload
+    container_name: biggie_api_prod
+    image: biggie_img
+    environment:
+      <<: *biggie-common-env
+      APP_MODE: "PROD"
+    command: uvicorn main:app --host 0.0.0.0 --reload --log-level error
     depends_on:
+      #      - mongo
       - api_test
+    volumes:
+      - ./data:/opt/data
     ports:
-      - "${APP_PORT}:${APP_PORT}"
+      - "${APP_PORT}"
 
   celery:
-    container_name: papel_celery
+    container_name: biggie_celery
+    image: biggie_img
     build:
       context: .
-      dockerfile: setup/celery/Dockerfile
-    image: celery_app_img
+      dockerfile: app/Dockerfile
     volumes:
-      - ./logs/celery:/opt/celery_app/logs
+      - ./logs/celery:/opt/logs
+      - ./data:/opt/data
     environment:
       # TODO: exclude app related variables
-      <<: *papel-common-env
+      <<: *biggie-common-env
     depends_on:
       - rabbitmq
+    command: celery --app=worker.celery worker --loglevel=info --logfile=../logs/celery.log

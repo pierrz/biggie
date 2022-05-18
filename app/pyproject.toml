@@ -1,24 +1,36 @@
 [tool.poetry]
-name = "papel"
-version = "0.2.0"
-description = "Docker based tool to deploy APIs and data pipelines."
+name = "biggie"
+version = "0.1.0"
+description = "Docker toolkit to spin up spark/mongo/fastapi altogether to ingest and expose data."
 authors = ["Pierre-Edouard Barrault"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.9"   # pinned after fastapi docker image
-aiofiles = "==0.7.0"
-celery = "==5.2.0"
-# TODO: check jinja update
-Jinja2 = "==3.0.3"
-numpy = "==1.21.4"
-pydantic = "==1.8.2"
-psycopg2-binary = "==2.9.2"
-python-dotenv = "==0.19.2"
-requests = "==2.26.0"
+python = ">=3.9,<3.10"   # pinned after fastapi docker image
+aiofiles = "==0.8.0"
+aiohttp = "==3.8.1"
+asyncio = "==3.4.3"
+bson = "==0.5.10"
+celery = "==5.2.6"
+fastapi = "==0.75.2"
+Jinja2 = "==3.1.2"
+numpy = "==1.22.3"
+pandas = "==1.4.2"
+pydantic = "==1.9.0"
+pymongo = "==4.1.1"
+pyspark = "==3.2.1"
+pytest = "==7.1.2"
+python-dateutil = "==2.8.2"
+python-dotenv = "==0.20.0"
+requests = "==2.27.1"
 typing = "==3.7.4.3"
+uvicorn = "==0.17.6"
 
 [tool.poetry.dev-dependencies]
-pytest = "==6.2.5"
+black = "==22.3.0"
+flake8 = "==4.0.1"
+isort = "==5.10.1"
+pre-commit = "==2.19.0"
+pylint = "==2.13.8"
 
 [build-system]
 requires = ["poetry>=0.12"]
@@ -27,7 +39,5 @@ build-backend = "poetry.masonry.api"
 [tool.pytest.ini_options]
 filterwarnings = [
     "error",
-    "ignore::UserWarning",
-    # TODO: remove once Jinja is updated
-    "ignore:'contextfunction' is renamed to 'pass_context', the old name will be removed in Jinja 3.1.:DeprecationWarning",
+    # "ignore::UserWarning",
 ]
