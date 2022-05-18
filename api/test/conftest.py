@@ -1,5 +1,5 @@
 """
-conftest file for the API package
+conftest file for pytest
 """
 
 from typing import Generator

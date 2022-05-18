@@ -1,19 +1,17 @@
 [tool.poetry]
-name = "biggie"
+name = "biggie_spark"
 version = "0.2.0"
-description = "FastAPI containers (prod and test)"
+description = "Spark containers (prod and test)"
 authors = ["Pierre-Edouard Barrault"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"   # pinned after fastapi docker image
-fastapi = "==0.75.2"
-Jinja2 = "==3.1.2"
 pandas = "==1.4.2"
 pydantic = "==1.9.0"
 pymongo = "==4.1.1"
+pyspark = "==3.2.1"
 pytest = "==7.1.2"
 typing = "==3.7.4.3"
-uvicorn = "==0.17.6"
 
 [tool.poetry.dev-dependencies]
 black = "==22.3.0"
@@ -28,5 +26,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.pytest.ini_options]
 filterwarnings = [
-    "error"
+    "error",
+    "ignore::pytest.PytestCollectionWarning",
+    "ignore::pytest.PytestUnraisableExceptionWarning"
 ]
