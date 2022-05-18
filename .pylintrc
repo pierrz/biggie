@@ -12,7 +12,8 @@ ignore=
     .git,
     __pycache__,
     logs,
-    setup
+    conf,
+    data
 
 [REPORTS]
 reports=yes
