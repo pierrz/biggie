@@ -19,6 +19,8 @@ docker pull ghcr.io/pierrz/biggie_harvester_img:latest
 docker pull ghcr.io/pierrz/biggie_api_img:latest
 ```
 
+If you intend to use the Github actions configuration, don't forget the necessary repository secrets.
+
 <br>
 
 ### Run
