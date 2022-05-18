@@ -18,5 +18,6 @@ def test_endpoint_check_api_live(client: TestClient):
 
 
 @pytest.mark.skip(reason="no 'data endpoint' per say yet (template response)")
-def test_marvel_statistics_api(client: TestClient):  # pylint: disable=W0613
+def test_marvel_statistics_api(client: TestClient):
     """wip"""
+    pass

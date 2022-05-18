@@ -2,12 +2,10 @@
 All API endpoints.
 """
 
-from typing import Tuple
-
 import pandas as pd
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
-from src.db.mongo import db  # pylint: disable=E0611
+from src.db.mongo import db
 from src.routers import templates
 
 router = APIRouter(
@@ -26,26 +24,16 @@ async def api_live() -> JSONResponse:
     return JSONResponse({"message": "Hello, World"})
 
 
-def get_data(sort_column: str, page_size: int = None) -> Tuple[pd.DataFrame, int]:
-    """
-    Get the data required by the API call
-    :param sort_column: name of the column used to sort the dataframe with
-    :param page_size: for the paginated mode, sets how many results are displayed per page
-    :return: the resulting dataframe and the total of rows
-    """
+def get_data(sort_column: str, page_size: int = None):
     db_data = db.character.find()
     columns = ["name", "comics_available"]
-    results_df = pd.DataFrame(db_data)
-    total = results_df.shape[0]
+    df = pd.DataFrame(db_data)
+    total = df.shape[0]
 
     order = True
     if sort_column == columns[1]:
         order = False
-    data = (
-        results_df[columns]
-        .sort_values(by=[sort_column], ascending=order)
-        .to_dict("records")
-    )
+    data = df[columns].sort_values(by=[sort_column], ascending=order).to_dict("records")
 
     if page_size is not None:
         return [
