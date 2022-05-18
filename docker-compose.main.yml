@@ -1,16 +1,28 @@
 version: "3.9"
 
 x-biggie-common:
+  &biggie-common
   environment:
     &biggie-common-env
     MONGODB_URI: "${MONGODB_URI}"
     DB_NAME: "${DB_NAME}"
+  volumes:
+    - "${VOLUME_MOUNT}"
 
 services:
 
   nginx:
+    image: nginx
+    container_name: biggie_nginx
     volumes:
+      - ./conf/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
+      - ./conf/nginx/certificate.conf:/etc/nginx/certificate.conf:ro
+      - ./logs/nginx:/var/log/nginx
       - ./conf/nginx/app_docker.conf:/etc/nginx/sites-enabled/app_docker.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # certificate of the host machine
+    ports:
+      - "80:80"
+      - "443:443"
     depends_on:
       - api_prod
     profiles:
@@ -18,14 +30,9 @@ services:
 
   api_test:
     container_name: biggie_api_test
-    image: biggie_api_img
-    build:
-      context: .
-      dockerfile: api/Dockerfile-api
+    image: "ghcr.io/pierrz/biggie_api_img:latest"
     environment:
       <<: *biggie-common-env
-    volumes:
-      - ./data:/opt/data
     command: pytest -v
     depends_on:
       - mongo
@@ -33,55 +40,58 @@ services:
       - test
 
   api_prod:
+    <<: *biggie-common
     container_name: biggie_api_prod
-    image: biggie_api_img
-    environment:
-      <<: *biggie-common-env
+    image: "ghcr.io/pierrz/biggie_api_img:latest"
     command: uvicorn main:app --host 0.0.0.0 --reload --log-level error
     depends_on:
       - mongo
-    volumes:
-      - ./data:/opt/data
     ports:
-      - "${APP_PORT}"
+      - "8000:8000"
+    profiles:
+      - api
 
-  harvester:
-    container_name: biggie_harvester
-    build:
-      context: .
-      dockerfile: harvester/Dockerfile-harvester
+  harvester_test:
+    container_name: biggie_harvester_test
+    image: "ghcr.io/pierrz/biggie_harvester_img:latest"
     environment:
       API_PUBLIC_KEY: "${API_PUBLIC_KEY}"
       API_PRIVATE_KEY: "${API_PRIVATE_KEY}"
     volumes:
-      - ./data:/opt/data
+      - "${VOLUME_MOUNT}"
+    command: pytest -v --asyncio-mode=strict
+    profiles:
+      - test
+
+  harvester_prod:
+    container_name: biggie_harvester_prod
+    image: "ghcr.io/pierrz/biggie_harvester_img:latest"
+    environment:
+      API_PUBLIC_KEY: "${API_PUBLIC_KEY}"
+      API_PRIVATE_KEY: "${API_PRIVATE_KEY}"
+    volumes:
+      - "${VOLUME_MOUNT}"
+    command: python3 -m __init__
     profiles:
       - import_data
 
-  spark_test:
-    container_name: biggie_spark_test
-    image: biggie_spark_img
-    build:
-      context: .
-      dockerfile: spark/Dockerfile-spark
+  pyspark_test:
+    container_name: biggie_pyspark_test
+    image: "ghcr.io/pierrz/biggie_pyspark_img:latest"
     environment:
       <<: *biggie-common-env
     depends_on:
       - mongo
     command: python3.9 -m pytest -v
     profiles:
-      - import_data
       - test
 
-  spark_prod:
-    container_name: biggie_spark_prod
-    image: biggie_spark_img
-    environment:
-      <<: *biggie-common-env
-    volumes:
-      - ./data:/opt/data
+  pyspark_prod:
+    <<: *biggie-common
+    container_name: biggie_pyspark_prod
+    image: "ghcr.io/pierrz/biggie_pyspark_img:latest"
     depends_on:
-      - harvester
+      - harvester_prod
     command: python3.9 -m __init__
     profiles:
       - import_data

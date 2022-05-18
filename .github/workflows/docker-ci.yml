@@ -1,0 +1,139 @@
+name: Docker CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+      - 'dev/**'
+  # The branches below must be a subset of the branches above
+  pull_request:
+    branches:
+      - main
+
+  # Allows to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  RELEASE: 0.3.0
+
+jobs:
+
+  build-and-push-image-api:
+
+    name: API - Build and push docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run 'build-push' local action
+        uses: ./.github/actions/build-push
+        with:
+          name: FastAPI
+          src: api
+          registry: ${{ env.REGISTRY }}
+          actor: ${{ github.actor }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image: pierrz/biggie_api_img
+          tag: ${{ env.RELEASE }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  build-and-push-image-harvester:
+
+    name: Harvester - Build and push docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run 'build-push' local action
+        uses: ./.github/actions/build-push
+        with:
+          name: Harvester
+          src: harvester
+          registry: ${{ env.REGISTRY }}
+          actor: ${{ github.actor }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image: pierrz/biggie_harvester_img
+          tag: ${{ env.RELEASE }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  build-and-push-image-pyspark:
+
+    name: PySpark - Build and push docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run 'build-push' local action
+        uses: ./.github/actions/build-push
+        with:
+          name: PySpark
+          src: pyspark
+          registry: ${{ env.REGISTRY }}
+          actor: ${{ github.actor }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image: pierrz/biggie_pyspark_img
+          tag: ${{ env.RELEASE }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  test-compose:
+
+    name: Docker compose up with test containers
+    needs: [build-and-push-image-api, build-and-push-image-harvester, build-and-push-image-pyspark]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
+      API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${{ secrets.ME_CONFIG_BASICAUTH_PASSWORD }}
+      ME_CONFIG_BASICAUTH_USERNAME: ${{ secrets.ME_CONFIG_BASICAUTH_USERNAME }}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${{ secrets.ME_CONFIG_MONGODB_ADMINPASSWORD }}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${{ secrets.ME_CONFIG_MONGODB_ADMINUSERNAME }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+      MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+      VOLUME_MOUNT: ${{ secrets.VOLUME_MOUNT }}
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Test Harvester container
+        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up harvester_test
+
+      - name: Test PySpark container
+        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test
+
+      - name: Test API container
+        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_test

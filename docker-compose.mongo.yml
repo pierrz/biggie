@@ -6,20 +6,6 @@ volumes:
 
 services:
 
-  nginx:
-    image: nginx
-    container_name: biggie_nginx
-    volumes:
-      - ./setup/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
-      - ./setup/nginx/certificate.conf:/etc/nginx/certificate.conf:ro
-      - ./logs/nginx:/var/log/nginx
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-    ports:
-      - "80:80"
-      - "443:443"
-    profiles:
-      - live_prod
-
   mongo:
     image: mongo:5.0.8
     container_name: biggie_mongo
