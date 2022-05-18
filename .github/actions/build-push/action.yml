@@ -1,0 +1,47 @@
+name: Docker build-push template
+description: This is a custom action to build and push a docker image
+author: pierrz
+
+inputs:
+  name:
+    required: true
+  src:
+    required: true
+  registry:
+    required: true
+  actor:
+    required: true
+  token:
+    required: true
+  image:
+    required: true
+  tag:
+    required: true
+  labels:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.actor }}
+        password: ${{ inputs.token }}
+
+    - name: Extract metadata (tags, labels) for Docker - ${{ inputs.name }}
+      id: meta
+      uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+      with:
+        images: ${{ inputs.registry }}/${{ inputs.image }}
+
+    - name: Build and push Docker image - ${{ inputs.name }}
+      uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+      with:
+        context: .
+        file: ${{ inputs.src }}/Dockerfile
+        push: true
+        tags: ${{ inputs.registry }}/${{ inputs.image }}:latest, ${{ inputs.registry }}/${{ inputs.image }}:${{ inputs.tag }}
+        labels: ${{ inputs.tag }}, ${{ inputs.labels }}
