@@ -3,6 +3,10 @@ Configuration module
 """
 
 import os
+from datetime import datetime
+from hashlib import md5
+from pathlib import Path
+from typing import Tuple
 
 from pydantic import BaseSettings
 
@@ -12,19 +16,23 @@ class Config(BaseSettings):
     Config class.
     """
 
+    APP_MODE: str = os.getenv("APP_MODE")
+    MONGODB_URI: str = os.getenv("MONGODB_URI")
     DB_NAME = os.getenv("DB_NAME")
-    DB_USER = os.getenv("DB_USER")
-    DB_PASSWORD = os.getenv("DB_PASSWORD")
     LOCAL_DEV = True
-    if LOCAL_DEV:
-        # APP_BASE_URL = "http://localhost"
-        BASE_URL = "http://localhost"
-        APP_BASE_URL = f"{BASE_URL}:{os.getenv('APP_PORT')}"
-    else:
-        APP_SUBDOMAIN = os.getenv("APP_SUBDOMAIN")
-        BASE_URL = os.getenv("BASE_URL")
-        APP_BASE_URL = f"https://{APP_SUBDOMAIN}.{BASE_URL}"
-        # APP_BASE_URL = f"https://{os.getenv('APP_BASE_URL')}"
+    API_PUBLIC_KEY: str = os.getenv("API_PUBLIC_KEY")
+    API_PRIVATE_KEY: str = os.getenv("API_PRIVATE_KEY")
+    OUTPUT_DIR = Path(os.sep, "opt", "data", "marvel")
+    PROCESSED_DIR = Path(os.sep, "opt", "data", "processed")
+
+    def generate_auth_parts(self) -> Tuple[str, str]:
+        """
+        chunks a string such as md5(ts+privateKey+publicKey)
+        :return: the hashed key
+        """
+        timestamp = datetime.utcnow().isoformat()
+        hash_input = f"{timestamp}{self.API_PRIVATE_KEY}{self.API_PUBLIC_KEY}"
+        return timestamp, md5(hash_input.encode("utf-8")).hexdigest()
 
 
 class CeleryConfig(BaseSettings):
@@ -34,7 +42,11 @@ class CeleryConfig(BaseSettings):
 
     broker_url = os.getenv("CELERY_BROKER_URL")
     result_backend = os.getenv("CELERY_RESULT_BACKEND")
-    imports = ["src.tasks.test_tasks"]
+    imports = [
+        "test.fixtures.tasks",
+        "src.tasks.harvester_task",
+        "src.tasks.spark_task",
+    ]
     enable_utc = True
     timezone = "Europe/Amsterdam"
     task_track_started = True
