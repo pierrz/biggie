@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block data %}
+<nav class="level" id="full_table">
+  <div class="level-item" style="display: block;">
+
+    <div class="table-container">
+    <table id class="table is-striped" aria-describedby="results table">
+      {% include 'table_head.html' %}
+
+      <tbody>
+
+          {% for row in rows %}
+              {% set row_idx = loop.index %}
+              {% include 'row.html' %}
+          {% endfor %}
+
+      </tbody>
+    </table>
+    </div>
+
+  </div>
+</nav>
+
+{% endblock %}

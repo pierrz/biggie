@@ -23,7 +23,10 @@ msg-template={path}:{line}:{column}: {msg_id}: {msg} ({symbol})
 
 [MESSAGES CONTROL]
 # avoid too long reports (even after formatting with yapf)
-disable=line-too-long
+disable=
+    line-too-long,
+    too-few-public-methods,     # refactorize on that
+    fixme                       # in due time ...
 
 [FORMAT]
 # pep8

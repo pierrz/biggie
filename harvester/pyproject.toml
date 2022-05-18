@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "biggie"
+version = "0.3.0"
+description = "Harvester containers (prod and test)"
+authors = ["Pierre-Edouard Barrault"]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.10"   # pinned after fastapi docker image
+asyncio = "==3.4.3"
+aiohttp = "==3.8.1"
+pydantic = "==1.9.0"
+requests = "==2.27.1"
+pytest = "==7.1.2"
+typing = "==3.7.4.3"
+pytest-asyncio = "==0.18.3"
+
+[tool.poetry.dev-dependencies]
+black = "==22.3.0"
+flake8 = "==4.0.1"
+isort = "==5.10.1"
+pre-commit = "==2.19.0"
+pylint = "==2.13.8"
+
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.masonry.api"
+
+[tool.pytest.ini_options]
+# Cf. https://github.com/pytest-dev/pytest-asyncio#modes
+asyncio_mode = "strict"
+
+# TODO: check why this was breaking 1 test
+# filterwarnings = [
+#     "error"
+# ]

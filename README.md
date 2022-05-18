@@ -1,36 +1,17 @@
-# papel
+# biggie
 <br>
 
-A boilerplate tool based on Docker, designed to streamline the development and deployment of APIs and data pipelines.
-
-Embedded with:
-- FastAPI
-- Celery + Rabbit-MQ + Flower
-- Postgres + PGAdmin
-
+Toolkit based on Spark, Celery, FastAPI and Mongo.
+Currently set up with an API harvester fine-tuned for the [Marvel API](https://developer.marvel.com).
 <br>
 
-#### Reference
-This repository follows on the very complete [tiangolo/full-stack-fastapi-postgresql](https://github.com/tiangolo/full-stack-fastapi-postgresql) project, created by the maintainer of [FastAPI](https://github.com/tiangolo/fastapi).
-
-Here, we have removed some backend (`Traeffik`) and frontend (authentication, UI with `vue.js`) elements, as we try to design a minimal and adaptive architecture. The goal being to simplify the implementation of data pipelines within existing systems.
-
-<br>
 
 #### Installation
 You should use the `main` branch, other branches being used for development purpose.
 
-You might have to tweak the `volumes` of the `papel_nginx` service to import your own certificate provider directory.
-Same goes for the `api_test / api_prod` where you might use the shared `commons` to mount your data within `volumes`.
+Update the `compose` files for the `api_test / api_prod / celery` services where you might want to change the `volumes` to mount your data/logs within.
 
-You have create the required `nginx` configuration files:
-- `certificate.json`
-- `app_docker.conf`
-- `monitor_docker.conf`
-
-Same goes with `servers.json` if you use the `pgadmin` container.
-
-Then you're left with creating the `.env` environment file.
+Then you're left with creating the `.env` environment file, most important with your Marvel API keys.
 
 *NB: For all these required files, you'll find `xxxxxx.example` sample files ready to adapt.*
 
@@ -47,18 +28,48 @@ docker-compose -f docker-compose.core.yml up
 docker-compose -f docker-compose.core.yml -f docker-compose.monitoring.yml up
 ```
 
-\+ dummy app (including test container)
+\+ full app (including test container)
+
+When started, this command will:
+- download all the data from the Marvel characters API
+- load it into Mongo
+- start a FastAPI application for all the required data/reporting endpoints
 ```
 docker-compose -f docker-compose.core.yml -f docker-compose.monitoring.yml -f docker-compose.app.yml up
 ```
 <br>
 
-Docker is great but sometimes tricky ... when changes are made, don't forget to:
-- Use the `--build` flag.
-- Cleanse the database properly by using the `prune` and `rm` tools to purge volumes and containers.
+#### Nginx deployment
+You have to create the required files and change the `volumes` path accordingly in the `compose` files.
+The `nginx` configuration files are:
+- `conf/nginx/certificate.json`
+- `conf/nginx/app_docker.conf`
+- `conf/nginx/monitor_docker.conf`
 
+```
+docker-compose -f docker-compose.core.yml -f docker-compose.app.yml -f docker-compose.monitoring.yml --profile live_prod up
+```
 <br>
 
+
+
+#### Local URLs
+
+[API docs](http://localhost:8000/docs)
+
+API - Results full list
+- [sorted by comics number](http://localhost:8000/api/comics_per_characters?sort_column=comics_available)
+- [sorted by name](http://localhost:8000/api/comics_per_characters?sort_column=name)
+
+API - [WIP] Paginated results
+- [sorted by comics number](http://localhost:8000/api/comics_per_characters/paginated?sort_column=comics_available)
+- [sorted by name](http://localhost:8000/api/comics_per_characters/paginated?sort_column=name)
+
+[Mongo-Express](http://localhost:8081)
+
+[Flower](http://localhost:49555)
+
+<br>
 
 #### Development
 If you want to make some changes in this repo while following the same environment tooling.
@@ -67,3 +78,12 @@ poetry config virtualenvs.in-project true
 poetry install && poetry shell
 pre-commit install
 ```
+
+<br>
+
+#### Docker considerations
+Docker is great but sometimes tricky ... when changes are made, don't forget to:
+- Use the `--build` flag.
+- Cleanse the database properly by using the `prune` and `rm` tools to purge volumes and containers.
+
+<br>

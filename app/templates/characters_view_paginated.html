@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block data %}
+<nav class="level">
+  <div class="level-item has-text-centered" style="display: block;">
+    <p class="subtitle is-spaced">Pages</p>
+  </div>
+</nav>
+
+<nav class="level">
+
+  <div class="level-item has-text-centered">
+    <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+      <a class="pagination-previous">
+        <span class="material-icons">chevron_left</span>
+      </a>
+    </nav>
+  </div>
+
+  {% for page in pages %}
+  <div class="level-item has-text-centered">
+    <div id="button-{{ loop.index }}"  class="level-item has-text-centered">
+      <button class="button page">{{ loop.index }}</button>
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="level-item has-text-centered">
+    <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+      <a class="pagination-next">
+        <span class="material-icons">chevron_right</span>
+      </a>
+    </nav>
+  </div>
+
+</nav>
+
+{% for page in pages %}
+{% set page_idx = loop.index %}
+<nav class="level page" id="{{ page_idx }}">
+  <div class="level-item" style="display: block;">
+
+    <table id class="table is-striped" aria-describedby="results table">
+      {% include 'table_head.html' %}
+
+      <tbody>
+
+          {% for row in page %}
+              {% set row_idx = loop.index + (page_idx - 1) * limit %}
+              {% include 'row.html' %}
+          {% endfor %}
+
+      </tbody>
+    </table>
+
+  </div>
+</nav>
+{% endfor %}
+
+</section>
+<script src="{{ url_for('static', path='/js/pagination.js') }}"></script>
+
+{% endblock %}

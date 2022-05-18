@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+
+  sonarqube:
+    image: sonarqube:latest
+    container_name: sonarqube
+    restart: always
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    ports:
+      - "9000:9000"
+
+#  sonar-scanner:
+#    image: sonarsource/sonar-scanner-cli:latest
+#    container_name: sonar-scanner
+#    restart: always
+#    environment:
+#      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+#    depends_on:
+#      - sonar
