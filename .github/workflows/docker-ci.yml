@@ -88,7 +88,7 @@ jobs:
         uses: ./.github/actions/build-push
         with:
           name: PySpark
-          src: pyspark
+          src: spark
           registry: ${{ env.REGISTRY }}
           actor: ${{ github.actor }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -99,7 +99,7 @@ jobs:
   test-compose:
 
     name: Docker compose up with test containers
-    needs: [build-and-push-image-api, build-and-push-image-harvester, build-and-push-image-pyspark]
+    needs: [build-and-push-image-api, build-and-push-image-harvester, build-and-push-image-spark]
     runs-on: ubuntu-latest
     permissions:
       contents: read

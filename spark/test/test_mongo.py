@@ -1,16 +1,27 @@
+"""
+Tests focused on Mongo based features
+"""
 from base_test import DataframeTestBase, TestReader
 from pandas.testing import assert_frame_equal
-from src.db.mongo import db
+from src.db.mongo import db  # pylint: disable=E0611
 
-test_mongo_collection = "test_mongo_loader"
+mongo_collection_name = "test_mongo_loader_reader"
 
 
 class MongoTestReader(TestReader):
-    collection = test_mongo_collection
+    """
+    Test class specific to the given collection
+    """
+
+    collection = mongo_collection_name
 
 
-class MongoLoaderTest(DataframeTestBase):
-    def start_test(self):
+class MongoLoaderReaderTest(DataframeTestBase):
+    """
+    Test focused on the features of the MongoLoader class
+    """
+
+    def run(self):
         db.drop_collection(self.fixture.collection)
         test_df = self.data.spark_df
         self.data.load_mongo()
@@ -22,6 +33,10 @@ class MongoLoaderTest(DataframeTestBase):
         assert mongo_df.schema == test_df.schema
 
 
-def test_mongo_loader():
-    mongo_test = MongoLoaderTest(test_mongo_collection)
+def test_mongo_loader_reader():
+    """
+    Starts the test
+    :return: does its thing
+    """
+    mongo_test = MongoLoaderReaderTest(mongo_collection_name)
     db.drop_collection(mongo_test.fixture.collection)
