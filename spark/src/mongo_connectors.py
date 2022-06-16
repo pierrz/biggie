@@ -1,12 +1,15 @@
 """
 Mongo connectors
 """
+# TODO: refactoring to discard all E1101 errors from pylint (currently ignored)
 
 from abc import ABC
 from typing import Dict, Iterable, List
 
 import pandas as pd
 from config import spark_config
+
+# pylint: disable=E0611
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as psf
 from pyspark.sql.types import StructType
@@ -15,14 +18,27 @@ from .runner import spark
 
 
 class MongoCollection(ABC):
+    """
+    Base class defining a Mongo table name
+    """
+
     collection: str
 
 
 class MongoConnector(MongoCollection, ABC):
+    """
+    Base class extending MongoCollection with columns to check during data processes
+    """
+
     check_columns: Iterable[psf.col]
 
 
 class DataframeMaker(MongoCollection, ABC):
+    """
+    Class used to read data and transform it into PySpark dataframe.
+    Can also load the produced data into Mongo.
+    """
+
     input_array: Iterable[Dict]
     flat_df: pd.DataFrame
     spark_df: DataFrame
@@ -39,6 +55,10 @@ class DataframeMaker(MongoCollection, ABC):
         self.prepare_spark_dataframes()
 
     def normalize_input_data(self):
+        """
+        Takes the input data and clean/normalise it
+        :return: does its thing
+        """
         print("=> Normalising pandas dataframe ...")
         flat_df: pd.DataFrame = pd.json_normalize(self.input_array)
         mapper = {}
@@ -56,19 +76,30 @@ class DataframeMaker(MongoCollection, ABC):
         self.flat_df = flat_df
 
     def prepare_spark_dataframes(self):
+        """
+        Generates the PySpark dataframes from the cleaned/normalised data
+        :return: does its thing
+        """
         print("=> Preparing PySpark dataframe")
-        df = spark.createDataFrame(data=self.flat_df)
-        self.spark_df = df
+        self.spark_df = spark.createDataFrame(data=self.flat_df)
+        self.schema = self.spark_df.schema
         print("... PySpark dataframe prepared with inferred schema:\n")
-        df.printSchema()
-        self.schema = df.schema
+        self.spark_df.printSchema()
         self.spark_df.select(*self.check_columns).show()
 
     def load_mongo(self):
+        """
+        Load mongo with the produced PySpark dataframes
+        :return: does its thing
+        """
         return MongoLoader(self.spark_df, self.collection)
 
 
 class MongoLoader(ABC):
+    """
+    Base class dedicated  to load a specific Mongo collection
+    """
+
     def __init__(self, spark_df: DataFrame, collection: str):
         print("=> Loading Mongo ...")
         spark_df.write.format("mongo").options(
@@ -80,6 +111,10 @@ class MongoLoader(ABC):
 
 
 class MongoReader(ABC):
+    """
+    Base class dedicated to read data from a specific Mongo collection
+    """
+
     db_data: DataFrame
     schema: StructType
     initial_id_col: List
@@ -92,7 +127,7 @@ class MongoReader(ABC):
         db_data = (
             spark.read.format("mongo")
             .option("database", spark_config.DB_NAME)
-            .option("collection", self.collection)
+            .option("collection", self.collection)  # pylint: disable=E1101
             .load()
         )
 
@@ -114,15 +149,20 @@ class MongoReader(ABC):
         trimmed_cols_str = str([*self.columns[:3]])[1:-1]
         columns_trimmed = f"[{trimmed_cols_str}, ...]"
         return (
-            f"Spark dataframe from Mongo collection '{self.collection}' "
+            f"Spark dataframe from Mongo collection '{self.collection}' "  # pylint: disable=E1101
             f"with {self.db_data.count()} rows and {len(self.columns)} columns {columns_trimmed}"
         )
 
     def __repr__(self):
+        # pylint: disable=E1101
         return f"MongoReader('{self.collection}' collection, {len(self.columns)} columns, {self.db_data.count()} rows)"
 
 
 class CharacterBase(MongoConnector, ABC):
+    """
+    Base class dedicated to defining the Mongo collection 'character' related to the Marvel Characters API data
+    """
+
     collection = "character"
     check_columns = [
         psf.col("id"),
@@ -133,8 +173,12 @@ class CharacterBase(MongoConnector, ABC):
 
 
 class CharacterLoader(CharacterBase, MongoLoader):
-    pass
+    """
+    Class dedicated to load the Mongo collection 'character' with new data
+    """
 
 
 class CharacterReader(CharacterBase, MongoReader):
-    pass
+    """
+    Class dedicated to read data from the Mongo collection 'character'
+    """

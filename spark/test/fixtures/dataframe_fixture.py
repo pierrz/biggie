@@ -1,10 +1,19 @@
+"""
+Test fixtures
+"""
+
 from datetime import datetime
 
+# pylint: disable=E0611
 from pyspark.sql.types import (ArrayType, DoubleType, LongType, StringType,
                                StructField, StructType, TimestampType)
 
 
 class DataframeFixture:
+    """
+    Base class embeded with data to generate dataframes, eventually for specific collection
+    """
+
     collection: str
     test_data = [
         {

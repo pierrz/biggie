@@ -1,15 +1,18 @@
+"""
+Tests focused on PySpark based features
+"""
 import pandas as pd
 from base_test import DataframeTestBase
 from pandas.testing import assert_frame_equal
 
-test_mongo_collection = "test_spark"
-
 
 class DataframeMakerTest(DataframeTestBase):
-    def start_test(self):
+    """
+    Test focused on the features of the DataframeMaker class
+    """
 
-        print("-- YO --")
-        assert True is True
+    def run(self):
+
         assert (
             self.data.schema == self.fixture.test_schema
         )  # /!\ done before pd.json_normalize
@@ -27,4 +30,8 @@ class DataframeMakerTest(DataframeTestBase):
 
 
 def test_pyspark_dataframe_maker():
-    DataframeMakerTest(test_mongo_collection)
+    """
+    Starts the test
+    :return: does its thing
+    """
+    DataframeMakerTest("test_spark")

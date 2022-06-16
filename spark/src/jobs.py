@@ -2,14 +2,15 @@
 Spark jobs module
 """
 
-import json
 import os
 import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, Iterable
 
+# pylint: disable=E0611
 from config import spark_config
+from src.main_lib import load_json
 
 from .mongo_connectors import CharacterReader, DataframeMaker
 
@@ -18,6 +19,7 @@ class SparkJobBase(ABC):
     """
     Base class to design actual job from
     """
+
     flag: bool
     input_dir_path = spark_config.HARVESTER_OUTPUT_DIR
     input_array: Iterable[Dict]
@@ -47,6 +49,7 @@ class SparkJobFromJson(SparkJobBase):
     """
     Job meant to process JSON files from a specific directory
     """
+
     def __init__(self):
         super().__init__()
         self.input_array = self.get_input_array()
@@ -58,11 +61,7 @@ class SparkJobFromJson(SparkJobBase):
 
         input_array = []
         for file in os.scandir(self.input_dir_path):
-            # array = load_json(file)
-            with open(file.path, "rt", encoding="utf8") as json_file:
-                json_str = json_file.read()
-                # array = json.loads(json_str)
-            input_array += json.loads(json_str)
+            input_array += load_json(file)
 
         return input_array
 
