@@ -6,6 +6,7 @@ on:
       - main
       - 'feature/**'
       - 'dev/**'
+      - 'fix/**'
   # The branches below must be a subset of the branches above
   pull_request:
     branches:
