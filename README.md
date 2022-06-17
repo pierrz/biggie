@@ -1,7 +1,11 @@
 # biggie
 <br>
+Biggie is a tool to quickly get data from (external) APIs into a Mongo database, 
+and have it exposed/searchable via a dedicated new API.
 
-Toolkit based on Spark, FastAPI and Mongo.
+It is a Docker setup with 3 main containers based on Spark, FastAPI and Mongo.
+Additional containers can be setup for Mongo Express and Nginx.
+
 Currently set up with an API harvester fine-tuned for the [Marvel API](https://developer.marvel.com).
 <br>
 
@@ -63,12 +67,18 @@ docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile 
 <br>
 
 ### Nginx deployment (API container only)
-You have to create the required files and change the `volumes` path accordingly in the `compose` files.
+In this configuration, you need to have the necessary sub-domains setup on your domain provider side. 
+You also need Nginx installed on the host machine.
+<br>
+
+Then create the required files and change the `volumes` path accordingly in the `compose` files.
 The `nginx` configuration files are:
 - `conf/nginx/certificate.json`
 - `conf/nginx/app_docker.conf`
 - `conf/nginx/monitor_docker.conf`
+<br>
 
+Finally run the `docker-compose` command with the `live_prod` profile:
 ```
 docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile live_prod up
 ```
@@ -99,12 +109,3 @@ poetry config virtualenvs.in-project true
 poetry install && poetry shell
 pre-commit install
 ```
-
-<br>
-
-### Docker considerations
-Docker is great but sometimes tricky ... when changes are made, don't forget to:
-- Use the `--build` flag.
-- Cleanse the database properly by using the `prune` and `rm` tools to purge volumes and containers.
-
-<br>
