@@ -1,4 +1,0 @@
-asyncio
-aiohttp
-requests
-pydantic
