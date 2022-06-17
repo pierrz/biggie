@@ -3,7 +3,8 @@ Spark core runner
 """
 
 from config import spark_config
-from pyspark.sql import SparkSession
+
+from pyspark.sql import SparkSession  # pylint: disable=E0611
 
 spark = (
     SparkSession.builder.appName("Spark/Mongo IO")

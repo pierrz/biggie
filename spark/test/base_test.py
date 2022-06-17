@@ -4,8 +4,9 @@ Module gathering the base classes used for testing purpose
 from abc import ABC, abstractmethod
 
 from fixtures.dataframe_fixture import DataframeFixture
-from pyspark.sql import functions as psf
 from src.mongo_connectors import DataframeMaker, MongoReader
+
+from pyspark.sql import functions as psf  # pylint: disable=E0611
 
 
 class DataframeTestBase(ABC):
@@ -27,11 +28,10 @@ class DataframeTestBase(ABC):
             self.fixture.collection,
             check_columns=["a", "d_date"],
         )
-        # self.data.close()
-        self.start_test()
+        self.run()
 
     @abstractmethod
-    def start_test(self):
+    def run(self):
         """
         Will run the test
         :return: does its thing
