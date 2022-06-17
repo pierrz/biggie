@@ -133,10 +133,6 @@ dmypy.json
 .idea/
 
 # repo specific
-.sonar-scanner.properties
-.scannerwork
-sonar-project.properties
-sonar-dev.sh
 logs
 setup/rabbitmq/definitions.json
 setup/pgadmin/servers.json
