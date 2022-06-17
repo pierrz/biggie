@@ -35,6 +35,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
 RUN apt install -qy python3-pip
 RUN python3.9 -m pip install poetry
 
+# NB: the source directory is named 'spark' to be sure not to conflict with the pyspark library imports
 # Copy only requirements to cache them in docker layer
 WORKDIR /opt/pyspark_app
 COPY ./pyspark/pyproject.toml ./pyspark/poetry.lock* ./
@@ -42,6 +43,6 @@ COPY ./pyspark/pyproject.toml ./pyspark/poetry.lock* ./
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi --no-dev
 
-COPY ./pyspark ./
+COPY ./spark ./
 COPY ./db ./src/db
 COPY ./libs/main_lib.py ./src/
