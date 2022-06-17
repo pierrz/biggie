@@ -7,6 +7,7 @@ It is a Docker setup with 3 main containers based on Spark, FastAPI and Mongo.
 Additional containers can be setup for Mongo Express and Nginx.
 
 Currently set up with an API harvester fine-tuned for the [Marvel API](https://developer.marvel.com).
+
 <br>
 
 
