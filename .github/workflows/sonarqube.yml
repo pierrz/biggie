@@ -15,9 +15,6 @@ on:
 
   workflow_dispatch:
 
-env:
-  SONAR_TOKEN: {{ secrets.SONAR_TOKEN }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
