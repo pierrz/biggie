@@ -39,29 +39,27 @@ class DataframeMaker(MongoCollection, ABC):
     Can also load the produced data into Mongo.
     """
 
-    input_array: Iterable[Dict]
     flat_df: pd.DataFrame
     spark_df: DataFrame
     schema: StructType
     check_columns: Iterable[str] = None
 
     def __init__(
-        self, input_array: List[Dict], collection: str, check_columns=check_columns
+        self, input_array: Iterable[Dict], collection: str, check_columns=check_columns
     ):
         self.check_columns = check_columns
         self.collection = collection
-        self.input_array = input_array
-        self.normalize_input_data()
+        self.normalize_input_data(input_array)
         self.prepare_spark_dataframes()
 
-    def normalize_input_data(self):
+    def normalize_input_data(self, input_array: Iterable[Dict]):
         """
         Takes the input data and clean/normalise it
         :return: does its thing
         """
         print("=> Normalising pandas dataframe ...")
-        flat_df: pd.DataFrame = pd.json_normalize(self.input_array)
         mapper = {}
+        flat_df: pd.DataFrame = pd.json_normalize(input_array)
         for col in flat_df.columns.to_list():
             if "." in col:
                 mapper[col] = col.replace(".", "_")

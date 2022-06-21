@@ -39,10 +39,11 @@ RUN python3.9 -m pip install poetry
 # Copy only requirements to cache them in docker layer
 WORKDIR /opt/pyspark
 COPY ./spark/pyproject.toml ./spark/poetry.lock* ./
+#COPY ./spark/pyproject.toml ./
 
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-dev
+    && poetry install --no-interaction --no-ansi
 
 COPY ./spark ./
 COPY ./db ./src/db
-COPY ./libs/main_lib.py ./src/
+COPY ./utils/json_utils.py ./src/

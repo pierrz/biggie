@@ -4,7 +4,7 @@ Module gathering the base classes used for testing purpose
 from abc import ABC
 from dataclasses import dataclass
 
-from src.libs.test_lib import \
+from test.lib_test import \
     get_expected_results_dict  # , get_expected_results_dict_for_specific_file
 
 

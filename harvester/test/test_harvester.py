@@ -12,7 +12,7 @@ from harvester.config import harvester_config
 from harvester.src.asyncio_operations import (download_aio,
                                               download_marvel_api,
                                               download_test, write, write_aio)
-from harvester.src.main_lib import load_json  # pylint: disable=E0611
+from harvester.src.json_utils import load_json  # pylint: disable=E0611
 from harvester.src.utils import get_auth
 
 
