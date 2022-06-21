@@ -12,7 +12,7 @@ RUN pip install poetry
 # Copy only requirements to cache them in docker layer
 WORKDIR /opt/harvester
 COPY ./harvester/pyproject.toml ./harvester/poetry.lock* ./
-#COPY ./harvester/pyproject.toml ./
+
 # Project initialization:
 RUN poetry config virtualenvs.create false\
     && poetry install --no-interaction --no-ansi

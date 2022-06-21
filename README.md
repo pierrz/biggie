@@ -17,53 +17,53 @@ If necessary, update the `docker-compose.main.yml` file to change the common `vo
 
 *NB: For all these required files, you'll find `xxxxxx.example` sample files ready to adapt.*
 
-Then eventually pull the docker images:
+Then eventually pull the docker images ...
 ```
 docker pull ghcr.io/pierrz/biggie_pyspark_img:latest
 docker pull ghcr.io/pierrz/biggie_harvester_img:latest
 docker pull ghcr.io/pierrz/biggie_api_img:latest
 ```
 
+... and test that everything works as expected
+```
+docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test harvester_test api_test
+OR
+docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile test up
+```
 <br>
 
 ### Run
-#### The whole shebang
+#### Data acquisition and load
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile api --profile import_data --profile test --profile monitoring up
+docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile import_data up
 ```
-
-<br>
-
-#### ... or more selectively
-- API container only
-    ```
-    docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_prod
-    ```
-
-    <br>
-
-- Harvester and Spark containers
-    ```
-    docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile import_data up
-    ```
-    This command will:
+This command will spin up the Harvester and Spark containers to:
 
   - download all the data from the Marvel characters API
   - load it into Mongo
 
-    <br>
+<br>
 
-- Test containers
-    ```
-    docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test harvester_test api_test
-    ```
+#### API container
+Just to have the FastAPI container up
+```
+docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_prod
+```
 
-    <br>
+<br>
 
-- Mongo-Express container
-    ```
-    docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile monitoring up
-    ```
+#### Monitoring
+Spin up the Mongo-Express container to access the Mongo UI
+```
+docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile monitoring up
+```
+
+<br>
+
+#### The whole shebang
+```
+docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile api --profile import_data --profile test --profile monitoring up
+```
 
 <br>
 
@@ -103,10 +103,13 @@ API - [WIP] Paginated results
 
 <br>
 
-### Development
+### Local development
 If you want to make some changes in this repo while following the same environment tooling.
 ```
 poetry config virtualenvs.in-project true
 poetry install && poetry shell
 pre-commit install
 ```
+
+To change the code of the core containers, you need to `cd` to the related directory and `poetry update`
+to install the `dev` dependencies.

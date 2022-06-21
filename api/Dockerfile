@@ -12,7 +12,6 @@ RUN pip install poetry
 # Copy only requirements to cache them in docker layer
 WORKDIR /opt/api
 COPY ./api/pyproject.toml ./api/poetry.lock* ./
-#COPY ./api/pyproject.toml ./
 
 # Project initialization:
 RUN poetry config virtualenvs.create false\
