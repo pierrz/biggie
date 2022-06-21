@@ -30,11 +30,11 @@ services:
 
   api_test:
     container_name: biggie_api_test
-#    image: "ghcr.io/pierrz/biggie_api_img:latest"
-    image: api_biggie_img
-    build:
-      context: .
-      dockerfile: api/Dockerfile
+    image: "ghcr.io/pierrz/biggie_api_img:latest"
+#    image: api_biggie_img
+#    build:
+#      context: .
+#      dockerfile: api/Dockerfile
     environment:
       <<: *biggie-common-env
     command: pytest -v
@@ -46,8 +46,8 @@ services:
   api_prod:
     <<: *biggie-common
     container_name: biggie_api_prod
-#    image: "ghcr.io/pierrz/biggie_api_img:latest"
-    image: api_biggie_img
+    image: "ghcr.io/pierrz/biggie_api_img:latest"
+#    image: api_biggie_img
     command: uvicorn main:app --host 0.0.0.0 --reload --log-level error
     depends_on:
       - mongo
@@ -58,11 +58,11 @@ services:
 
   harvester_test:
     container_name: biggie_harvester_test
-#    image: "ghcr.io/pierrz/biggie_harvester_img:latest"
-    image: harvester_biggie_img
-    build:
-      context: .
-      dockerfile: harvester/Dockerfile
+    image: "ghcr.io/pierrz/biggie_harvester_img:latest"
+#    image: harvester_biggie_img
+#    build:
+#      context: .
+#      dockerfile: harvester/Dockerfile
     environment:
       API_PUBLIC_KEY: "${API_PUBLIC_KEY}"
       API_PRIVATE_KEY: "${API_PRIVATE_KEY}"
@@ -74,8 +74,8 @@ services:
 
   harvester_prod:
     container_name: biggie_harvester_prod
-#    image: "ghcr.io/pierrz/biggie_harvester_img:latest"
-    image: harvester_biggie_img
+    image: "ghcr.io/pierrz/biggie_harvester_img:latest"
+#    image: harvester_biggie_img
     environment:
       API_PUBLIC_KEY: "${API_PUBLIC_KEY}"
       API_PRIVATE_KEY: "${API_PRIVATE_KEY}"
@@ -87,11 +87,11 @@ services:
 
   pyspark_test:
     container_name: biggie_pyspark_test
-#    image: "ghcr.io/pierrz/biggie_pyspark_img:latest"
-    image: pyspark_biggie_img
-    build:
-      context: .
-      dockerfile: spark/Dockerfile
+    image: "ghcr.io/pierrz/biggie_pyspark_img:latest"
+#    image: pyspark_biggie_img
+#    build:
+#      context: .
+#      dockerfile: spark/Dockerfile
     environment:
       <<: *biggie-common-env
     depends_on:
@@ -103,11 +103,8 @@ services:
   pyspark_prod:
     <<: *biggie-common
     container_name: biggie_pyspark_prod
-#    image: "ghcr.io/pierrz/biggie_pyspark_img:latest"
-    image: pyspark_biggie_img
-#    build:
-#      context: .
-#      dockerfile: spark/Dockerfile
+    image: "ghcr.io/pierrz/biggie_pyspark_img:latest"
+#    image: pyspark_biggie_img
     depends_on:
       - harvester_prod
     command: python3.9 -m __init__
