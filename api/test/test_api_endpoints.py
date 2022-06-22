@@ -2,7 +2,7 @@
 Module dedicated to FastAPI endpoints testing
 """
 
-from test.base_test import EndpointTestBase
+from .base_test import EndpointTestBase
 
 import pytest
 from fastapi.testclient import TestClient

@@ -39,6 +39,17 @@ async def download_test(data):
 
 
 @download
+async def download_marvel_api_test(data):
+    """
+    Handles downloads from the Marvel API
+    :param data: the received data
+    :return: the filtered data
+    """
+    results = data["data"].pop("results")
+    return results, data
+
+
+@download
 async def download_marvel_api(data):
     """
     Handles downloads from the Marvel API

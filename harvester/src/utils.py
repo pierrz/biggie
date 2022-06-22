@@ -4,7 +4,7 @@ Module containing core functions
 
 from typing import Iterable, Tuple
 
-from config import harvester_config
+from harvester.config import harvester_config
 
 # pylint: disable=C0103
 characters_api_url = "http://gateway.marvel.com/v1/public/characters?"

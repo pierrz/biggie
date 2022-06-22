@@ -7,8 +7,8 @@ from typing import Tuple
 import pandas as pd
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
-from src.db.mongo import db  # pylint: disable=E0611
-from src.routers import templates
+from api.src.db.mongo import db  # pylint: disable=E0611
+from api.src.routers import templates
 
 router = APIRouter(
     prefix="/api",

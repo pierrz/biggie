@@ -2,11 +2,11 @@
 Module spinning up FastApi
 """
 
-from config import app_config
+from api.config import app_config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from src.routers import api_endpoints
+from api.src.routers import api_endpoints
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
