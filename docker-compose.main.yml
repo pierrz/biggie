@@ -53,8 +53,6 @@ services:
       - mongo
     ports:
       - "8000:8000"
-    profiles:
-      - api
 
   harvester_test:
     container_name: biggie_harvester_test
@@ -82,8 +80,6 @@ services:
     volumes:
       - "${VOLUME_MOUNT}"
     command: python3 -m __init__
-    profiles:
-      - import_data
 
   pyspark_test:
     container_name: biggie_pyspark_test
@@ -107,6 +103,5 @@ services:
 #    image: pyspark_biggie_img
     depends_on:
       - harvester_prod
+      - mongo
     command: python3.9 -m __init__
-    profiles:
-      - import_data

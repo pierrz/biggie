@@ -7,7 +7,6 @@ import os
 import time
 
 import requests
-
 from config import harvester_config
 from src.asyncio_operations import download_aio, write_aio
 from src.utils import get_auth, get_meta
@@ -27,6 +26,7 @@ def run():
         metadata = requests.get(
             f"{parameters['characters_api_url']}{get_auth()}{parameters['page_info']}"
         ).json()["data"]
+        metadata.pop("results")     # remove unused data
 
         # get data from all API result pages
         total, urls = get_meta(metadata)
