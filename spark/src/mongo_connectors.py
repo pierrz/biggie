@@ -8,7 +8,6 @@ from typing import Dict, Iterable, List
 
 import pandas as pd
 from config import spark_config
-
 # pylint: disable=E0611
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as psf
@@ -39,29 +38,27 @@ class DataframeMaker(MongoCollection, ABC):
     Can also load the produced data into Mongo.
     """
 
-    input_array: Iterable[Dict]
     flat_df: pd.DataFrame
     spark_df: DataFrame
     schema: StructType
     check_columns: Iterable[str] = None
 
     def __init__(
-        self, input_array: List[Dict], collection: str, check_columns=check_columns
+        self, input_array: Iterable[Dict], collection: str, check_columns=check_columns
     ):
         self.check_columns = check_columns
         self.collection = collection
-        self.input_array = input_array
-        self.normalize_input_data()
+        self.normalize_input_data(input_array)
         self.prepare_spark_dataframes()
 
-    def normalize_input_data(self):
+    def normalize_input_data(self, input_array: Iterable[Dict]):
         """
         Takes the input data and clean/normalise it
         :return: does its thing
         """
         print("=> Normalising pandas dataframe ...")
-        flat_df: pd.DataFrame = pd.json_normalize(self.input_array)
         mapper = {}
+        flat_df: pd.DataFrame = pd.json_normalize(input_array)
         for col in flat_df.columns.to_list():
             if "." in col:
                 mapper[col] = col.replace(".", "_")
@@ -134,7 +131,6 @@ class MongoReader(ABC):
         # preps
         self.n_rows = db_data.count()
         self.columns = list(db_data.columns)
-        print(self.columns)
         self.initial_id_col = self.columns[
             1
         ]  # hack to enforce ascending order (test purpose)
@@ -142,15 +138,21 @@ class MongoReader(ABC):
         self.schema = self.db_data.schema
 
         # checks
-        print(self.__repr__())
-        # self.db_data.select(*self.check_columns)
+        print(self.__str__())
+        self.db_data.select(*self.check_columns)
 
     def __str__(self):
-        trimmed_cols_str = str([*self.columns[:3]])[1:-1]
-        columns_trimmed = f"[{trimmed_cols_str}, ...]"
+
+        trimmed_cols_str = ""
+        for idx, column in enumerate([*self.columns[:3], "...", *self.columns[-3:]]):
+            col_str = column
+            if idx > 0:
+                col_str = f", {col_str}"
+            trimmed_cols_str += col_str
+
         return (
             f"Spark dataframe from Mongo collection '{self.collection}' "  # pylint: disable=E1101
-            f"with {self.db_data.count()} rows and {len(self.columns)} columns {columns_trimmed}"
+            f"with {self.db_data.count()} rows and {len(self.columns)} columns [{trimmed_cols_str}]"
         )
 
     def __repr__(self):

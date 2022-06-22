@@ -39,7 +39,7 @@ async def download_test(data):
 
 
 @download
-async def download_marvel_api(data):
+async def download_marvel_api_test(data):
     """
     Handles downloads from the Marvel API
     :param data: the received data
@@ -47,6 +47,17 @@ async def download_marvel_api(data):
     """
     results = data["data"].pop("results")
     return results, data
+
+
+@download
+async def download_marvel_api(data):
+    """
+    Handles downloads from the Marvel API
+    :param data: the received data
+    :return: the filtered data
+    """
+    results = data["data"].pop("results")
+    return results
 
 
 async def download_aio(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
@@ -71,7 +82,7 @@ async def write(idx: int, page: Dict, output_dir: Path = None, path: Path = None
     if path is None:
         path = Path(output_dir, f"page-{idx}_{datetime.utcnow().isoformat()}.json")
     with open(path, "w", encoding="utf8") as output_file:
-        json.dump(page, output_file)
+        json.dump(page, output_file, indent=4)
     print(f"Done writting page {idx}")
 
 

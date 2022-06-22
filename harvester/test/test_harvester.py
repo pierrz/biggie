@@ -8,12 +8,12 @@ from pathlib import Path
 
 import pytest
 
-from harvester.config import harvester_config
-from harvester.src.asyncio_operations import (download_aio,
-                                              download_marvel_api,
+from config import harvester_config
+from src.asyncio_operations import (download_aio,
+                                              download_marvel_api_test,
                                               download_test, write, write_aio)
-from harvester.src.main_lib import load_json  # pylint: disable=E0611
-from harvester.src.utils import get_auth
+from src.json_utils import load_json  # pylint: disable=E0611
+from src.utils import get_auth
 
 
 @pytest.mark.asyncio
@@ -36,8 +36,8 @@ async def test_download_from_marvel_api(stan_lee_baseurl):
     Tests the download function onto a Marvel API url
     :return: does its thing
     """
-
-    results, meta = await download_marvel_api(f"{stan_lee_baseurl}{get_auth()}")
+    # results, meta = await download_marvel_api(f"{stan_lee_baseurl}{get_auth()}")
+    results, meta = await download_marvel_api_test(f"{stan_lee_baseurl}{get_auth()}")
 
     assert meta["code"] == 200
     assert results[0]["fullName"] == "Stan Lee"

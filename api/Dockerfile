@@ -15,9 +15,9 @@ COPY ./api/pyproject.toml ./api/poetry.lock* ./
 
 # Project initialization:
 RUN poetry config virtualenvs.create false\
-    && poetry install --no-interaction --no-ansi --no-dev
+    && poetry install --no-interaction --no-ansi
 
 # Creating folders and files for the project:
 COPY ./api ./
 COPY ./db ./src/db
-COPY ./libs/main_lib.py ./src/libs/
+COPY ./utils/json_utils.py ./src/

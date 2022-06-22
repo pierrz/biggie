@@ -34,15 +34,21 @@ def get_data(sort_column: str, page_size: int = None) -> Tuple[pd.DataFrame, int
     :return: the resulting dataframe and the total of rows
     """
     db_data = db.character.find()
-    columns = ["name", "comics_available"]
+    ui_columns = ["name", "comics_available"]
     results_df = pd.DataFrame(db_data)
     total = results_df.shape[0]
 
     order = True
-    if sort_column == columns[1]:
+    if sort_column == ui_columns[1]:
         order = False
+
+    columns = results_df.columns
+    for column in ui_columns:
+        if column not in columns:
+            return [], 0
+
     data = (
-        results_df[columns]
+        results_df[ui_columns]
         .sort_values(by=[sort_column], ascending=order)
         .to_dict("records")
     )

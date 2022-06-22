@@ -14,7 +14,8 @@ spark = (
     .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.0")
     .getOrCreate()
 )
+
+# cheatsheet for further settings
 # .config("spark.mongodb.input.uri", "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/Stocks.Source?replicaSet=rs0")\
-# to check
-# .master("spark://spark-master:7077")\     Spark standalone cluste
+# .master("spark://spark-master:7077")\     Spark standalone cluster
 # .master("local[2]")\      local run with 2 cores

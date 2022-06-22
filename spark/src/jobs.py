@@ -10,7 +10,7 @@ from typing import Dict, Iterable
 
 # pylint: disable=E0611
 from config import spark_config
-from src.main_lib import load_json
+from src.json_utils import load_json
 
 from .mongo_connectors import CharacterReader, DataframeMaker
 
@@ -20,7 +20,7 @@ class SparkJobBase(ABC):
     Base class to design actual job from
     """
 
-    flag: bool
+    flag_files: bool    # to move the files once processed
     input_dir_path = spark_config.HARVESTER_OUTPUT_DIR
     input_array: Iterable[Dict]
 
