@@ -8,9 +8,9 @@ import time
 
 import requests
 
-from .config import harvester_config
-from .src.asyncio_operations import download_aio, write_aio
-from .src.utils import get_auth, get_meta
+from config import harvester_config
+from src.asyncio_operations import download_aio, write_aio
+from src.utils import get_auth, get_meta
 
 parameters = {
     "characters_api_url": "http://gateway.marvel.com/v1/public/characters?",

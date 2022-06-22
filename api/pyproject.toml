@@ -20,6 +20,7 @@ requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.masonry.api"
 
 [tool.pytest.ini_options]
+pythonpath = [ "/opt/api", ]
 filterwarnings = [
     "error"
 ]
