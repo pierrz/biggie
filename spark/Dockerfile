@@ -41,8 +41,8 @@ WORKDIR /opt/pyspark
 COPY ./spark/pyproject.toml ./spark/poetry.lock* ./
 
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-dev
+    && poetry install --no-interaction --no-ansi
 
 COPY ./spark ./
 COPY ./db ./src/db
-COPY ./libs/main_lib.py ./src/
+COPY ./utils/json_utils.py ./src/

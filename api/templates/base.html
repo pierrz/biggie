@@ -22,11 +22,23 @@
       </nav>
     </section>
 
-    <!-- Inserts -->
+    <!-- Inserts if results present -->
+    {% if total > 0 %}
+      <section class="section">
+      {% block data %}
+      {% endblock %}
+      </section>
+
+    {% else %}
     <section class="section">
-    {% block data %}
-    {% endblock %}
+      <nav class="level" id="full_table">
+        <div class="level-item" style="display: block;">
+          <p style="text-align:center; font-style:italic;">Did you load some data in the database?</p>
+        </div>
+      </nav>
     </section>
+
+    {% endif %}
 
   </body>
 </html>

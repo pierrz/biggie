@@ -4,8 +4,8 @@ Module entry point
 
 import os
 
-from .config import spark_config
-from .src.jobs import SparkJobFromJson
+from config import spark_config
+from src.jobs import SparkJobFromJson
 
 if __name__ == "__main__":
 
