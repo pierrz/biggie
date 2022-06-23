@@ -45,55 +45,55 @@ jobs:
           tag: ${{ env.RELEASE }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  build-and-push-image-harvester:
-
-    name: Harvester - build/push image
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run 'build-push' local action
-        uses: ./.github/actions/build-push
-        with:
-          name: Harvester
-          src: harvester
-          registry: ${{ env.REGISTRY }}
-          actor: ${{ github.actor }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          image: pierrz/biggie_harvester_img
-          tag: ${{ env.RELEASE }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  build-and-push-image-pyspark:
-
-    name: PySpark - build/push image
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run 'build-push' local action
-        uses: ./.github/actions/build-push
-        with:
-          name: PySpark
-          src: spark
-          registry: ${{ env.REGISTRY }}
-          actor: ${{ github.actor }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          image: pierrz/biggie_pyspark_img
-          tag: ${{ env.RELEASE }}
-          labels: ${{ steps.meta.outputs.labels }}
+#  build-and-push-image-harvester:
+#
+#    name: Harvester - build/push image
+#    runs-on: ubuntu-latest
+#    permissions:
+#      contents: read
+#      packages: write
+#
+#    steps:
+#
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#
+#      - name: Run 'build-push' local action
+#        uses: ./.github/actions/build-push
+#        with:
+#          name: Harvester
+#          src: harvester
+#          registry: ${{ env.REGISTRY }}
+#          actor: ${{ github.actor }}
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          image: pierrz/biggie_harvester_img
+#          tag: ${{ env.RELEASE }}
+#          labels: ${{ steps.meta.outputs.labels }}
+#
+#  build-and-push-image-pyspark:
+#
+#    name: PySpark - build/push image
+#    runs-on: ubuntu-latest
+#    permissions:
+#      contents: read
+#      packages: write
+#
+#    steps:
+#
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#
+#      - name: Run 'build-push' local action
+#        uses: ./.github/actions/build-push
+#        with:
+#          name: PySpark
+#          src: spark
+#          registry: ${{ env.REGISTRY }}
+#          actor: ${{ github.actor }}
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          image: pierrz/biggie_pyspark_img
+#          tag: ${{ env.RELEASE }}
+#          labels: ${{ steps.meta.outputs.labels }}
 
   test-compose:
 
@@ -129,13 +129,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Test Harvester container
-        run: docker run --volume data:/opt/data ghcr.io/pierrz/biggie_harvester_img:latest pytest -o pythonpath=/opt/harvester
-#        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up harvester_test
-
-      - name: Test PySpark container
-        run: docker run --volume data:/opt/data ghcr.io/pierrz/biggie_pyspark_img:latest pytest -o pythonpath=/opt/pyspark
-#        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test
+#      - name: Test Harvester container
+#        run: docker run --volume data:/opt/data ghcr.io/pierrz/biggie_harvester_img:latest pytest -o pythonpath=/opt/harvester
+##        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up harvester_test
+#
+#      - name: Test PySpark container
+#        run: docker run --volume data:/opt/data ghcr.io/pierrz/biggie_pyspark_img:latest pytest -o pythonpath=/opt/pyspark
+##        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test
 
       - name: Test API container
         run: docker run --volume data:/opt/data ghcr.io/pierrz/biggie_api_img:latest pytest -o pythonpath=/opt/api
