@@ -167,9 +167,10 @@ jobs:
           --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
           mongo:5.0.8
           && docker run
-          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
+          --env MONGODB_URI=mongodb://${{ secrets.MONGO_INITDB_ROOT_USERNAME }}:${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}@mongo:27017/
           --env DB_NAME=${{ secrets.DB_NAME }}
           ghcr.io/pierrz/biggie_api_img:latest
           pytest -v
+#          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
 
 #        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_test
