@@ -141,7 +141,7 @@ jobs:
       - name: Test Harvester image
         run: >
           docker run
-          --volume ${{ secrets.VOLUME_MOUNT }}
+          --volume ./data:/opt/data
           --env API_PUBLIC_KEY=${{ secrets.API_PUBLIC_KEY }}
           --env API_PRIVATE_KEY=${{ secrets.API_PRIVATE_KEY }}
           ghcr.io/pierrz/biggie_harvester_img:latest
