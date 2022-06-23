@@ -141,7 +141,7 @@ jobs:
       - name: Test Harvester image
         run: >
           docker run
-          --volume data:/opt/data
+          --volume ${{ secrets.VOLUME_MOUNT }}
           --env API_PUBLIC_KEY=${{ secrets.API_PUBLIC_KEY }}
           --env API_PRIVATE_KEY=${{ secrets.API_PRIVATE_KEY }}
           ghcr.io/pierrz/biggie_harvester_img:latest
@@ -149,26 +149,32 @@ jobs:
 
       - name: Test PySpark image
         run: >
-          docker run -d --name biggie_mongo
+          docker network create -d bridge test_network
+          && docker run -d --name biggie_mongo
           --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
           --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          --network=test_network \
           mongo:5.0.8
           && docker run
           --volume ${{ secrets.VOLUME_MOUNT }}
           --env MONGODB_URI=${{ secrets.MONGODB_URI }}
           --env DB_NAME=${{ secrets.DB_NAME }}
+          --network=test_network \
           ghcr.io/pierrz/biggie_pyspark_img:latest
           python3.9 -m pytest -v
 
       - name: Test API image
         run: >
-          docker run -d --name biggie_mongo
+          docker network create -d bridge test_network
+          && docker run -d --name biggie_mongo
           --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
           --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          --network=test_network \
           mongo:5.0.8
           && docker run
           --env MONGODB_URI=${{ secrets.MONGODB_URI }}
           --env DB_NAME=${{ secrets.DB_NAME }}
+          --network=test_network \
           ghcr.io/pierrz/biggie_api_img:latest
           pytest -v
 #          --env MONGODB_URI=mongodb://${{ secrets.MONGO_INITDB_ROOT_USERNAME }}:${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}@mongo:27017/

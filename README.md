@@ -12,24 +12,41 @@ Currently set up with an API harvester fine-tuned for the [Marvel API](https://d
 
 
 ### Installation
+
+#### Environment
 You have to create the `.env` environment file, most important including your Marvel API keys.
-If necessary, update the `docker-compose.main.yml` file to change the common `volumes` variable.
+If you plan to use the same Github-actions CI file,
+you need to create the same secrets as in your `.env` environment file.
 
-*NB: For all these required files, you'll find `xxxxxx.example` sample files ready to adapt.*
+**NB**:
+- For all these required files, you'll find the `.env.example` file ready to adapt.
+- The `VOLUME_MOUNT` **Github-action secret** does NOT take the usual `./` for a relative path from the host
+e.g. `./some/path:/some/new/path` becomes `some/path:/some/new/path`.
 
-Then eventually pull the docker images ...
+<br>
+
+#### Build
+The `docker-compose.main` file is structured to make the `test` containers build the image
+used by the `prod` image. Hence the need to run one of the following commands on the very first run:
+```
+docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test harvester_test api_test
+OR
+docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile test up
+```
+
+**NB**: you can also bypass this `build` step by directly pulling the images
 ```
 docker pull ghcr.io/pierrz/biggie_pyspark_img:latest
 docker pull ghcr.io/pierrz/biggie_harvester_img:latest
 docker pull ghcr.io/pierrz/biggie_api_img:latest
 ```
 
-... and test that everything works as expected
-```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test harvester_test api_test
-OR
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile test up
-```
+And replace the image reference for each containers accordingly
+(and removing the `section` section),
+such as the following for the API containers:
+
+```image:"ghcr.io/pierrz/biggie_api_img:latest"```
+
 <br>
 
 ### Run
