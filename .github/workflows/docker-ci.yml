@@ -153,13 +153,13 @@ jobs:
           && docker run -d --name biggie_mongo
           --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
           --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-          --network=test_network \
+          --network=test_network
           mongo:5.0.8
           && docker run
           --volume ${{ secrets.VOLUME_MOUNT }}
           --env MONGODB_URI=${{ secrets.MONGODB_URI }}
           --env DB_NAME=${{ secrets.DB_NAME }}
-          --network=test_network \
+          --network=test_network
           ghcr.io/pierrz/biggie_pyspark_img:latest
           python3.9 -m pytest -v
 
@@ -169,12 +169,12 @@ jobs:
           && docker run -d --name biggie_mongo
           --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
           --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-          --network=test_network \
+          --network=test_network
           mongo:5.0.8
           && docker run
           --env MONGODB_URI=${{ secrets.MONGODB_URI }}
           --env DB_NAME=${{ secrets.DB_NAME }}
-          --network=test_network \
+          --network=test_network
           ghcr.io/pierrz/biggie_api_img:latest
           pytest -v
 #          --env MONGODB_URI=mongodb://${{ secrets.MONGO_INITDB_ROOT_USERNAME }}:${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}@mongo:27017/
