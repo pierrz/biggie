@@ -98,7 +98,8 @@ jobs:
   test-compose:
 
     name: Run test containers
-    needs: [build-and-push-image-api, build-and-push-image-harvester, build-and-push-image-pyspark]
+#    needs: [build-and-push-image-api, build-and-push-image-harvester, build-and-push-image-pyspark]
+    needs: [build-and-push-image-api]
     runs-on: ubuntu-latest
     permissions:
       contents: read
