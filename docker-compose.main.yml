@@ -89,7 +89,7 @@ services:
     image: biggie_pyspark_img
     build:
       context: .
-      dockerfile: spark/Dockerfile
+      dockerfile: pyspark_app/Dockerfile
     environment:
       <<: *biggie-common-env
     depends_on:

@@ -3,7 +3,6 @@ Spark core runner
 """
 
 from config import spark_config
-
 from pyspark.sql import SparkSession  # pylint: disable=E0611
 
 spark = (

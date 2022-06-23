@@ -87,7 +87,7 @@ jobs:
         uses: ./.github/actions/build-push
         with:
           name: PySpark
-          src: spark
+          src: pyspark_app
           registry: ${{ env.REGISTRY }}
           actor: ${{ github.actor }}
           token: ${{ secrets.GITHUB_TOKEN }}
