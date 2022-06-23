@@ -44,10 +44,12 @@ services:
       - test
 
   api_prod:
-    <<: *biggie-common
+#    <<: *biggie-common
     container_name: biggie_api_prod
     # image: "ghcr.io/pierrz/biggie_api_img:latest"
     image: biggie_api_img
+    environment:
+      <<: *biggie-common-env
     command: uvicorn main:app --host 0.0.0.0 --reload --log-level error
     depends_on:
       - mongo
