@@ -16,7 +16,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  RELEASE: 0.3.2
+  RELEASE: 0.3.3
 
 jobs:
 
@@ -130,10 +130,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Test Harvester container
-        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up harvester_test
+        run: docker run -it --volume data:/opt/data ghcr.io/pierrz/biggie_harvester_img:latest pytest -o pythonpath=/opt/harvester
+#        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up harvester_test
 
       - name: Test PySpark container
-        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test
+        run: docker run -it --volume data:/opt/data ghcr.io/pierrz/biggie_pyspark_img:latest pytest -o pythonpath=/opt/pyspark
+#        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test
 
       - name: Test API container
-        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_test
+        run: docker run -it --volume data:/opt/data ghcr.io/pierrz/biggie_api_img:latest pytest -o pythonpath=/opt/api
+#        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_test
