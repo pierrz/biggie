@@ -12,6 +12,8 @@ mongo = MongoClient(os.getenv("MONGODB_URI"))
 
 def getdb():
     print(os.getenv("DB_NAME"))
+    print(os.getenv("MONGODB_URI"))
+    print(os.getenv("MONGO_INITDB_ROOT_USERNAME"))
     return mongo[os.getenv("DB_NAME")]
 
 
