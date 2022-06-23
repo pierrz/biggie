@@ -139,5 +139,14 @@ jobs:
 ##        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test
 
       - name: Test API container
-        run: docker run --volume data:/opt/data ghcr.io/pierrz/biggie_api_img:latest pytest -o pythonpath=/opt/api
+        run: >
+          docker run -d
+          --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+          --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          mongo:5.0.8
+          && docker run
+          --volume data:/opt/data
+          ghcr.io/pierrz/biggie_api_img:latest
+          pytest -o pythonpath=/opt/api
+
 #        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_test
