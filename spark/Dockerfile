@@ -37,7 +37,7 @@ RUN python3.9 -m pip install poetry
 
 # NB: the source directory is named 'spark' to be sure not to conflict with the pyspark library imports
 # Copy only requirements to cache them in docker layer
-WORKDIR /opt/pyspark
+WORKDIR /opt/spark
 COPY ./spark/pyproject.toml ./spark/poetry.lock* ./
 
 RUN poetry config virtualenvs.create false \

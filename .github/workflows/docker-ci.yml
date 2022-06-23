@@ -97,7 +97,7 @@ jobs:
 
   test-compose:
 
-    name: Run test containers
+    name: Test built images
 #    needs: [build-and-push-image-api, build-and-push-image-harvester, build-and-push-image-pyspark]
     needs: [build-and-push-image-api]
     runs-on: ubuntu-latest
@@ -138,7 +138,29 @@ jobs:
 #        run: docker run --volume data:/opt/data ghcr.io/pierrz/biggie_pyspark_img:latest pytest -o pythonpath=/opt/pyspark
 ##        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test
 
-      - name: Test API container
+#      - name: Test Harvester image
+#        run: >
+#          docker run
+#          --volume data:/opt/data
+#          --env API_PUBLIC_KEY=${{ secrets.API_PUBLIC_KEY }}
+#          --env API_PRIVATE_KEY=${{ secrets.API_PRIVATE_KEY }}
+#          ghcr.io/pierrz/biggie_harvester_img:latest
+#          pytest -o pythonpath=/opt/harvester
+#
+#      - name: Test PySpark image
+#        run: >
+#          docker run -d
+#          --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+#          --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+#          mongo:5.0.8
+#          && docker run
+#          --volume data:/opt/data
+#          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
+#          --env DB_NAME=${{ secrets.DB_NAME }}
+#          ghcr.io/pierrz/biggie_pyspark_img:latest
+#          pytest -o pythonpath=/opt/spark
+
+      - name: Test API image
         run: >
           docker run -d
           --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
@@ -149,6 +171,7 @@ jobs:
           --env MONGODB_URI=${{ secrets.MONGODB_URI }}
           --env DB_NAME=${{ secrets.DB_NAME }}
           ghcr.io/pierrz/biggie_api_img:latest
-          pytest -o pythonpath=/opt/api
+          pytest -v
+#          pytest -o pythonpath=/opt/api
 
 #        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_test
