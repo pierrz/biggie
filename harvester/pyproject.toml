@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "biggie"
-version = "0.3.2"
+name = "biggie_harvester"
+version = "0.3.3"
 description = "Harvester containers (prod and test)"
 authors = ["Pierre-Edouard Barrault"]
 

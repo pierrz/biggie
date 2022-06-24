@@ -21,4 +21,4 @@ class Config(BaseSettings):
     PROCESSED_DIR = Path(data_dir, "processed")
 
 
-spark_config = Config()
+pyspark_config = Config()

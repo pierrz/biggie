@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "biggie"
-version = "0.3.2"
+version = "0.3.3"
 description = "dev setup"
 authors = ["Pierre-Edouard Barrault"]
 

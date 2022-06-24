@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, Iterable
 
 # pylint: disable=E0611
-from config import spark_config
+from config import pyspark_config
 from src.json_utils import load_json
 
 from .mongo_connectors import CharacterReader, DataframeMaker
@@ -21,7 +21,7 @@ class SparkJobBase(ABC):
     """
 
     flag_files: bool    # to move the files once processed
-    input_dir_path = spark_config.HARVESTER_OUTPUT_DIR
+    input_dir_path = pyspark_config.HARVESTER_OUTPUT_DIR
     input_array: Iterable[Dict]
 
     @abstractmethod
@@ -87,4 +87,4 @@ class SparkJobFromJson(SparkJobBase):
         :return: does its thing
         """
         for file in os.scandir(self.input_dir_path):
-            shutil.move(file.path, Path(spark_config.PROCESSED_DIR, file.name))
+            shutil.move(file.path, Path(pyspark_config.PROCESSED_DIR, file.name))
