@@ -95,7 +95,7 @@ jobs:
           tag: ${{ env.RELEASE }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  test-compose:
+  test-built-images:
 
     name: Test built images
     needs: [build-and-push-image-api, build-and-push-image-harvester, build-and-push-image-pyspark]
