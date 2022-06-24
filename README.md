@@ -96,9 +96,10 @@ You also need:
 
 Then create the required files and change the `volumes` path accordingly in the `compose` files.
 The `nginx` configuration files are:
-- `conf/nginx/certificate.json`
-- `conf/nginx/app_docker.conf`
-- `conf/nginx/monitor_docker.conf`
+
+`conf/nginx/certificate.json`
+`conf/nginx/app_docker.conf`
+`conf/nginx/monitor_docker.conf`
 <br>
 
 Finally run the `docker-compose` command with the `live_prod` profile:
