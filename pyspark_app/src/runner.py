@@ -2,15 +2,14 @@
 Spark core runner
 """
 
-from config import spark_config
-
+from config import pyspark_config
 from pyspark.sql import SparkSession  # pylint: disable=E0611
 
 spark = (
     SparkSession.builder.appName("Spark/Mongo IO")
     .master("local[2]")
     .config("spark.executor.memory", "2g")
-    .config("spark.mongodb.input.uri", spark_config.MONGODB_URI)
+    .config("spark.mongodb.input.uri", pyspark_config.MONGODB_URI)
     .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.0")
     .getOrCreate()
 )

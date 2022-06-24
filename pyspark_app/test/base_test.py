@@ -4,9 +4,8 @@ Module gathering the base classes used for testing purpose
 from abc import ABC, abstractmethod
 
 from fixtures.dataframe_fixture import DataframeFixture
-from src.mongo_connectors import DataframeMaker, MongoReader
-
 from pyspark.sql import functions as psf  # pylint: disable=E0611
+from src.mongo_connectors import DataframeMaker, MongoReader
 
 
 class DataframeTestBase(ABC):
