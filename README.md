@@ -127,12 +127,16 @@ API - [WIP] Paginated results
 <br>
 
 ### Local development
-If you want to make some changes in this repo while following the same environment tooling.
+If you want to make some changes in this repo while following the same environment tooling,
+you can run the following command from the root:
 ```
 poetry config virtualenvs.in-project true
 poetry install && poetry shell
 pre-commit install
 ```
 
-To change the code of the core containers, you need to `cd` to the related directory and `poetry update`
-to install the `dev` dependencies.
+To change the code of the core containers,
+you need to `cd` to the related directory to install the required dependencies,
+and you can either:
+- run `poetry update` to install the dependencies
+- run the previous command to create a virtualenv for this container
