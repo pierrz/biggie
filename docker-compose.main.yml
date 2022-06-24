@@ -48,6 +48,8 @@ services:
       - mongo
     ports:
       - "8000:8000"
+    profiles:
+      - prod
 
   harvester_test:
     container_name: biggie_harvester_test
@@ -90,3 +92,5 @@ services:
       - harvester_prod
       - mongo
     command: python3.9 -m __init__
+    profiles:
+      - prod
