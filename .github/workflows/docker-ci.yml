@@ -16,7 +16,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  RELEASE: 0.3.2
+  RELEASE: 0.3.3
 
 jobs:
 
@@ -87,7 +87,7 @@ jobs:
         uses: ./.github/actions/build-push
         with:
           name: PySpark
-          src: spark
+          src: pyspark_app
           registry: ${{ env.REGISTRY }}
           actor: ${{ github.actor }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -95,9 +95,9 @@ jobs:
           tag: ${{ env.RELEASE }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  test-compose:
+  test-built-images:
 
-    name: Run test containers
+    name: Test built images
     needs: [build-and-push-image-api, build-and-push-image-harvester, build-and-push-image-pyspark]
     runs-on: ubuntu-latest
     permissions:
@@ -129,11 +129,39 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Test Harvester container
-        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up harvester_test
+      - name: Create network & Mongo container
+        run: >
+          docker network create -d bridge test_network
+          && docker run -d --name biggie_mongo
+          --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+          --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          --network=test_network
+          mongo:5.0.8
 
-      - name: Test PySpark container
-        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test
+      - name: Test Harvester image
+        run: >
+          docker run
+          --volume ${{ secrets.VOLUME_MOUNT }}
+          --env API_PUBLIC_KEY=${{ secrets.API_PUBLIC_KEY }}
+          --env API_PRIVATE_KEY=${{ secrets.API_PRIVATE_KEY }}
+          ghcr.io/pierrz/biggie_harvester_img:latest
+          pytest -v --asyncio-mode=strict
 
-      - name: Test API container
-        run: docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_test
+      - name: Test PySpark image
+        run: >
+          docker run
+          --volume ${{ secrets.VOLUME_MOUNT }}
+          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
+          --env DB_NAME=${{ secrets.DB_NAME }}
+          --network=test_network
+          ghcr.io/pierrz/biggie_pyspark_img:latest
+          python3.9 -m pytest -v
+
+      - name: Test API image
+        run: >
+          docker run
+          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
+          --env DB_NAME=${{ secrets.DB_NAME }}
+          --network=test_network
+          ghcr.io/pierrz/biggie_api_img:latest
+          pytest -v

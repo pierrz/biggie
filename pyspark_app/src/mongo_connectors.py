@@ -7,7 +7,7 @@ from abc import ABC
 from typing import Dict, Iterable, List
 
 import pandas as pd
-from config import spark_config
+from config import pyspark_config
 # pylint: disable=E0611
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as psf
@@ -100,8 +100,8 @@ class MongoLoader(ABC):
     def __init__(self, spark_df: DataFrame, collection: str):
         print("=> Loading Mongo ...")
         spark_df.write.format("mongo").options(
-            uri=spark_config.MONGODB_URI,
-            database=spark_config.DB_NAME,
+            uri=pyspark_config.MONGODB_URI,
+            database=pyspark_config.DB_NAME,
             collection=collection,
         ).mode("append").save()
         print(" ... Mongo loaded")
@@ -123,7 +123,7 @@ class MongoReader(ABC):
         print("=> Reading Mongo ...")
         db_data = (
             spark.read.format("mongo")
-            .option("database", spark_config.DB_NAME)
+            .option("database", pyspark_config.DB_NAME)
             .option("collection", self.collection)  # pylint: disable=E1101
             .load()
         )
