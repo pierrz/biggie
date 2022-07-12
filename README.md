@@ -36,18 +36,18 @@ docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile 
 
 <br>
 
-**NB**: you can also bypass this `build` step by directly pulling the images
+**NB**: you can also bypass this `build` step by directly pulling the images ...
 ```
 docker pull ghcr.io/pierrz/biggie_pyspark_img:latest
 docker pull ghcr.io/pierrz/biggie_harvester_img:latest
 docker pull ghcr.io/pierrz/biggie_api_img:latest
 ```
 
-And replace the image reference for each containers accordingly
-(and removing the `section` section),
+... and replace the image reference for each container accordingly
+(by removing the `build` section),
 such as the following for the API containers:
 
-```image:"ghcr.io/pierrz/biggie_api_img:latest"```
+```image: "ghcr.io/pierrz/biggie_api_img:latest"```
 
 <br>
 
