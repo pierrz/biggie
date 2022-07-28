@@ -11,9 +11,9 @@ RUN apt update \
     && apt install -qy python3.9
 
 RUN cd /tmp \
-    && wget https://dlcdn.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz \
-    && tar -xvzf spark-3.1.2-bin-hadoop3.2.tgz \
-    && mv spark-3.1.2-bin-hadoop3.2/ /opt/spark
+    && wget https://dlcdn.apache.org/spark/spark-3.2.2/spark-3.2.2-bin-hadoop3.2.tgz \
+    && tar -xvzf spark-3.2.2-bin-hadoop3.2.tgz \
+    && mv spark-3.2.2-bin-hadoop3.2/ /opt/spark
 
 # spark environment
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
