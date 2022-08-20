@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   flower:
-    container_name: ukr-dp_flower
+    container_name: biggie_flower
     image: mher/flower:latest
     command: celery --broker=${CELERY_BROKER_URL} flower
     environment:
@@ -17,7 +17,7 @@ services:
 
   mongo-express:
     image: mongo-express:latest   # 0.54 needs authentication
-    container_name: ukr-dp_mongoex
+    container_name: biggie_mongoex
     restart: always
     ports:
       - "8081:8081"
@@ -34,7 +34,7 @@ services:
       - monitoring
 
   pgadmin:
-    container_name: ukr-dp_pgadmin
+    container_name: biggie_pgadmin
     image: dpage/pgadmin4:5.7   # pinned to load the server conf (current is 6.12)
     restart: always
     environment:

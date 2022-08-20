@@ -1,18 +1,18 @@
 version: "3.9"
 
-x-ukr-dp-common:
+x-biggie-common:
   environment:
-    &ukr-dp-common-env
+    &biggie-common-env
     MONGODB_URI: "${MONGODB_URI}"
     DB_NAME: "${DB_NAME}"
     DB_USER: "${DB_USER}"
     DB_PASSWORD: "${DB_PASSWORD}"
 
-x-ukr-dp-celery-prod:
-  &ukr-dp-celery-prod
+x-biggie-celery-prod:
+  &biggie-celery-prod
   environment:
-    &ukr-dp-celery-prod-env
-    <<: *ukr-dp-common-env
+    &biggie-celery-prod-env
+    <<: *biggie-common-env
     TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
@@ -21,28 +21,28 @@ x-ukr-dp-celery-prod:
     - "${VOLUME_MOUNT}"
     - ./data/events/diagrams:/opt/data/diagrams  # necessary for the cleaning task
 
-x-ukr-dp-celery-test:
-  &ukr-dp-celery-test
+x-biggie-celery-test:
+  &biggie-celery-test
   environment:
-    <<: *ukr-dp-celery-prod-env
+    <<: *biggie-celery-prod-env
     TEST: "True"
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
     - "${VOLUME_MOUNT}"
 
 volumes:
-  ukr-dp_vmongo:
-    name: ukr-dp_vmongo
-  ukr-dp_vpostgres:
-    name: ukr-dp_vpostgres
-  ukr-dp_vrabbitmq:
-    name: ukr-dp_vrabbitmq
+  biggie_vmongo:
+    name: biggie_vmongo
+  biggie_vpostgres:
+    name: biggie_vpostgres
+  biggie_vrabbitmq:
+    name: biggie_vrabbitmq
 
 services:
 
   nginx:
     image: nginx
-    container_name: ukr-dp_nginx
+    container_name: biggie_nginx
     volumes:
       - ./conf/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
       - ./conf/nginx/certificate.conf:/etc/nginx/certificate.conf:ro
@@ -60,18 +60,18 @@ services:
 
   mongo:
     image: mongo:5.0.8
-    container_name: ukr-dp_mongo
+    container_name: biggie_mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
     volumes:
-      - ukr-dp_vmongo:/data/db
+      - biggie_vmongo:/data/db
       # TODO: implement authentication for api container calls
       # - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
 
   postgres:
-    container_name: ukr-dp_postgres
+    container_name: biggie_postgres
     build:
       context: .
       dockerfile: conf/postgres/Dockerfile
@@ -85,20 +85,20 @@ services:
       DB_PASSWORD: "${DB_PASSWORD}"
     image: postgres:latest
     volumes:
-      - ukr-dp_vpostgres:/var/lib/postgresql/data
+      - biggie_vpostgres:/var/lib/postgresql/data
       # todo: implement that to remove the dockerfile
       # - ./conf/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
 
   api_test:
-    container_name: ukr-dp_api_test
-    image: ukr-dp_api_img
+    container_name: biggie_api_test
+    image: biggie_api_img
     build:
       context: .
       dockerfile: api/Dockerfile
     environment:
-      <<: *ukr-dp-common-env
+      <<: *biggie-common-env
       TEST: "True"
     command: pytest -v
     depends_on:
@@ -108,10 +108,10 @@ services:
       - test
 
   api_prod:
-    container_name: ukr-dp_api_prod
-    image: ukr-dp_api_img
+    container_name: biggie_api_prod
+    image: biggie_api_img
     environment:
-      <<: *ukr-dp-common-env
+      <<: *biggie-common-env
     command: uvicorn main:app --host 0.0.0.0 --reload --log-level error
     depends_on:
       - mongo
@@ -124,12 +124,12 @@ services:
       - ./data/events/diagrams:/opt/api/templates/diagrams
 
   celery_test:
-    container_name: ukr-dp_celery_test
+    container_name: biggie_celery_test
     build:
       context: .
       dockerfile: celery_app/Dockerfile
-    image: ukr-dp_celery_img
-    <<: *ukr-dp-celery-test
+    image: biggie_celery_img
+    <<: *biggie-celery-test
     depends_on:
       - rabbitmq
       - mongo
@@ -140,9 +140,9 @@ services:
     restart: on-failure
 
   celery_prod:
-    container_name: ukr-dp_celery_prod
-    image: ukr-dp_celery_img
-    <<: *ukr-dp-celery-prod
+    container_name: biggie_celery_prod
+    image: biggie_celery_img
+    <<: *biggie-celery-prod
     depends_on:
       - rabbitmq
       - mongo
@@ -154,12 +154,12 @@ services:
     restart: on-failure
 
   rabbitmq:
-    container_name: ukr-dp_rabbitmq
+    container_name: biggie_rabbitmq
     image: rabbitmq:3.8-management
     restart: on-failure
     ports:
       - "5672:5672"
       - "15672:15672"
     volumes:
-      - ukr-dp_vrabbitmq:/var/lib/rabbitmq
+      - biggie_vrabbitmq:/var/lib/rabbitmq
       - ./logs/rabbitmq:/var/log/rabbitmq
