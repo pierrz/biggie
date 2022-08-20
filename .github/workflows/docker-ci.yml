@@ -90,7 +90,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create network & Mongo container
+      - name: Create network & Mongo/Postgres containers
         run: >
           docker network create -d bridge test_network
           && docker run -d --name biggie_mongo
@@ -98,6 +98,17 @@ jobs:
           --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
           --network=test_network
           mongo:5.0.8
+          && docker run -d --name ukr-dp_postgres
+          --env POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          --env POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          --env POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          --env DB_NAME=${{ secrets.DB_NAME }}
+          --env DB_USER=${{ secrets.DB_USER }}
+          --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+          --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          --network=test_network
+          postgres:14.4
 
       - name: Test Celery image
         run: >
