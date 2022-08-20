@@ -6,5 +6,7 @@ import os
 
 from pymongo import MongoClient
 
-mongo = MongoClient(os.getenv("MONGODB_URI"))
-db = mongo[os.getenv("DB_NAME")]
+
+def init_mongo_connection():
+    mongo = MongoClient(os.getenv("MONGODB_URI"))
+    return mongo[os.getenv("DB_NAME")]

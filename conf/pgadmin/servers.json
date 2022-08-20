@@ -1,0 +1,12 @@
+{"Servers": {
+        "1": {
+            "Name": "Data Platform",
+            "Group": "Docker",
+            "Port": 5432,
+            "Username": "postgresadmin",
+            "Host": "ukr-dp_postgres",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "admindb"
+        }
+}
+}

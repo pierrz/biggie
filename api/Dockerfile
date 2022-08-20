@@ -1,4 +1,4 @@
-FROM python:3.9.12-slim
+FROM python:3.10.4-slim
 
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONUNBUFFERED=1 \
@@ -19,5 +19,5 @@ RUN poetry config virtualenvs.create false\
 
 # Creating folders and files for the project:
 COPY ./api ./
-COPY ./db ./src/db
+COPY ./db ./src/db/
 COPY ./utils/json_utils.py ./src/
