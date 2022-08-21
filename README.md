@@ -1,16 +1,17 @@
 # Ukraine Data Platform
 
-Biggie is a tool to quickly get data from (external) APIs into a Mongo or Postgres database,
-and have it exposed/searchable via a dedicated new API.
+Biggie is a tool to quickly get data from (external) sources/APIs into a Mongo or Postgres database,
+and have it exposed/searchable via dedicated APIs. A Spark cluster is also available to
+either load the databases or perform analytical operations.
 
 It is a Docker compose setup including
 - a "worker" container based on Celery (including Beat), Spark and asyncio
-- an API endpoints container based on FastAPI
-- 2 containers for Mongo and Postgres databases.
-- 2 containers for Flower and PGAdmin for monitoring purpose.
+- an API endpoint container based on FastAPI
+- 2 containers for Mongo and Postgres databases
+- 2 containers for Flower and PGAdmin for monitoring purpose
 - 1 'live deployment' container for Nginx and currently set up only with the Api container
 
-Currently fine-tuned to stream data from [GitHub Events API](https://api.github.com/events) into a Mongo database,
+Currently fine-tuned to stream data from [GitHub Events API](https://api.github.com/events) into Mongo,
 and have it exposed/analysed via several dedicated APIs including 1 visualisation.
 
 _FYI: previously set-up for the [Marvel API](https://developer.marvel.com/) until version 0.4.0_
@@ -20,7 +21,7 @@ _FYI: previously set-up for the [Marvel API](https://developer.marvel.com/) unti
 ### Installation
 
 #### Environment
-You have to create the `.env` environment file and use/create a Github token for enabling the test buid sequence.
+You have to create the `.env` environment file and use/create a Github token for enabling the test/build sequence.
 
 [wip] Eventually tweak the schedule parameter for the cleaning task (see **"Data streaming"** section below.).
 

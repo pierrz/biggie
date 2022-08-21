@@ -8,8 +8,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+# TODO: cookiecutter for the prefix
 host_db = (
-    f"ukr-dp_postgres:5432/{os.getenv('DB_NAME')}"  # with aggregated container name
+    f"biggie_postgres:5432/{os.getenv('DB_NAME')}"  # with aggregated container name
 )
 connection_uri = (
     f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{host_db}"

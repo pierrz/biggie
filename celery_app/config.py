@@ -24,9 +24,7 @@ class CeleryConfig(BaseSettings):
     task_track_started = True
     result_persistent = True
     task_publish_retry = True
-    # The acks_late setting would be used when you need the task to be executed again
-    # if the worker (for some reason) crashes mid-execution
-    task_acks_late = "Enabled"
+    task_acks_late = "Enabled"  # re-run the task if the worker crashes mid-execution
 
     if TEST_MODE:
         imports = ["src.tasks.dummy_task.py"]
@@ -47,7 +45,6 @@ class DataDirectories(BaseSettings):
     github_in = Path(data_dir_root, "events", "received")
     github_out = Path(data_dir_root, "events", "processed")
     github_diagrams = Path(data_dir_root, "events", "diagrams")
-    ukr_dp = Path(data_dir_root, "lake")
     batch = Path(data_dir_root, "batch-io")
 
 
