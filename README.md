@@ -26,7 +26,7 @@ You have to create the `.env` environment file and use/create a Github token for
 [wip] Eventually tweak the schedule parameter for the cleaning task (see **"Data streaming"** section below.).
 
 If you plan to use the same Github-actions CI file, you need to create the same secrets
-as in the `jobs > env` section in `.github/workflows/docker-ci.yml` (see **line 31**).
+as in the `.env` file excluding the monitoring secrets.
 
 **NB**:
 - For all files embedded with secrets, you'll find the `<file>.example` ready to adapt.
