@@ -83,57 +83,58 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build and test Docker image - API
-        shell: bash
-        run: docker-compose up api_test
+#      - name: Build and test Docker image - API
+#        shell: bash
+#        run: docker-compose up api_test
+#
+#      - name: Build and test Docker image - Celery
+#        shell: bash
+#        run: docker-compose up celery_test
 
-      - name: Build and test Docker image - Celery
-        shell: bash
-        run: docker-compose up celery_test
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-#        with:
-#          registry: ${{ env.REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - name: Create network & Mongo/Postgres containers
-#        run: >
-#          docker network create -d bridge test_network
-#          && docker run -d --name biggie_mongo
-#          --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
-#          --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-#          --network=test_network
-#          mongo:5.0.8
-#          && docker run -d --name ukr-dp_postgres
-#          --env POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-#          --env POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-#          --env POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-#          --env DB_NAME=${{ secrets.DB_NAME }}
-#          --env DB_USER=${{ secrets.DB_USER }}
-#          --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-#          --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
-#          --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-#          --network=test_network
-#          postgres:14.4
-#
-#      - name: Test Celery image
-#        run: >
-#          docker run
-#          --volume ${{ secrets.VOLUME_MOUNT }}
-#          --env TOKEN_GITHUB_API=${{ secrets.TOKEN_GITHUB_API }}
-#          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
-#          --env DB_NAME=${{ secrets.DB_NAME }}
-#          --network=test_network
-#          ghcr.io/pierrz/biggie_celery_img:latest
-#          pytest -v --asyncio-mode=strict
-#
-#      - name: Test API image
-#        run: >
-#          docker run
-#          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
-#          --env DB_NAME=${{ secrets.DB_NAME }}
-#          --network=test_network
-#          ghcr.io/pierrz/biggie_api_img:latest
-#          pytest -v
+      - name: Create network & Mongo/Postgres containers
+        run: >
+          docker network create -d bridge test_network
+          && docker run -d --name biggie_mongo
+          --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+          --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          --network=test_network
+          mongo:5.0.8
+          && docker run -d --name ukr-dp_postgres
+          --env POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          --env POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          --env POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          --env DB_NAME=${{ secrets.DB_NAME }}
+          --env DB_USER=${{ secrets.DB_USER }}
+          --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+          --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          --network=test_network
+          postgres:14.4
+
+      - name: Test Celery image
+        run: >
+          docker run
+          --volume ${{ secrets.VOLUME_MOUNT }}
+          --env TOKEN_GITHUB_API=${{ secrets.TOKEN_GITHUB_API }}
+          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
+          --env DB_NAME=${{ secrets.DB_NAME }}
+          --network=test_network
+          ghcr.io/pierrz/biggie_celery_img:latest
+          python3.10 -m pytest -vv
+#          pytest -vv --asyncio-mode=strict
+
+      - name: Test API image
+        run: >
+          docker run
+          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
+          --env DB_NAME=${{ secrets.DB_NAME }}
+          --network=test_network
+          ghcr.io/pierrz/biggie_api_img:latest
+          pytest -vv
