@@ -127,7 +127,7 @@ jobs:
           --env DB_NAME=${{ secrets.DB_NAME }}
           --network=test_network
           ghcr.io/pierrz/biggie_celery_img:latest
-          python3.10 -m pytest -vv
+          python3.10 -m pytest -vv --asyncio-mode=strict
 #          pytest -vv --asyncio-mode=strict
 
       - name: Test API image
