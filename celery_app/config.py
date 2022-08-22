@@ -27,7 +27,7 @@ class CeleryConfig(BaseSettings):
     task_acks_late = "Enabled"  # re-run the task if the worker crashes mid-execution
 
     if TEST_MODE:
-        imports = ["test.tasks.test_task.py"]
+        imports = ["test.tasks.dummy_task.py"]
         # todo: implement beat test
         # beat_schedule = {"task": "test_task", "schedule": crontab(minute="*"), "options": {**data_pipeline_queue}}
     else:

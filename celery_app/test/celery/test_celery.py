@@ -1,4 +1,4 @@
-from test.tasks.test_task import dummy_task
+from src.tasks.dummy_task import dummy_task
 
 
 # todo: transform it to check/init also Beat
