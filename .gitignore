@@ -131,14 +131,16 @@ dmypy.json
 # macOs & PyCharm
 .DS_Store
 .idea/
+screenlog.0
 
 # repo specific
 logs
-setup/rabbitmq/definitions.json
-setup/pgadmin/servers.json
-conf/nginx/certificate.conf
-conf/nginx/app_docker.conf
-conf/nginx/monitor_docker.conf
 data
 dev
 
+# secrets
+conf/pgadmin/servers.json
+conf/nginx/certificate.conf
+conf/nginx/app_docker.conf
+conf/nginx/monitor_docker.conf
+conf/nginx/monitor_docker.conf
