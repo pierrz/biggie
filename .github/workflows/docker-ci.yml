@@ -80,8 +80,7 @@ jobs:
       packages: write
 
     env:
-      API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
-      API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
+      TOKEN_GITHUB_API: ${{ secrets.TOKEN_GITHUB_API }}
       DB_NAME: ${{ secrets.DB_NAME }}
       ME_CONFIG_BASICAUTH_PASSWORD: ${{ secrets.ME_CONFIG_BASICAUTH_PASSWORD }}
       ME_CONFIG_BASICAUTH_USERNAME: ${{ secrets.ME_CONFIG_BASICAUTH_USERNAME }}
@@ -139,6 +138,7 @@ jobs:
           --env POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           --env DB_USER=${{ secrets.DB_USER }}
           --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          --env TOKEN_GITHUB_API=${{ secrets.TOKEN_GITHUB_API }}
           --network=test_network
           ghcr.io/pierrz/biggie_celery_img:latest
           python3.10 -m pytest -vv --asyncio-mode=strict
