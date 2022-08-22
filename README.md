@@ -1,6 +1,6 @@
 # biggie
 
-Biggie is a tool to quickly get data from (external) APIs into a Mongo database,
+Biggie is a tool to quickly get data from (external) APIs into either a Mongo or Postgres database,
 and have it exposed/searchable via a dedicated new API.
 
 It is a Docker compose setup including
@@ -11,8 +11,8 @@ It is a Docker compose setup including
 - a 'live deployment' container for Nginx and currently set up only with the Api container
 
 It is currently set up to fetch data from the [GitHub Events API](https://api.github.com/events)
-then stream it into Mongo and have it exposed/analysed via several dedicated APIs. 
-It was fetching data from the Marvel API until version 0.4.0. 
+then stream it into Mongo and have it exposed/analysed via several dedicated APIs.
+It was fetching data from the Marvel API until version 0.4.0.
 
 The repository itself is based on the ['Papel' repository](https://github.com/pierrz/papel).
 

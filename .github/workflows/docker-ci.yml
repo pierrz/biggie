@@ -94,6 +94,7 @@ jobs:
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       TOKEN_GITHUB_API: ${{ secrets.TOKEN_GITHUB_API }}
       VOLUME_MOUNT: ${{ secrets.VOLUME_MOUNT }}
+      NETWORK: test_network   # specific to this ci/docker configuration
 
     steps:
 
@@ -109,11 +110,11 @@ jobs:
 
       - name: Create network & Mongo container
         run: >
-          docker network create -d bridge test_network
+          docker network create -d bridge ${{ env.NETWORK }}
           && docker run -d --name biggie_mongo
           --env MONGO_INITDB_ROOT_USERNAME=${{ env.MONGO_INITDB_ROOT_USERNAME }}
           --env MONGO_INITDB_ROOT_PASSWORD=${{ env.MONGO_INITDB_ROOT_PASSWORD }}
-          --network=test_network
+          --network=${{ env.NETWORK }}
           mongo:5.0.8
 
       - name: Create Postgres container
@@ -127,7 +128,7 @@ jobs:
           --env DB_NAME=${{ env.DB_NAME }}
           --env DB_USER=${{ env.DB_USER }}
           --env DB_PASSWORD=${{ env.DB_PASSWORD }}
-          --network=test_network
+          --network=${{ env.NETWORK }}
           biggie_postgres:latest
 
       - name: Test API image
@@ -137,7 +138,7 @@ jobs:
           --env DB_NAME=${{ env.DB_NAME }}
           --env DB_USER=${{ env.DB_USER }}
           --env DB_PASSWORD=${{ env.DB_PASSWORD }}
-          --network=test_network
+          --network=${{ env.NETWORK }}
           ghcr.io/pierrz/biggie_api_img:latest
           pytest -vv
 
@@ -153,6 +154,6 @@ jobs:
           --env DB_PASSWORD=${{ env.DB_PASSWORD }}
           --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }}
           --env TEST_MODE="True"
-          --network=test_network
+          --network=${{ env.NETWORK }}
           ghcr.io/pierrz/biggie_celery_img:latest
           python3.10 -m pytest -vv --asyncio-mode=strict
