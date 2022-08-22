@@ -25,7 +25,7 @@ x-biggie-celery-test:
   &biggie-celery-test
   environment:
     <<: *biggie-celery-prod-env
-    TEST: "True"
+    TEST_MODE: "True"
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
     - "${VOLUME_MOUNT}"
@@ -97,7 +97,7 @@ services:
       dockerfile: api/Dockerfile
     environment:
       <<: *biggie-common-env
-      TEST: "True"
+      TEST_MODE: "True"
     command: pytest -v
     depends_on:
       - mongo

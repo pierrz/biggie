@@ -9,7 +9,7 @@ from pydantic import BaseSettings
 from src.tasks.schedules import github_events_stream
 
 data_dir_root = Path(os.sep, "opt", "data")
-TEST_MODE = bool(os.getenv("TEST"))
+TEST_MODE = bool(os.getenv("TEST_MODE"))
 
 
 class CeleryConfig(BaseSettings):
