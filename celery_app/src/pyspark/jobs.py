@@ -66,7 +66,9 @@ class ToMongoFromJson(SparkJobBase):
     and move them to an output directory
     """
 
-    def __init__(self, input_dir_paths, collection, output_dir_path, check_columns, reader_class):
+    def __init__(
+        self, input_dir_paths, collection, output_dir_path, check_columns, reader_class
+    ):
         super().__init__(collection, check_columns, reader_class)
         self.input_dir_paths = input_dir_paths
         self.output_dir_path = output_dir_path

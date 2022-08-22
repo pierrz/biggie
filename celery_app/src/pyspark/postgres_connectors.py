@@ -45,6 +45,7 @@ class PostgresReader(PostgresBase, ReaderBase):
     """
     Base class dedicated  to load a specific Postgres table
     """
+
     table: str
 
     def __init__(self, table: str = None, check_columns=None):

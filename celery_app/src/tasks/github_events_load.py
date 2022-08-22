@@ -26,11 +26,13 @@ def run_load_events(page_range: int) -> List[int]:
         Path.mkdir(output_dir, parents=True)
 
     logger.info("Initiating data loading task to Mongo ...")
-    ToMongoFromJson(input_dir_paths=[input_dir],
-                    collection="event",
-                    check_columns=["type", "actor_id", "repo_name"],
-                    output_dir_path=output_dir,
-                    reader_class=EventReader)
+    ToMongoFromJson(
+        input_dir_paths=[input_dir],
+        collection="event",
+        check_columns=["type", "actor_id", "repo_name"],
+        output_dir_path=output_dir,
+        reader_class=EventReader,
+    )
     logger.info("=> Data loaded successfully.")
 
     file_count = len(os.listdir(output_dir))

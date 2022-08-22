@@ -30,7 +30,9 @@ def run_github_events_da() -> Union[int, None]:
         logger.info(f"Retrieved {len(urls)} event pages")
 
         start_time = time.time()
-        data_array = asyncio.run(download_github_events(urls, auth=github_params, mode="json"))
+        data_array = asyncio.run(
+            download_github_events(urls, auth=github_params, mode="json")
+        )
         asyncio.run(write_aio(data_array=data_array, output_dir=input_dir))
         logger.info(f"Downloads took {time.time() - start_time} seconds")
 
@@ -39,3 +41,4 @@ def run_github_events_da() -> Union[int, None]:
 
     except Exception as exception:  # pylint: disable=W0703
         logger.info(exception)
+        return None

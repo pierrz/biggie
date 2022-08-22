@@ -36,7 +36,7 @@ jobs:
       - name: Run 'build-push' local action
         uses: ./.github/actions/build-push
         with:
-          name: FastAPI
+          name: API
           src: api
           registry: ${{ env.REGISTRY }}
           actor: ${{ github.actor }}
@@ -124,6 +124,7 @@ jobs:
           --env DB_NAME=${{ secrets.DB_NAME }}
           --env DB_USER=${{ secrets.DB_USER }}
           --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          --volume ./conf/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
           --network=test_network
           postgres:14.4
 

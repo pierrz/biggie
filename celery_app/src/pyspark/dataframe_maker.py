@@ -90,7 +90,6 @@ class DataframeMaker(ABC):
 
 
 class MongoDataframeMaker(DataframeMaker):
-
     def __init__(self, input_array, table_or_collection, check_columns):
         super().__init__(table_or_collection, check_columns)
         self.normalize_input_data(input_array)
@@ -114,7 +113,6 @@ class MongoDataframeMaker(DataframeMaker):
 
 
 class PostgresDataframeMaker(DataframeMaker):
-
     def __init__(self, array_or_dataframe, table_or_collection, check_columns):
         super().__init__(table_or_collection, check_columns)
         if isinstance(array_or_dataframe, pd.DataFrame):

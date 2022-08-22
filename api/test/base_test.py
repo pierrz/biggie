@@ -23,7 +23,9 @@ class EndpointTestBase(ABC):
         url = f"http://api_test/{self.test_name}"
         print(f"TEST: {self.test_name}")
         print(f"=> url: {url}")
-        expected_response = get_expected_results_dict(f"{self.test_name.replace('/', '_')}")
+        expected_response = get_expected_results_dict(
+            f"{self.test_name.replace('/', '_')}"
+        )
         response = client.get(url)
         return response, expected_response
 

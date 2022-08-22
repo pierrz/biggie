@@ -34,11 +34,9 @@ class CeleryConfig(BaseSettings):
         imports = [
             "src.tasks.github_events_data_acquisition",
             "src.tasks.github_events_load",
-            "src.tasks.github_events_cleaning"
+            "src.tasks.github_events_cleaning",
         ]
-        beat_schedule = {
-            "github-events-stream": github_events_stream
-        }
+        beat_schedule = {"github-events-stream": github_events_stream}
 
 
 class DataDirectories(BaseSettings):

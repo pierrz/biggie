@@ -8,11 +8,11 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePath
 from typing import Dict, Iterable, List, Tuple, Union
 
+import aiohttp
 import pandas as pd
 from config import data_directories, harvester_config
 from src.commons import names as ns
-import aiohttp
-from src.harvester.errors import EmptyResults, APILimitError, GenericError
+from src.harvester.errors import APILimitError, EmptyResults, GenericError
 
 
 async def get_url(auth: Dict = None, **kwargs):
@@ -203,8 +203,12 @@ async def write_aio(data_array: Iterable[Dict], output_dir: Path = None):
         if keys == ns.output_keys:
             has_filepaths = True
 
-    if has_filepaths:   # if it's not a list of rows (when dict array including filepaths is provided)
-        await asyncio.gather(*[write(**data, output_dir=output_dir) for data in data_array])
+    if (
+        has_filepaths
+    ):  # if it's not a list of rows (when dict array including filepaths is provided)
+        await asyncio.gather(
+            *[write(**data, output_dir=output_dir) for data in data_array]
+        )
 
     else:  # file auto-naming (only dict array is provided), better used against APIs
         timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M")

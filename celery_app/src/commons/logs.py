@@ -10,5 +10,7 @@ def dataframe_info_log(pairs: Iterable[Tuple[str, pd.DataFrame]]):
     """
     for pair in pairs:
         name, df = pair
-        logger.info("'{}' dataframe with {} columns and {} rows".format(name, *df.shape))
+        logger.info(
+            "'{}' dataframe with {} columns and {} rows".format(name, *df.shape)
+        )
         logger.info(df.head(5))
