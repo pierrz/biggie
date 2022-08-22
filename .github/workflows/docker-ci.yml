@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-#      - 'feature/**'
-#      - 'dev/**'
+      # - 'feature/**'
+      # - 'dev/**'
   # The branches below must be a subset of the branches above
   pull_request:
     branches:
