@@ -14,7 +14,7 @@ github_events_stream = {
                 **data_pipeline_queue,
                 "link": signature(
                     "github-events-cleaning",
-                    kwargs={"wait_minutes": 2},
+                    kwargs={"wait_minutes": 30},
                     options=data_pipeline_queue,
                 ),
             },

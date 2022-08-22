@@ -15,7 +15,6 @@ class Config(BaseSettings):
     """
 
     LOCAL_DEV = True
-    # TEST_MODE = bool(os.getenv("TEST"))   # deprecated for now, wait and see
 
 
 app_config = Config()

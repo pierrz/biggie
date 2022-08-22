@@ -60,7 +60,7 @@ These tasks are **scheduled every minute** with a crontab setting,
 and a custom parameter is implemented to separately schedule the cleaning step
 while keeping it in sync with the rest of the chain.
 
-See `kwargs={"wait_minutes": 30}` in the `beat_schedule` parameter in [**`celery_app/config.py`**](celery_app/config.py).
+See `kwargs={"wait_minutes": 30}` in the `github_events_stream` schedule in [**`.../tasks/schedules.py`**](celery_app/src/tasks/schedules.py).
 
 <br>
 
@@ -133,9 +133,9 @@ docker-compose \
 [API docs](http://localhost:8000/docs)
 
 Github events consumer
-- [Count per type with a given time offset in minutes](http://localhost:8000/api/count_per_type?offset=90)
-- [PR average delta for a given repository](http://localhost:8000/api/pr_average_delta?repo_name=<repository-name>)
-- [Timeline of PR deltas for a given repository (dataviz)](http://localhost:8000/api/pr_deltas_timeline?repo_name=<repository-name>)
+- [Count per type with a given time offset in minutes](http://localhost:8000/events/count_per_type?offset=90)
+- [PR average delta for a given repository](http://localhost:8000/events/pr_average_delta?repo_name=<repository-name>)
+- [Timeline of PR deltas for a given repository (dataviz)](http://localhost:8000/events/pr_deltas_timeline?repo_name=<repository-name>)
 
 NB: For the last 2 endpoints, the repository name parameter takes the full repository name
 including the actor name such as `pierrz/biggie`.

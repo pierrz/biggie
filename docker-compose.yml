@@ -19,7 +19,7 @@ x-biggie-celery-prod:
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
     - "${VOLUME_MOUNT}"
-    - ./data/events/diagrams:/opt/data/diagrams  # necessary for the cleaning task
+    - ./data/diagrams:/opt/data/diagrams  # necessary for the cleaning task
 
 x-biggie-celery-test:
   &biggie-celery-test
@@ -119,7 +119,7 @@ services:
     profiles:
       - prod
     volumes:
-      - ./data/events/diagrams:/opt/api/templates/diagrams
+      - ./data/diagrams:/opt/api/templates/diagrams
 
   celery_test:
     container_name: biggie_celery_test

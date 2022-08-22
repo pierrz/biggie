@@ -10,7 +10,7 @@ import pandas as pd
 import plotly.express as px
 from config import diagrams_dir
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from src.db.mongo import init_mongo_connection
 from src.routers.templates import templates
 
@@ -19,6 +19,11 @@ router = APIRouter(
     tags=["events"],
     responses={404: {"description": "Issue with endpoint"}},
 )
+
+
+@router.get("/")
+def main():
+    return RedirectResponse(url="/docs/")
 
 
 def dataframe_from_mongo_data(db_data, sort_by: str = None):
@@ -43,22 +48,24 @@ def dataframe_from_mongo_data(db_data, sort_by: str = None):
 
 
 @router.get("/pr_deltas_timeline")
-async def pr_deltas_timeline(request: Request, repo_name: str, size: int = None):
+async def pr_deltas_timeline(request: Request, repo_name: str, size: int = 0):
     """
     Plots a diagram showing the time deltas between the last n PRs for that repo.
     Generates a unique html template for each call, based on repo name and timestamp
     :param repo_name: name of the repository to check
-    :param size: how much PRs will be displayed (needs to be higher than 2 to generate to enough delta points)
+    :param size: how much PR intervals will be displayed (needs to be higher than 2 to generate to enough delta points)
     :return: a json response
     """
 
     # data
     mongodb = init_mongo_connection()  # pylint: disable=C0103
     db_data = mongodb.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
-    # raw_df = dataframe_from_mongo_data(db_data).sort_values(by="created_at")
     raw_df = dataframe_from_mongo_data(db_data, "created_at")
 
-    if size is not None and size > 2:
+    if raw_df is None:
+        return JSONResponse({"result": "not enough data to make a PR timeline (at least 3 events for 2 intervals)"})
+
+    if size > 2:
         results_df = raw_df.tail(size).reset_index()
     else:
         results_df = raw_df.reset_index()
@@ -76,7 +83,7 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = None)
     title_text = (
         f"<span style='font-weight:800;'>PR deltas timeline</span> [{repo_name}]"
     )
-    if size is not None and size < 3:
+    if 0 < size < 3:
         title_text += "<br><span style='font-size: .8rem;'>/!\\ the required size is too small (< 2)</span>"
     fig.update_layout(title_text=title_text)
 
