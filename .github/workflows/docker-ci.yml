@@ -124,7 +124,7 @@ jobs:
           --env DB_NAME=${{ secrets.DB_NAME }}
           --env DB_USER=${{ secrets.DB_USER }}
           --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          --volume ./conf/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+          --volume ~/biggie/conf/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
           --network=test_network
           postgres:14.4
 
@@ -152,4 +152,3 @@ jobs:
           --network=test_network
           ghcr.io/pierrz/biggie_celery_img:latest
           python3.10 -m pytest -vv --asyncio-mode=strict
-
