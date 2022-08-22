@@ -1,0 +1,163 @@
+version: "3.9"
+
+x-biggie-common:
+  environment:
+    &biggie-common-env
+    MONGODB_URI: "${MONGODB_URI}"
+    DB_NAME: "${DB_NAME}"
+    DB_USER: "${DB_USER}"
+    DB_PASSWORD: "${DB_PASSWORD}"
+
+x-biggie-celery-prod:
+  &biggie-celery-prod
+  environment:
+    &biggie-celery-prod-env
+    <<: *biggie-common-env
+    TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
+    CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
+    CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+  volumes:
+    - ./logs/celery_app:/opt/celery_app/logs
+    - "${VOLUME_MOUNT}"
+    - ./data/diagrams:/opt/data/diagrams  # necessary for the cleaning task
+
+x-biggie-celery-test:
+  &biggie-celery-test
+  environment:
+    <<: *biggie-celery-prod-env
+    TEST_MODE: "True"
+  volumes:
+    - ./logs/celery_app:/opt/celery_app/logs
+    - "${VOLUME_MOUNT}"
+
+volumes:
+  biggie_vmongo:
+    name: biggie_vmongo
+  biggie_vpostgres:
+    name: biggie_vpostgres
+  biggie_vrabbitmq:
+    name: biggie_vrabbitmq
+
+services:
+
+  nginx:
+    image: nginx
+    container_name: biggie_nginx
+    volumes:
+      - ./conf/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
+      - ./conf/nginx/certificate.conf:/etc/nginx/certificate.conf:ro
+      - ./logs/nginx:/var/log/nginx
+      - ./conf/nginx/app_docker.conf:/etc/nginx/sites-enabled/app_docker.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # certificate of the host machine
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api_prod
+    profiles:
+      - live_prod
+
+  mongo:
+    image: mongo:5.0.8
+    container_name: biggie_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
+    volumes:
+      - biggie_vmongo:/data/db
+      # TODO: implement authentication for api container calls
+      # - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+
+  postgres:
+    container_name: biggie_postgres
+    build:
+      context: conf/postgres
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      DB_NAME: "${DB_NAME}"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      - biggie_vpostgres:/var/lib/postgresql/data
+      # todo: implement that to remove the dockerfile
+      # - ./conf/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+  api_test:
+    container_name: biggie_api_test
+    image: biggie_api_img
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      <<: *biggie-common-env
+      TEST_MODE: "True"
+    command: pytest -v
+    depends_on:
+      - mongo
+      - postgres
+    profiles:
+      - test
+
+  api_prod:
+    container_name: biggie_api_prod
+    image: biggie_api_img
+    environment:
+      <<: *biggie-common-env
+    command: uvicorn main:app --host 0.0.0.0 --reload --log-level error
+    depends_on:
+      - mongo
+      - postgres
+    ports:
+      - "8000:8000"
+    profiles:
+      - prod
+    volumes:
+      - ./data/diagrams:/opt/api/templates/diagrams
+
+  celery_test:
+    container_name: biggie_celery_test
+    build:
+      context: .
+      dockerfile: celery_app/Dockerfile
+    image: biggie_celery_img
+    <<: *biggie-celery-test
+    depends_on:
+      - rabbitmq
+      - mongo
+      - postgres
+    command: python3.10 -m pytest -vv
+    profiles:
+      - test
+    restart: on-failure
+
+  celery_prod:
+    container_name: biggie_celery_prod
+    image: biggie_celery_img
+    <<: *biggie-celery-prod
+    depends_on:
+      - rabbitmq
+      - mongo
+      - postgres
+    command: sh run.sh
+    profiles:
+      - prod
+      - monitoring
+    restart: on-failure
+
+  rabbitmq:
+    container_name: biggie_rabbitmq
+    image: rabbitmq:3.8-management
+    restart: on-failure
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - biggie_vrabbitmq:/var/lib/rabbitmq
+      - ./logs/rabbitmq:/var/log/rabbitmq

@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  flower:
+    container_name: biggie_flower
+    image: mher/flower:latest
+    command: celery --broker=${CELERY_BROKER_URL} flower
+    environment:
+      CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
+      CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+    ports:
+      - "49555:5555"
+    depends_on:
+      - celery_prod
+    profiles:
+      - monitoring
+
+  mongo-express:
+    image: mongo-express:latest   # 0.54 needs authentication
+    container_name: biggie_mongoex
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+      ME_CONFIG_MONGODB_ADMINUSERNAME: "${ME_CONFIG_MONGODB_ADMINUSERNAME}"
+      ME_CONFIG_MONGODB_ADMINPASSWORD: "${ME_CONFIG_MONGODB_ADMINPASSWORD}"
+      ME_CONFIG_BASICAUTH_USERNAME: "${ME_CONFIG_BASICAUTH_USERNAME}"
+      ME_CONFIG_BASICAUTH_PASSWORD: "${ME_CONFIG_BASICAUTH_PASSWORD}"
+      ME_CONFIG_MONGODB_URL: "${MONGODB_URI}"
+    depends_on:
+      - mongo
+    profiles:
+      - monitoring
+
+  pgadmin:
+    container_name: biggie_pgadmin
+    image: dpage/pgadmin4:5.7   # pinned to load the server conf (current is 6.12)
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
+      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
+    volumes:
+      - ./conf/pgadmin/servers.json:/pgadmin4/servers.json
+    depends_on:
+      - postgres
+    profiles:
+      - monitoring
+    ports:
+      - "5050:80"
