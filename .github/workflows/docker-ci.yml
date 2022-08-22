@@ -16,7 +16,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  RELEASE: 0.3.5
+  RELEASE: 0.4.0
 
 jobs:
 
@@ -127,6 +127,15 @@ jobs:
           --network=test_network
           postgres:14.4
 
+      - name: Test API image
+        run: >
+          docker run
+          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
+          --env DB_NAME=${{ secrets.DB_NAME }}
+          --network=test_network
+          ghcr.io/pierrz/biggie_api_img:latest
+          pytest -vv
+
       - name: Test Celery image
         run: >
           docker run
@@ -143,11 +152,3 @@ jobs:
           ghcr.io/pierrz/biggie_celery_img:latest
           python3.10 -m pytest -vv --asyncio-mode=strict
 
-      - name: Test API image
-        run: >
-          docker run
-          --env MONGODB_URI=${{ secrets.MONGODB_URI }}
-          --env DB_NAME=${{ secrets.DB_NAME }}
-          --network=test_network
-          ghcr.io/pierrz/biggie_api_img:latest
-          pytest -vv

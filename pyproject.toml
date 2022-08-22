@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ukr-dp"
+name = "biggie"
 version = "0.1.0"
 description = "dev setup"
 authors = ["Pierre-Edouard Barrault"]
