@@ -11,8 +11,45 @@ from typing import Dict, Iterable, List, Tuple, Union
 import pandas as pd
 from config import data_directories, harvester_config
 from src.commons import names as ns
-from src.harvester.errors import EmptyResults, GenericError
-from src.harvester.utils import get_url
+import aiohttp
+from src.harvester.errors import EmptyResults, APILimitError, GenericError
+
+
+async def get_url(auth: Dict = None, **kwargs):
+
+    url = kwargs["url"]
+    print(f"Start downloading {url}")
+    try:
+        async with aiohttp.ClientSession() as client:
+
+            if isinstance(auth, Dict):
+                print(f"=> Authenticated call: {auth}")
+                response = await client.get(url, headers=auth)
+
+            else:
+                response = await client.get(url)
+            print(f"Done downloading {url}")
+
+            if "mode" in kwargs:
+                if kwargs["mode"] == "json":
+                    return await response.json()
+                elif kwargs["mode"] in ["csv", "txt"]:
+                    return await response.content.read()
+                elif kwargs["mode"] == "response":
+                    return response
+
+            # TODO: check why that still throws something ...
+            # status = response.status
+            # headers = response.headers
+            # print(status)
+            # print(headers)
+            # # return (status, headers)
+            # return response
+
+    except KeyError as e:
+        APILimitError(e)
+    except Exception as e:
+        GenericError(e)
 
 
 def download(func):

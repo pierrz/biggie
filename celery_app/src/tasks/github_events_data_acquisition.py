@@ -10,7 +10,7 @@ from typing import Union
 from config import data_directories
 from src.harvester.asyncio_operations import download_github_events, write_aio
 from src.harvester.auth_parameters import github_params
-from src.harvester.utils import get_events_urls
+from src.harvester.github_events_urls import get_events_urls
 from worker import celery, logger
 
 
