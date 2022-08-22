@@ -1,4 +1,4 @@
-from celery_app.src.harvester.utils import get_url
+from src.harvester.asyncio_operations import get_url
 from config import harvester_config
 from .auth_parameters import github_params
 from src.harvester.errors import APILimitError, GenericError
