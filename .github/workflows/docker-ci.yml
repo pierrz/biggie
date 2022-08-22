@@ -109,7 +109,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create network & Mongo/Postgres containers
+      - name: Create network & Mongo container
         run: >
           docker network create -d bridge test_network
           && docker run -d --name biggie_mongo
@@ -117,6 +117,11 @@ jobs:
           --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
           --network=test_network
           mongo:5.0.8
+
+      - name: Create Postgres container
+        run: >
+          cd ~/biggie/conf/postgres
+          && docker build . --tag biggie_postgres:latest
           && docker run -d --name biggie_postgres
           --env POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           --env POSTGRES_USER=${{ secrets.POSTGRES_USER }}
@@ -124,9 +129,8 @@ jobs:
           --env DB_NAME=${{ secrets.DB_NAME }}
           --env DB_USER=${{ secrets.DB_USER }}
           --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          --volume ~/biggie/conf/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
           --network=test_network
-          postgres:14.4
+          biggie_postgres:latest
 
       - name: Test API image
         run: >

@@ -73,8 +73,8 @@ services:
   postgres:
     container_name: biggie_postgres
     build:
-      context: .
-      dockerfile: conf/postgres/Dockerfile
+      context: conf/postgres
+      dockerfile: Dockerfile
     restart: always
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
@@ -83,7 +83,7 @@ services:
       DB_NAME: "${DB_NAME}"
       DB_USER: "${DB_USER}"
       DB_PASSWORD: "${DB_PASSWORD}"
-    image: postgres:latest
+#    image: postgres:latest
     volumes:
       - biggie_vpostgres:/var/lib/postgresql/data
       # todo: implement that to remove the dockerfile
