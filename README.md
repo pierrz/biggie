@@ -1,93 +1,97 @@
-# biggie
-<br>
+# Biggie
+
 Biggie is a tool to quickly get data from (external) APIs into a Mongo database,
 and have it exposed/searchable via a dedicated new API.
 
-It is a Docker setup with 3 main containers based on Spark, FastAPI and Mongo.
-Additional containers can be setup for Mongo Express and Nginx.
+It is a Docker compose setup including
+- a "worker" container based on Celery (including Beat), Spark and asyncio
+- an API endpoints container based on FastAPI
+- 2 containers for Mongo and Postgres databases.
+- 2 containers for Flower and PGAdmin for monitoring purpose.
+- 1 'live deployment' container for Nginx and currently set up only with the Api container
 
-Currently set up with an API harvester fine-tuned for the [Marvel API](https://developer.marvel.com).
+The repository itself is based on the ['Papel' repository](https://github.com/pierrz/papel).
+
+_This tool was set up to get data from the Marvel API until version 0.4.0_
 
 <br>
-
 
 ### Installation
 
 #### Environment
-You have to create the `.env` environment file, most important including your Marvel API keys.
+You have to create the `.env` environment file,
+and use/create a Github token for enabling the test/build sequence.
+
 If you plan to use the same Github-actions CI file,
 you need to create the same secrets as in your `.env` environment file.
 
+[wip] Eventually tweak the schedule parameter for the cleaning task (see **"Data streaming"** section below.).
+
 **NB**:
-- For all these required files, you'll find the `.env.example` file ready to adapt.
-- The `VOLUME_MOUNT` **Github-action secret** does NOT take the usual `./` for a relative path from the host
-e.g. `./some/path:/some/new/path` becomes `some/path:/some/new/path`.
+- For all files embedded with secrets, you'll find the `<file>.example` ready to adapt.
 
 <br>
 
 #### Build
-The `docker-compose.main` file is structured to make the `test` containers build the image
+The `docker-compose` file is structured to make the `test` containers build the image
 used by the `prod` image. Hence the need to run one of the following commands on the very first run:
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_test harvester_test api_test
+docker-compose up api_test celery_test
 OR
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile test up
+docker-compose --profile test up
 ```
-
-<br>
-
-**NB**: you can also bypass this `build` step by directly pulling the images ...
-```
-docker pull ghcr.io/pierrz/biggie_pyspark_img:latest
-docker pull ghcr.io/pierrz/biggie_harvester_img:latest
-docker pull ghcr.io/pierrz/biggie_api_img:latest
-```
-
-... and replace the image reference for each container accordingly
-(by removing the `build` section),
-such as the following for the API containers:
-
-```image: "ghcr.io/pierrz/biggie_api_img:latest"```
 
 <br>
 
 ### Run
-#### Data acquisition and load
+#### Data acquisition
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up pyspark_prod
+docker-compose up celery_prod
 ```
-This command will spin up the Harvester and Spark containers to:
+This command will spin up the Celery container and:
 
-  - download all the data from the Marvel characters API
-  - load it into Mongo
+  - download all required data and save them as files locally
+  - read these files and load Postgres with relevant data
+  - [tdb] delete all local files once their data is successfully in Mongo
+
+These tasks are **scheduled every minute** with a crontab setting,
+and a custom parameter is implemented to separately schedule the cleaning step
+while keeping it in sync with the rest of the chain.
+
+See `kwargs={"wait_minutes": 30}` in the `beat_schedule` parameter in [**`celery_app/config.py`**](celery_app/config.py).
+
+<br>
+
+#### Data acquisition with monitoring
+Spin up the Mongo-Express container to access the Mongo-Express and Flower UI
+along the Celery production container.
+```
+docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
+  --profile monitoring \
+  up
+```
 
 <br>
 
 #### API container
 Just to have the FastAPI container up
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_prod
+docker-compose up api_prod
 ```
 
 <br>
 
-#### Monitoring
-Spin up the Mongo-Express container to access the Mongo UI
+#### Monitoring and Production containers
+Both production containers as well as both monitoring containers.
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile monitoring up
-```
-
-<br>
-
-#### The whole shebang
-```
-# only pyspark_prod api_prod containers visible in the terminal
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile monitoring up pyspark_prod api_prod
-```
-OR
-```
-# all containers visible in the terminal
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile prod --profile monitoring up
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
+  --profile prod --profile monitoring \
+  up
 ```
 
 <br>
@@ -110,9 +114,14 @@ The `nginx` configuration files are:
 `conf/nginx/monitor_docker.conf`
 <br>
 
-Finally run the `docker-compose` command with the `live_prod` profile:
+Finally run the `docker-compose` command with the `live_prod` profile
+to spin up all that to the world:
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile live_prod up
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
+  --profile prod --profile monitoring --profile live_prod \
+  up
 ```
 
 <br>
@@ -121,15 +130,17 @@ docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile 
 
 [API docs](http://localhost:8000/docs)
 
-API - Results full list
-- [sorted by comics number](http://localhost:8000/api/comics_per_characters?sort_column=comics_available)
-- [sorted by name](http://localhost:8000/api/comics_per_characters?sort_column=name)
+Github events consumer
+- [Count per type with a given time offset in minutes](http://localhost:8000/api/count_per_type?offset=90)
+- [PR average delta for a given repository](http://localhost:8000/api/pr_average_delta?repo_name=<repository-name>)
+- [Timeline of PR deltas for a given repository (dataviz)](http://localhost:8000/api/pr_deltas_timeline?repo_name=<repository-name>)
 
-API - [WIP] Paginated results
-- [sorted by comics number](http://localhost:8000/api/comics_per_characters/paginated?sort_column=comics_available)
-- [sorted by name](http://localhost:8000/api/comics_per_characters/paginated?sort_column=name)
+NB: For the last 2 endpoints, the repository name parameter takes the full repository name
+including the actor name such as `pierrz/biggie`.
 
-[Mongo-Express](http://localhost:8081)
+Monitoring
+- [Mongo-Express](http://localhost:8081)
+- [Flower](http://localhost:49555)
 
 <br>
 

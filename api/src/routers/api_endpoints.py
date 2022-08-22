@@ -1,14 +1,15 @@
 """
 All API endpoints.
 """
+from typing import List
 
-from typing import Tuple
-
-import pandas as pd
-from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
-from src.db.mongo import db  # pylint: disable=E0611
-from src.routers import templates
+from fastapi import APIRouter, Depends, Request
+# from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
+from src.db import models, schemas
+from src.db.postgres import get_db
+from src.routers.templates import templates
+from starlette.responses import RedirectResponse
 
 router = APIRouter(
     prefix="/api",
@@ -17,94 +18,27 @@ router = APIRouter(
 )
 
 
-@router.get("/live", include_in_schema=False)
-async def api_live() -> JSONResponse:
-    """
-    Check if the api is up
-    :return: a basic response
-    """
-    return JSONResponse({"message": "Hello, World"})
+@router.get("/")
+def main():
+    return RedirectResponse(url="/docs/")
 
 
-def get_data(sort_column: str, page_size: int = None) -> Tuple[pd.DataFrame, int]:
-    """
-    Get the data required by the API call
-    :param sort_column: name of the column used to sort the dataframe with
-    :param page_size: for the paginated mode, sets how many results are displayed per page
-    :return: the resulting dataframe and the total of rows
-    """
-    db_data = db.character.find()
-    ui_columns = ["name", "comics_available"]
-    results_df = pd.DataFrame(db_data)
-    total = results_df.shape[0]
-
-    order = True
-    if sort_column == ui_columns[1]:
-        order = False
-
-    columns = results_df.columns
-    for column in ui_columns:
-        if column not in columns:
-            return [], 0
-
-    data = (
-        results_df[ui_columns]
-        .sort_values(by=[sort_column], ascending=order)
-        .to_dict("records")
-    )
-
-    if page_size is not None:
-        return [
-            data[i : i + page_size]  # noqa: E203,E226
-            for i in range(0, len(data), page_size)
-        ], total
-
-    return data, total
+@router.get("/per_country", response_model=List[schemas.Country])
+def per_country_data(db: Session = Depends(get_db)):
+    data = db.query(models.Country).all()
+    return data
 
 
-@router.get("/comics_per_characters")
-async def comics_per_characters(request: Request, sort_column: str):
-    """
-    see all characters and the quantity of comics in which they appear:
-    character name: text
-    quantity of comics they appear in: int
-
-    :param request: query request
-    :param sort_column: column to sort the data with, either 'name' or 'comics_available'
-    :return: displays the desired table
-    """
-
-    rows, total = get_data(sort_column)
+@router.get("/per_country_ui", response_model=List[schemas.Country])
+def show_per_country(request: Request, db: Session = Depends(get_db)):
+    per_country_data = db.query(models.Country).all()
 
     return templates.TemplateResponse(
-        "characters_view.html",
+        "per_country_view.html",
         context={
             "request": request,
-            "total": total,
-            "rows": rows,
-            "title": "Marvel characters",
-        },
-    )
-
-
-@router.get("/comics_per_characters/paginated")
-async def comics_per_characters_paginated(
-    request: Request, sort_column: str
-) -> JSONResponse:
-    """
-    WIP (active page button): Same as previous endpoint but with paginated UI
-    """
-
-    limit = 100
-    pages, total = get_data(sort_column, limit)
-
-    return templates.TemplateResponse(
-        "characters_view_paginated.html",
-        context={
-            "request": request,
-            "total": total,
-            "pages": pages,
-            "limit": limit,
-            "title": "Marvel characters",
+            "total": len(per_country_data),
+            "rows": per_country_data,
+            "title": "Per country report",
         },
     )
