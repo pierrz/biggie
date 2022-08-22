@@ -133,6 +133,8 @@ jobs:
           docker run
           --env MONGODB_URI=${{ secrets.MONGODB_URI }}
           --env DB_NAME=${{ secrets.DB_NAME }}
+          --env DB_USER=${{ secrets.DB_USER }}
+          --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           --network=test_network
           ghcr.io/pierrz/biggie_api_img:latest
           pytest -vv
@@ -143,9 +145,6 @@ jobs:
           --volume ${{ secrets.VOLUME_MOUNT }}
           --env MONGODB_URI=${{ secrets.MONGODB_URI }}
           --env DB_NAME=${{ secrets.DB_NAME }}
-          --env POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-          --env POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-          --env POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           --env DB_USER=${{ secrets.DB_USER }}
           --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           --env TOKEN_GITHUB_API=${{ secrets.TOKEN_GITHUB_API }}
