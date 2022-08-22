@@ -45,9 +45,9 @@ jobs:
           tag: ${{ env.RELEASE }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  build-and-push-image-harvester:
+  build-and-push-image-celery:
 
-    name: Harvester - build/push image
+    name: Celery - build/push image
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -61,44 +61,19 @@ jobs:
       - name: Run 'build-push' local action
         uses: ./.github/actions/build-push
         with:
-          name: Harvester
-          src: harvester
+          name: Celery
+          src: celery_app
           registry: ${{ env.REGISTRY }}
           actor: ${{ github.actor }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          image: pierrz/biggie_harvester_img
-          tag: ${{ env.RELEASE }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  build-and-push-image-pyspark:
-
-    name: PySpark - build/push image
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run 'build-push' local action
-        uses: ./.github/actions/build-push
-        with:
-          name: PySpark
-          src: pyspark_app
-          registry: ${{ env.REGISTRY }}
-          actor: ${{ github.actor }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          image: pierrz/biggie_pyspark_img
+          image: pierrz/biggie_celery_img
           tag: ${{ env.RELEASE }}
           labels: ${{ steps.meta.outputs.labels }}
 
   test-built-images:
 
     name: Test built images
-    needs: [build-and-push-image-api, build-and-push-image-harvester, build-and-push-image-pyspark]
+    needs: [build-and-push-image-api, build-and-push-image-celery]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -117,6 +92,12 @@ jobs:
       MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
       VOLUME_MOUNT: ${{ secrets.VOLUME_MOUNT }}
 
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
     steps:
 
       - name: Checkout repository
@@ -129,7 +110,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create network & Mongo container
+      - name: Create network & Mongo/Postgres containers
         run: >
           docker network create -d bridge test_network
           && docker run -d --name biggie_mongo
@@ -137,25 +118,30 @@ jobs:
           --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
           --network=test_network
           mongo:5.0.8
+          && docker run -d --name biggie_postgres
+          --env POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          --env POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          --env POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          --env DB_NAME=${{ secrets.DB_NAME }}
+          --env DB_USER=${{ secrets.DB_USER }}
+          --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          --network=test_network
+          postgres:14.4
 
-      - name: Test Harvester image
-        run: >
-          docker run
-          --volume ${{ secrets.VOLUME_MOUNT }}
-          --env API_PUBLIC_KEY=${{ secrets.API_PUBLIC_KEY }}
-          --env API_PRIVATE_KEY=${{ secrets.API_PRIVATE_KEY }}
-          ghcr.io/pierrz/biggie_harvester_img:latest
-          pytest -v --asyncio-mode=strict
-
-      - name: Test PySpark image
+      - name: Test Celery image
         run: >
           docker run
           --volume ${{ secrets.VOLUME_MOUNT }}
           --env MONGODB_URI=${{ secrets.MONGODB_URI }}
           --env DB_NAME=${{ secrets.DB_NAME }}
+          --env POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          --env POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          --env POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          --env DB_USER=${{ secrets.DB_USER }}
+          --env DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           --network=test_network
-          ghcr.io/pierrz/biggie_pyspark_img:latest
-          python3.9 -m pytest -v
+          ghcr.io/pierrz/biggie_celery_img:latest
+          python3.10 -m pytest -vv --asyncio-mode=strict
 
       - name: Test API image
         run: >
@@ -164,4 +150,4 @@ jobs:
           --env DB_NAME=${{ secrets.DB_NAME }}
           --network=test_network
           ghcr.io/pierrz/biggie_api_img:latest
-          pytest -v
+          pytest -vv
