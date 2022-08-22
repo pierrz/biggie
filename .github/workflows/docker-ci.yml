@@ -120,7 +120,7 @@ jobs:
 
       - name: Create Postgres container
         run: >
-          cd ~/biggie/conf/postgres
+          cd ~/conf/postgres
           && docker build . --tag biggie_postgres:latest
           && docker run -d --name biggie_postgres
           --env POSTGRES_DB=${{ secrets.POSTGRES_DB }}
