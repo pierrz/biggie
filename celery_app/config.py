@@ -6,8 +6,7 @@ import os
 from pathlib import Path
 
 from pydantic import BaseSettings
-from src.tasks.schedules import \
-    ukr_dp_data_acquisition  # , github_events_stream
+from src.tasks.schedules import github_events_stream
 
 data_dir_root = Path(os.sep, "opt", "data")
 TEST_MODE = bool(os.getenv("TEST"))
@@ -35,12 +34,10 @@ class CeleryConfig(BaseSettings):
         imports = [
             "src.tasks.github_events_data_acquisition",
             "src.tasks.github_events_load",
-            "src.tasks.github_events_cleaning",
-            "src.tasks.ukr_dp_data_acquisition",
+            "src.tasks.github_events_cleaning"
         ]
         beat_schedule = {
-            "dp-data-acquisition": ukr_dp_data_acquisition,
-            # "github-events-stream": github_events_stream
+            "github-events-stream": github_events_stream
         }
 
 
@@ -48,7 +45,6 @@ class DataDirectories(BaseSettings):
     github_in = Path(data_dir_root, "events", "received")
     github_out = Path(data_dir_root, "events", "processed")
     github_diagrams = Path(data_dir_root, "events", "diagrams")
-    ukr_dp = Path(data_dir_root, "lake")
     batch = Path(data_dir_root, "batch-io")
 
 

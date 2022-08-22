@@ -1,4 +1,4 @@
-# Biggie
+# biggie
 
 Biggie is a tool to quickly get data from (external) APIs into a Mongo database,
 and have it exposed/searchable via a dedicated new API.
@@ -8,24 +8,26 @@ It is a Docker compose setup including
 - an API endpoints container based on FastAPI
 - 2 containers for Mongo and Postgres databases.
 - 2 containers for Flower and PGAdmin for monitoring purpose.
-- 1 'live deployment' container for Nginx and currently set up only with the Api container
+- a 'live deployment' container for Nginx and currently set up only with the Api container
+
+It is currently set up to fetch data from the [GitHub Events API](https://api.github.com/events)
+then stream it into Mongo and have it exposed/analysed via several dedicated APIs. 
+It was fetching data from the Marvel API until version 0.4.0. 
 
 The repository itself is based on the ['Papel' repository](https://github.com/pierrz/papel).
 
-_This tool was set up to get data from the Marvel API until version 0.4.0_
-
 <br>
+
 
 ### Installation
 
 #### Environment
-You have to create the `.env` environment file,
-and use/create a Github token for enabling the test/build sequence.
-
-If you plan to use the same Github-actions CI file,
-you need to create the same secrets as in your `.env` environment file.
+You have to create the `.env` environment file and use/create a Github token for enabling the test buid sequence.
 
 [wip] Eventually tweak the schedule parameter for the cleaning task (see **"Data streaming"** section below.).
+
+If you plan to use the same Github-actions CI file, you need to create the same secrets
+as in the `jobs > env` section in `.github/workflows/docker-ci.yml` (see **line 31**).
 
 **NB**:
 - For all files embedded with secrets, you'll find the `<file>.example` ready to adapt.
@@ -33,7 +35,7 @@ you need to create the same secrets as in your `.env` environment file.
 <br>
 
 #### Build
-The `docker-compose` file is structured to make the `test` containers build the image
+The `docker-compose.main` file is structured to make the `test` containers build the image
 used by the `prod` image. Hence the need to run one of the following commands on the very first run:
 ```
 docker-compose up api_test celery_test

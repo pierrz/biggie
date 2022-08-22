@@ -18,8 +18,8 @@ spark_postgres = (
     SparkSession.builder.appName("Spark/Postgres IO")
     .master("local[2]")
     .config("spark.executor.memory", "2g")
-    .config("spark.driver.extraClassPath", "/opt/spark/jars/postgresql-42.4.1.jar")
     .config("spark.executor.extraClassPath", "/opt/spark/jars/postgresql-42.4.1.jar")
+    .config("spark.driver.extraClassPath", "/opt/spark/jars/postgresql-42.4.1.jar")
     .getOrCreate()
 )
 
