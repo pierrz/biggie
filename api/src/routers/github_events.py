@@ -12,7 +12,7 @@ from config import diagrams_dir
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from src.db.mongo import init_mongo_connection
-from src.routers.templates import templates
+from src.routers import templates
 
 router = APIRouter(
     prefix="/events",
