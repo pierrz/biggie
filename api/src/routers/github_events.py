@@ -63,7 +63,11 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = 0):
     raw_df = dataframe_from_mongo_data(db_data, "created_at")
 
     if raw_df is None:
-        return JSONResponse({"result": "not enough data to make a PR timeline (at least 3 events for 2 intervals)"})
+        return JSONResponse(
+            {
+                "result": "not enough data to make a PR timeline (at least 3 events for 2 intervals)"
+            }
+        )
 
     if size > 2:
         results_df = raw_df.tail(size).reset_index()
