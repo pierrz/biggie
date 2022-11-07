@@ -21,3 +21,9 @@ repos:
     rev: v2.11.1
     hooks:
     -   id: pylint
+
+- repo: https://github.com/python-poetry/poetry
+  rev: ''  # add version here
+  hooks:
+      - id: poetry-check
+      - id: poetry-lock

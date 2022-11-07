@@ -14,9 +14,9 @@ RUN apt update \
 
 # spark
 RUN cd /tmp \
-    && wget https://dlcdn.apache.org/spark/spark-3.3.0/spark-3.3.0-bin-hadoop3.tgz \
-    && tar -xvzf spark-3.3.0-bin-hadoop3.tgz \
-    && mv spark-3.3.0-bin-hadoop3/ /opt/spark
+    && wget https://dlcdn.apache.org/spark/spark-3.3.1/spark-3.3.1-bin-hadoop3.tgz \
+    && tar -xvzf spark-3.3.1-bin-hadoop3.tgz \
+    && mv spark-3.3.1-bin-hadoop3/ /opt/spark
 
 # postgres lib
 RUN wget https://jdbc.postgresql.org/download/postgresql-42.4.1.jar -O /opt/spark/jars/postgresql-42.4.1.jar
@@ -40,14 +40,16 @@ ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
 # poetry
 RUN wget https://bootstrap.pypa.io/get-pip.py -O /tmp/get-pip.py
 RUN python3.10 /tmp/get-pip.py
-RUN python3.10 -m pip install --upgrade pip \
-    && python3.10 -m pip install poetry
+#RUN python3.10 -m pip install --upgrade pip \
+#    && python3.10 -m pip install poetry
+RUN python3.10 -m pip install --upgrade pip
+RUN curl -sSL https://install.python-poetry.org | python3.10 -
 
 # Copy only requirements to cache them in docker layer
 WORKDIR /opt/celery_app
 COPY ./celery_app/pyproject.toml ./celery_app/poetry.lock* ./
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi
+RUN ~/.local/share/pypoetry/venv/bin/poetry config virtualenvs.create false \
+    && ~/.local/share/pypoetry/venv/bin/poetry install --no-interaction --no-ansi
 
 COPY ./celery_app ./
 COPY ./db ./src/db
