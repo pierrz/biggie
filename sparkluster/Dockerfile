@@ -38,22 +38,17 @@ ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
     PIP_DEFAULT_TIMEOUT=100
 
 # poetry
-# RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/etc/poetry python3 -
-# RUN /etc/poetry --version
 RUN wget https://bootstrap.pypa.io/get-pip.py -O /tmp/get-pip.py
 RUN python3.10 /tmp/get-pip.py
-#RUN python3.10 -m pip install --upgrade pip \
-#    && python3.10 -m pip install poetry
 RUN python3.10 -m pip install --upgrade pip \
-    && pip install poetry
-# RUN curl -sSL https://install.python-poetry.org | python3.10 -
+    && python3.10 -m pip install poetry
 
 # Copy only requirements to cache them in docker layer
-WORKDIR /opt/celery_app
-COPY ./celery_app/pyproject.toml ./celery_app/poetry.lock* ./
+WORKDIR /opt/sparkluster
+COPY ./sparkluster/pyproject.toml ./sparkluster/poetry.lock* ./
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi
 
-COPY ./celery_app ./
+COPY ./sparkluster ./
 COPY ./db ./src/db
-COPY ./utils ./src/utils
+#COPY ./utils ./src/utils
