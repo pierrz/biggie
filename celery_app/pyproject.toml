@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "biggie"
-version = "0.4.1"
+version = "0.4.2"
 description = "Biggie. Celery containers (test & prod)"
 authors = ["Pierre-Edouard Barrault"]
 
