@@ -22,12 +22,3 @@ spark_postgres = (
     .config("spark.driver.extraClassPath", "/opt/spark/jars/postgresql-42.4.1.jar")
     .getOrCreate()
 )
-
-# cheatsheet for further settings
-# .config("spark.mongodb.input.uri", "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/Stocks.Source?replicaSet=rs0")\
-# .master("spark://spark-master:7077")\     Spark standalone cluster
-# .master("local[2]")\      local run with 2 cores
-
-# draft
-# .config("spark.jars.packages", "org.postgresql:postgresql:42.4.1")
-# .config("spark.jars", "/opt/spark/jars/postgresql-42.4.1.jar")
