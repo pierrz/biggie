@@ -1,29 +1,18 @@
 [tool.poetry]
 name = "biggie"
-version = "0.4.1"
-description = "Biggie. FastAPI containers (test & prod)"
+version = "0.4.0"
+description = "Biggie. Spark cluster containers (test & prod)"
 authors = ["Pierre-Edouard Barrault"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
-fastapi = "==0.79.0"
-Jinja2 = "==3.1.2"
-pandas = "==1.4.3"
-plotly = "==5.9.0"
 psycopg2-binary = "==2.9.3"
-pydantic = "==1.9.1"
-pymongo = "==4.2.0"
+pyspark = "==3.3.0"
 pytest = "==7.1.2"
-SQLAlchemy = "==1.4.39"
-typing = "==3.7.4.3"
-uvicorn = "==0.18.2"
 
 [build-system]
 requires = ["poetry_core>=1.1.14"]  # not working with 1.1.7 and python3.10.4
 build-backend = "poetry.masonry.api"
 
 [tool.pytest.ini_options]
-pythonpath = [ "/opt/api", ]
-filterwarnings = [
-    "error"
-]
+pythonpath = [ "/opt/sparkluster", ]
