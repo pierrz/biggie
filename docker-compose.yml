@@ -132,7 +132,8 @@ services:
       - rabbitmq
       - mongo
       - postgres
-    command: python3.10 -m pytest -vv
+    command: python3 -m pytest -vv
+#    command: sleep 5m
     profiles:
       - test
     restart: on-failure
