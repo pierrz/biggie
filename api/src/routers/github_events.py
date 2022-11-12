@@ -5,46 +5,20 @@ All API endpoints.
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import plotly.express as px
 from config import diagrams_dir
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse
 from src.db.mongo import init_mongo_connection
 from src.routers import templates
+from src.routers.data_lib import dataframe_from_mongo_data
 
 router = APIRouter(
     prefix="/events",
     tags=["events"],
     responses={404: {"description": "Issue with endpoint"}},
 )
-
-
-@router.get("/")
-def main():
-    return RedirectResponse(url="/docs/")
-
-
-def dataframe_from_mongo_data(db_data, sort_by: str = None):
-    """
-    Prepares the data retrieved from Mongo to be compliant with pd.DataFrame and JSONResponse
-    :param db_data: data retrieved from Mongo
-    :param sort_by: the column to sort the dataframe with
-    :return: the prepared/cleaned dataframe
-    """
-
-    raw_df = pd.DataFrame(db_data)
-    if raw_df.shape[0] > 1:  # at least 2 rows to get an interval
-        raw_df.drop(columns=["_id"])
-        # drop_duplicates to cover potential overlaps from the GitHub events API
-        clean_df = raw_df.drop_duplicates().replace(to_replace=[np.nan], value=[""])
-
-        if sort_by is None:
-            return clean_df
-        return clean_df.sort_values(by=sort_by)
-
-    return None
 
 
 @router.get("/pr_deltas_timeline")

@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from src.db import models
 from src.db.postgres import pg_engine
-from src.routers import dummy_endpoint, github_events
+from src.routers import dummy_endpoint, github_events, mongo_endpoints
 
 models.Base.metadata.create_all(bind=pg_engine)
 
@@ -34,3 +34,4 @@ if app_config.LOCAL_DEV:
 # routers
 app.include_router(dummy_endpoint.router)
 app.include_router(github_events.router)
+app.include_router(mongo_endpoints.router)

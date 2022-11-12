@@ -132,8 +132,7 @@ services:
       - rabbitmq
       - mongo
       - postgres
-    command: python3 -m pytest -vv
-#    command: sleep 5m
+    command: python3.10 -m pytest -vv
     profiles:
       - test
     restart: on-failure
@@ -162,10 +161,3 @@ services:
     volumes:
       - biggie_vrabbitmq:/var/lib/rabbitmq
       - ./logs/rabbitmq:/var/log/rabbitmq
-
-  spark:
-    container_name: biggie_spark
-    image: apache/spark
-    restart: on-failure
-    ports:
-      - "7077:7077"
