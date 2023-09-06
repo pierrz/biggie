@@ -132,6 +132,7 @@ services:
       - rabbitmq
       - mongo
       - postgres
+      - spark
     command: python3 -m pytest -vv
 #    command: sleep 5m
     profiles:
@@ -165,7 +166,14 @@ services:
 
   spark:
     container_name: biggie_spark
-    image: apache/spark
+#    image: apache/spark
+    build:
+      context: .
+      dockerfile: sparkluster/Dockerfile
     restart: on-failure
+    command: /opt/spark/sbin/start-history-server.sh
+#    command: /opt/spark/sbin/start-master.sh
     ports:
       - "7077:7077"
+    volumes:
+      - ./logs/spark:/opt/spark/logs
