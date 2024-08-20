@@ -5,9 +5,10 @@ Spark core runner
 from config import pyspark_config
 from pyspark.sql import SparkSession  # pylint: disable=E0611
 
+# TODO: update connector version
 spark_mongo = (
     SparkSession.builder.appName("Spark/Mongo IO")
-    .setMaster("spark://spark-master:7077")
+    .master("local[2]")
     .config("spark.executor.memory", "2g")
     .config("spark.mongodb.input.uri", pyspark_config.MONGODB_URI)
     .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.0")
@@ -15,10 +16,10 @@ spark_mongo = (
 )
 spark_postgres = (
     SparkSession.builder.appName("Spark/Postgres IO")
-    .setMaster("spark://spark-master:7077")
+    .master("local[2]")
     .config("spark.executor.memory", "2g")
-    .config("spark.executor.extraClassPath", "/opt/spark/jars/postgresql-42.4.1.jar")
-    .config("spark.driver.extraClassPath", "/opt/spark/jars/postgresql-42.4.1.jar")
+    .config("spark.executor.extraClassPath", "/opt/spark/jars/postgresql-42.7.3.jar")
+    .config("spark.driver.extraClassPath", "/opt/spark/jars/postgresql-42.7.3.jar")
     .getOrCreate()
 )
 # spark_mongo = (

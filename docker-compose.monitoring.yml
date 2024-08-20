@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   flower:
     container_name: biggie_flower
