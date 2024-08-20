@@ -1,4 +1,3 @@
-#FROM ubuntu:20.04
 FROM python:3.10.8
 
 # java
@@ -6,21 +5,17 @@ RUN apt-get clean \
     && apt-get update \
     && apt-get install -qy wget default-jdk tar
 
-## python
-#RUN apt update \
-#    && apt install -qy software-properties-common \
-#    && add-apt-repository ppa:deadsnakes/ppa \
-#    && apt-get update \
-#    && apt install -qy python3.10 python3.10-distutils
-
 # spark
+# TODO: eventually implement Spark with Scala 2.13
+# (currently not the default version in many related PaaS offers though)
+# https://dlcdn.apache.org/spark/spark-3.5.2/spark-3.5.2-bin-hadoop3-scala2.13.tgz
 RUN cd /tmp \
-    && wget https://dlcdn.apache.org/spark/spark-3.3.1/spark-3.3.1-bin-hadoop3.tgz \
-    && tar -xvzf spark-3.3.1-bin-hadoop3.tgz \
-    && mv spark-3.3.1-bin-hadoop3/ /opt/spark
+    && wget https://dlcdn.apache.org/spark/spark-3.5.2/spark-3.5.2-bin-hadoop3.tgz \
+    && tar -xvzf spark-3.5.2-bin-hadoop3.tgz \
+    && mv spark-3.5.2-bin-hadoop3/ /opt/spark
 
 # postgres lib
-RUN wget https://jdbc.postgresql.org/download/postgresql-42.4.1.jar -O /opt/spark/jars/postgresql-42.4.1.jar
+RUN wget https://jdbc.postgresql.org/download/postgresql-42.7.3.jar -O /opt/spark/jars/postgresql-42.7.3.jar
 
 # environment
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
@@ -60,8 +55,6 @@ COPY ./celery_app/poetry.lock* ./
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi
 
-RUN whereis python3.10
-RUN whereis python3.9
 ENV PATH="${PATH}:/etc/poetry/bin" \
     PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3.10 \
     PYSPARK_PYTHON=/usr/local/bin/python3.10
