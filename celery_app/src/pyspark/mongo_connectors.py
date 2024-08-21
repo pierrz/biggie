@@ -1,7 +1,7 @@
 """
 Mongo connectors
 """
-# TODO: refactoring to discard all E1101 errors from pylint (currently ignored)
+# TODO: refactoring to discard all E0611 errors from pylint (currently ignored)
 
 from abc import ABC
 from typing import Iterable, Tuple
@@ -40,14 +40,15 @@ class MongoLoader(ABC):
 
     def __init__(self, spark_df: DataFrame, collection: str):
         print("=> Loading Mongo ...")
-        mongo_params_with_uri = {
+        mongo_write_params = {
             "collection": collection,
             "uri": pyspark_config.MONGODB_URI,
             **mongo_params,
         }
-        spark_df.write.format("mongo").options(**mongo_params_with_uri).mode(
-            "append"
-        ).save()
+        spark_df.write.format("mongodb") \
+            .options(**mongo_write_params) \
+            .mode("append") \
+            .save()
         print(" ... Mongo loaded")
 
 
@@ -56,11 +57,18 @@ class MongoReader(ReaderBase):
     Base class dedicated to read data from a specific Mongo collection
     """
 
+    collection: str
+
     def __init__(self):
 
         print("=> Reading Mongo ...")
-        mongo_params["collection"] = self.collection
-        db_data = spark_mongo.read.format("mongo").options(**mongo_params).load()
+        mongo_read_params = {
+            "collection": self.collection,
+            **mongo_params,
+        }
+        db_data = spark_mongo.read.format("mongodb") \
+            .options(**mongo_read_params) \
+            .load()
         self.preps_and_checks(db_data)
 
     def _name(self) -> Tuple[str]:
