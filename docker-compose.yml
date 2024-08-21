@@ -56,7 +56,7 @@ services:
       - live_prod
 
   mongo:
-    image: mongo:5.0.8
+    image: mongo:7.0.12
     container_name: biggie_mongo
     restart: always
     environment:
