@@ -20,7 +20,7 @@ pytest-asyncio = "==0.19.0"
 requests = "==2.28.1"
 SQLAlchemy = "==1.4.39"
 typing = "==3.7.4.3"
-# warnings for these 2 ...
+# warnings for these 2 (blockers on fix/update end 2022)
 chardet = "==5.0.0"
 urllib3 = "==1.26.12"
 
