@@ -13,7 +13,7 @@ router = APIRouter(
 
 
 @router.get("/dummy", include_in_schema=False)
-async def hello_karen() -> JSONResponse:
+async def hello_world() -> JSONResponse:
     """
     Check if the api is up
     :return: a basic response
