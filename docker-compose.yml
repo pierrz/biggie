@@ -160,10 +160,3 @@ services:
     volumes:
       - biggie_vrabbitmq:/var/lib/rabbitmq
       - ./logs/rabbitmq:/var/log/rabbitmq
-
-  spark:
-    container_name: biggie_spark
-    image: apache/spark
-    restart: on-failure
-    ports:
-      - "7077:7077"
