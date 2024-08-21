@@ -1,7 +1,8 @@
 services:
   flower:
     container_name: biggie_flower
-    image: mher/flower:latest
+    # TODO: update to 2.xx version
+    image: mher/flower:1.2
     command: celery --broker=${CELERY_BROKER_URL} flower
     environment:
       CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
@@ -14,7 +15,7 @@ services:
       - monitoring
 
   mongo-express:
-    image: mongo-express:latest   # 0.54 needs authentication
+    image: mongo-express:1.0.2
     container_name: biggie_mongoex
     restart: always
     ports:
@@ -33,7 +34,8 @@ services:
 
   pgadmin:
     container_name: biggie_pgadmin
-    image: dpage/pgadmin4:5.7   # pinned to load the server conf (current is 6.12)
+    # TODO: update to 8.xx version
+    image: dpage/pgadmin4:5.7
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"

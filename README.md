@@ -38,9 +38,9 @@ as in the `jobs > env` section in `.github/workflows/docker-ci.yml` (see **line 
 The `docker-compose.main` file is structured to make the `test` containers build the image
 used by the `prod` image. Hence the need to run one of the following commands on the very first run:
 ```
-docker-compose up api_test celery_test
+docker compose up api_test celery_test
 OR
-docker-compose --profile test up
+docker compose --profile test up
 ```
 
 <br>
@@ -48,13 +48,13 @@ docker-compose --profile test up
 ### Run
 #### Data acquisition
 ```
-docker-compose up celery_prod
+docker compose up celery_prod
 ```
 This command will spin up the Celery container and:
 
   - download all required data and save them as files locally
   - read these files and load Postgres with relevant data
-  - [tdb] delete all local files once their data is successfully in Mongo
+  - delete all local files once their data is successfully in Mongo
 
 These tasks are **scheduled every minute** with a crontab setting,
 and a custom parameter is implemented to separately schedule the cleaning step
@@ -68,7 +68,7 @@ See `kwargs={"wait_minutes": 30}` in the `github_events_stream` schedule in [**`
 Spin up the Mongo-Express container to access the Mongo-Express and Flower UI
 along the Celery production container.
 ```
-docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
+docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
 docker-compose \
   -f docker-compose.yml \
   -f docker-compose.monitoring.yml \
@@ -89,7 +89,7 @@ docker-compose up api_prod
 #### Monitoring and Production containers
 Both production containers as well as both monitoring containers.
 ```
-docker-compose \
+docker compose \
   -f docker-compose.yml \
   -f docker-compose.monitoring.yml \
   --profile prod --profile monitoring \
@@ -119,7 +119,7 @@ The `nginx` configuration files are:
 Finally run the `docker-compose` command with the `live_prod` profile
 to spin up all that to the world:
 ```
-docker-compose \
+docker compose \
   -f docker-compose.yml \
   -f docker-compose.monitoring.yml \
   --profile prod --profile monitoring --profile live_prod \
@@ -143,6 +143,7 @@ including the actor name such as `pierrz/biggie`.
 Monitoring
 - [Mongo-Express](http://localhost:8081)
 - [Flower](http://localhost:49555)
+- [PGAdmin](http://localhost:5050)
 
 <br>
 
