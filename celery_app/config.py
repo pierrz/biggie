@@ -9,7 +9,7 @@ from pydantic import BaseSettings
 from src.tasks.schedules import github_events_stream
 
 data_dir_root = Path(os.sep, "opt", "data")
-TEST_MODE = bool(os.getenv("TEST_MODE"))
+TEST_MODE: str = bool(os.getenv("TEST_MODE"))
 
 
 class CeleryConfig(BaseSettings):
@@ -52,7 +52,7 @@ class HarvesterConfig(BaseSettings):
     """
 
     # if TEST_MODE:     # to implement only once the branch split has been done
-    TOKEN_GITHUB_API: str = os.getenv("TOKEN_GITHUB_API")
+    TOKEN_GITHUB_API: str
     EVENTS = ["IssuesEvent", "PullRequestEvent", "WatchEvent"]
     PER_PAGE = 20
 
@@ -62,8 +62,8 @@ class PySparkConfig(BaseSettings):
     PySpark module config
     """
 
-    MONGODB_URI: str = os.getenv("MONGODB_URI")
-    DB_NAME: str = os.getenv("DB_NAME")
+    MONGODB_URI: str
+    DB_NAME: str
 
 
 celery_config = CeleryConfig()

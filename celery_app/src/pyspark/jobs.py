@@ -1,13 +1,15 @@
 """
 Spark jobs module
+TODO: align Mongo and Postgres jobs (table_or_collection)
 """
 
 import os
 import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 
+from pyspark.sql.types import StructType
 # pylint: disable=E0611
 from src.utils.json_utils import load_json
 
@@ -25,14 +27,16 @@ class SparkJobBase(ABC):
     input_array: Iterable[Dict]
     check_columns: Iterable
     reader_class: any
+    schema: Optional[StructType]
 
-    def __init__(self, table_or_collection, check_columns, reader_class):
+    def __init__(self, table_or_collection, check_columns, reader_class, schema=None):
         """
         Triggers the job sequence
         """
         self.table_or_collection = table_or_collection
         self.check_columns = check_columns
         self.reader_class = reader_class
+        self.schema = schema
 
     def get_input_array(self) -> Tuple[Iterable[Dict], int]:
         """
@@ -67,9 +71,15 @@ class ToMongoFromJson(SparkJobBase):
     """
 
     def __init__(
-        self, input_dir_paths, collection, output_dir_path, check_columns, reader_class
+        self,
+        input_dir_paths,
+        collection,
+        output_dir_path,
+        check_columns,
+        reader_class,
+        schema=None
     ):
-        super().__init__(collection, check_columns, reader_class)
+        super().__init__(collection, check_columns, reader_class, schema)
         self.input_dir_paths = input_dir_paths
         self.output_dir_path = output_dir_path
         json_array, invalid = self.get_input_array()
@@ -88,11 +98,19 @@ class ToMongoFromJson(SparkJobBase):
     def process_and_load_data(self):
         try:
             print(f"{len(self.input_array)} rows available")
-            MongoDataframeMaker(
-                input_array=self.input_array,
-                table_or_collection=self.table_or_collection,
-                check_columns=self.check_columns,
-            ).load_mongo()
+            maker_parameters = {
+                "input_array": self.input_array,
+                "table_or_collection": self.table_or_collection,
+                "check_columns": self.check_columns
+            }
+            print("--> HERE1")
+            print(self.schema)
+            if self.schema is not None:
+                print("--> HERE2")
+                maker_parameters["schema"] = self.schema
+
+            # load, read afterwards and 'flag files' to move them
+            MongoDataframeMaker(**maker_parameters).load_mongo()
             self.reader_class()
             self.flag_files = True
 

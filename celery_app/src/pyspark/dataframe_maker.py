@@ -60,13 +60,11 @@ class DataframeMaker(ABC):
         print("=> Normalising data ...")
         flat_df: pd.DataFrame = pd.json_normalize(input_array, sep="_")
 
-        # hack to load Mongo seamlessly
+        # preparations specific to github api data
         print("=> Preparing dataframe ...")
         columns_to_drop = []
-        columns_to_rename = {"id": ns.CheckedColumns.event_id}
+        columns_to_rename = {"id": ns.CheckedColumns.event_id.value}
         for col in flat_df.columns.to_list():
-
-            # specific to github api data (minimize)
             if col.startswith("payload_") or col.startswith("org_"):
                 columns_to_drop.append(col)
 
@@ -76,8 +74,11 @@ class DataframeMaker(ABC):
             )  # reducing the loaded data (prod)
 
         flat_df.rename(columns=columns_to_rename, inplace=True)
+        datetime_values = pd.to_datetime(flat_df["created_at"])
+        flat_df["created_at"] = datetime_values
+        flat_df[ns.CheckedColumns.event_id.value].astype("int64")
         print(" ... dataframe finalised")
-
+        print(flat_df[["event_id", "created_at"]])
         columns = flat_df.columns.to_list()
         print(f"=> {flat_df.shape[0]} rows and {len(columns)} columns")
 
@@ -112,7 +113,12 @@ class MongoDataframeMaker(DataframeMaker):
         if schema is not None:
             parameters["schema"] = schema
 
+        print("--> HERE A")
+        print(self.flat_df.columns)
+        print(self.flat_df.dtypes)
+        print(self.flat_df)
         spark_df = spark_mongo.createDataFrame(**parameters)
+        print("--> HERE B")
         self.store_spark_df(spark_df)
 
     def load_mongo(self):

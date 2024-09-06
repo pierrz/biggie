@@ -66,9 +66,11 @@ class MongoReader(ReaderBase):
             "collection": self.collection,
             **mongo_params,
         }
+        print("--> HERE3")
         db_data = spark_mongo.read.format("mongodb") \
             .options(**mongo_read_params) \
             .load()
+        print("--> HERE4")
         self.preps_and_checks(db_data)
 
     def _name(self) -> Tuple[str]:

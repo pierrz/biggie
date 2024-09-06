@@ -34,7 +34,7 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = 0):
 
     # data
     mongodb = init_mongo_connection()  # pylint: disable=C0103
-    db_data = mongodb.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
+    db_data = mongodb.events.find({"repo_name": repo_name, "type": "PullRequestEvent"})
     valid_data_dict = validate_data(db_data, model=Event)
     raw_df = dataframe_from_mongo_data(valid_data_dict, "created_at")
 
@@ -94,7 +94,7 @@ async def pr_average_delta(repo_name: str):
     """
 
     mongodb = init_mongo_connection()  # pylint: disable=C0103
-    db_data = mongodb.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
+    db_data = mongodb.events.find({"repo_name": repo_name, "type": "PullRequestEvent"})
     valid_data_dict = validate_data(db_data, model=Event)
     results_df = dataframe_from_mongo_data(valid_data_dict, "created_at")
 
@@ -130,7 +130,7 @@ async def count_per_type(offset: str):
     offset_filter = {"created_at": {"$lte": f"{time_with_offset}"}}
 
     mongodb = init_mongo_connection()  # pylint: disable=C0103
-    db_data = mongodb.event.find(offset_filter)
+    db_data = mongodb.events.find(offset_filter)
     valid_data_dict = validate_data(db_data, model=Event)
     results_df = dataframe_from_mongo_data(valid_data_dict)
 

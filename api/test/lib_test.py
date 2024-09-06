@@ -6,7 +6,7 @@ Test oriented library
 import os
 from pathlib import Path
 
-from src.json_utils import load_json  # pylint: disable=E0611
+from src.utils.json_utils import load_json  # pylint: disable=E0611
 
 
 def get_test_fixtures_path():
