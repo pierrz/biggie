@@ -1,6 +1,5 @@
 from datetime import datetime
 from enum import Enum
-from typing import Union
 
 from bson import ObjectId
 from pydantic import BaseModel, Field, HttpUrl
@@ -39,7 +38,9 @@ class Event(BaseModel):
     actor_id: int
     actor_login: str
     actor_display_login: str
-    actor_gravatar_id: Union[str, int]
+    # actor_gravatar_id could be int but it is always "" so far
+    # actor_gravatar_id: Union[str, int]
+    actor_gravatar_id: str
     actor_url: HttpUrl
     actor_avatar_url: HttpUrl
     repo_id: int

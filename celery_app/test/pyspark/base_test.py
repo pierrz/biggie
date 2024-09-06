@@ -60,6 +60,7 @@ class MongoDFTest(DataframeTestBase):
             self.fixture.test_data,
             self.fixture.table_or_collection,
             check_columns=self.check_columns,
+            schema=self.fixture.test_schema
         )
         self.run()
 

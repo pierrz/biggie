@@ -1,5 +1,9 @@
 """
 Module dedicated to constructing Spark dataframes
+
+TODO:
+- typing
+- fully align Mongo and Postgres DataframeMaker (investigate)
 """
 
 from abc import ABC, abstractmethod
@@ -92,18 +96,23 @@ class DataframeMaker(ABC):
 
 
 class MongoDataframeMaker(DataframeMaker):
-    def __init__(self, input_array, table_or_collection, check_columns):
+    def __init__(self, input_array, table_or_collection, check_columns, schema: StructType = None):
         super().__init__(table_or_collection, check_columns)
         self.normalize_input_data(input_array)
-        self.prepare_spark_dataframes()
+        self.prepare_spark_dataframes(schema)
 
-    def prepare_spark_dataframes(self):
+    def prepare_spark_dataframes(self, schema: StructType = None):
         """
         Generates the PySpark dataframes from the cleaned/normalised data
         :return: does its thing
         """
         print("=> Preparing PySpark dataframe for Mongo ...")
-        spark_df = spark_mongo.createDataFrame(data=self.flat_df)
+
+        parameters = {"data": self.flat_df}
+        if schema is not None:
+            parameters["schema"] = schema
+
+        spark_df = spark_mongo.createDataFrame(**parameters)
         self.store_spark_df(spark_df)
 
     def load_mongo(self):
@@ -115,15 +124,18 @@ class MongoDataframeMaker(DataframeMaker):
 
 
 class PostgresDataframeMaker(DataframeMaker):
-    def __init__(self, array_or_dataframe, table_or_collection, check_columns):
+    """
+    TODO: align with MongoDatarameMaker (property names, flow)
+    """
+    def __init__(self, array_or_dataframe, table_or_collection, check_columns, schema: StructType = None):
         super().__init__(table_or_collection, check_columns)
         if isinstance(array_or_dataframe, pd.DataFrame):
             self.prepare_spark_dataframes(array_or_dataframe)
         else:
             self.normalize_input_data(array_or_dataframe)
-            self.prepare_spark_dataframes()
+            self.prepare_spark_dataframes(schema)
 
-    def prepare_spark_dataframes(self, df: pd.DataFrame = None):
+    def prepare_spark_dataframes(self, df: pd.DataFrame = None, schema: StructType = None):
         """
         Generates the PySpark dataframes from the cleaned/normalised data
         :return: does its thing
@@ -131,10 +143,14 @@ class PostgresDataframeMaker(DataframeMaker):
         print("=> Preparing PySpark dataframe for Postgres ...")
 
         if df is None:
-            spark_df = spark_postgres.createDataFrame(data=self.flat_df)
+            parameters = {"data": self.flat_df}
         else:
-            spark_df = spark_postgres.createDataFrame(data=df)
+            parameters = {"data": df}
 
+        if schema is not None:
+            parameters["schema"] = schema
+
+        spark_df = spark_postgres.createDataFrame(**parameters)
         self.store_spark_df(spark_df)
 
     def load_postgres(self):

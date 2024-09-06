@@ -149,7 +149,6 @@ services:
     profiles:
       - prod_full
       - prod_acquisition
-      # - monitoring
     restart: on-failure
 
   rabbitmq:
@@ -163,5 +162,6 @@ services:
       - biggie_vrabbitmq:/var/lib/rabbitmq
       - ./logs/rabbitmq:/var/log/rabbitmq
     profiles:
+      - test
       - prod_full
       - prod_acquisition
