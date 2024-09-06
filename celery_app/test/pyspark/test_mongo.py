@@ -5,7 +5,7 @@ from test.pyspark.base_test import MongoDFTest, MongoTestReader
 
 from pandas.testing import assert_frame_equal
 from pyspark.sql.types import StructField, StructType
-from src.db.mongo import init_mongo_connection
+from src.db.mongo_db import init_mongo_connection
 
 
 # TODO: implement schema binding when reading data with Spark

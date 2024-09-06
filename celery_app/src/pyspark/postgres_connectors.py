@@ -8,7 +8,7 @@ from typing import Iterable, Tuple
 
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as psf
-from src.db.postgres import host_db
+from src.db.postgres_db import host_db
 
 from .connectors import ReaderBase
 from .runner import spark_postgres

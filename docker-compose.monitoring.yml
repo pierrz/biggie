@@ -1,4 +1,5 @@
 services:
+
   flower:
     container_name: biggie_flower
     # TODO: update to 2.xx version
@@ -12,7 +13,8 @@ services:
     depends_on:
       - celery_prod
     profiles:
-      - monitoring
+      - prod_full
+      - prod_acquisition
 
   mongo-express:
     image: mongo-express:1.0.2
@@ -30,7 +32,9 @@ services:
     depends_on:
       - mongo
     profiles:
-      - monitoring
+      - prod_full
+      - prod_analytics
+      - prod_acquisition
 
   pgadmin:
     container_name: biggie_pgadmin
@@ -45,6 +49,8 @@ services:
     depends_on:
       - postgres
     profiles:
-      - monitoring
+      - prod_full
+      - prod_analytics
+      - prod_acquisition
     ports:
       - "5050:80"

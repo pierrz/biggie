@@ -4,7 +4,7 @@ Tests focused on Postgres based features
 from test.pyspark.base_test import PostgresDFTest, PostgresTestReader
 
 from pandas.testing import assert_frame_equal
-from src.db.postgres import pg_engine
+from src.db.postgres_db import pg_engine
 
 
 class PostgresLoaderReaderTest(PostgresDFTest):

@@ -115,7 +115,8 @@ services:
     ports:
       - "8000:8000"
     profiles:
-      - prod
+      - prod_full
+      - prod_analytics
     volumes:
       - ./data/diagrams:/opt/api/templates/diagrams
 
@@ -146,8 +147,9 @@ services:
       - postgres
     command: sh run.sh
     profiles:
-      - prod
-      - monitoring
+      - prod_full
+      - prod_acquisition
+      # - monitoring
     restart: on-failure
 
   rabbitmq:
@@ -160,3 +162,6 @@ services:
     volumes:
       - biggie_vrabbitmq:/var/lib/rabbitmq
       - ./logs/rabbitmq:/var/log/rabbitmq
+    profiles:
+      - prod_full
+      - prod_acquisition

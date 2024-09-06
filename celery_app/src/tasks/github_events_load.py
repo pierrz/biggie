@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import List
 
 from config import data_directories
+from src.commons import names as ns
 from src.pyspark.jobs import ToMongoFromJson
 from src.pyspark.mongo_connectors import EventReader
 from worker import celery, logger
@@ -28,8 +29,8 @@ def run_load_events(page_range: int) -> List[int]:
     logger.info("Initiating data loading task to Mongo ...")
     ToMongoFromJson(
         input_dir_paths=[input_dir],
-        collection="event",
-        check_columns=["type", "actor_id", "repo_name"],
+        collection=ns.event,
+        check_columns=list(ns.CheckedColumns.__members__.keys()),
         output_dir_path=output_dir,
         reader_class=EventReader,
     )

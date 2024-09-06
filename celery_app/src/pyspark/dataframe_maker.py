@@ -9,6 +9,7 @@ import pandas as pd
 # pylint: disable=E0611
 from pyspark.sql import DataFrame
 from pyspark.sql.types import StructType
+from src.commons import names as ns
 
 from .mongo_connectors import MongoLoader
 from .postgres_connectors import PostgresLoader
@@ -58,7 +59,7 @@ class DataframeMaker(ABC):
         # hack to load Mongo seamlessly
         print("=> Preparing dataframe ...")
         columns_to_drop = []
-        mapper = {}
+        columns_to_rename = {"id": ns.CheckedColumns.event_id}
         for col in flat_df.columns.to_list():
 
             # specific to github api data (minimize)
@@ -70,7 +71,7 @@ class DataframeMaker(ABC):
                 columns=columns_to_drop, inplace=True
             )  # reducing the loaded data (prod)
 
-        flat_df.rename(columns=mapper, inplace=True)
+        flat_df.rename(columns=columns_to_rename, inplace=True)
         print(" ... dataframe finalised")
 
         columns = flat_df.columns.to_list()
@@ -80,6 +81,7 @@ class DataframeMaker(ABC):
         # print(columns)
         # if self.check_columns is not None:
         #     print(flat_df[self.check_columns])
+
         self.flat_df = flat_df
 
     @abstractmethod

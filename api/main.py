@@ -6,11 +6,11 @@ from config import app_config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from src.db import models
-from src.db.postgres import pg_engine
+# from src.db import models
+# from src.db.postgres import pg_engine
 from src.routers import dummy_endpoint, github_events, mongo_endpoints
 
-models.Base.metadata.create_all(bind=pg_engine)
+# models.Base.metadata.create_all(bind=pg_engine)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")

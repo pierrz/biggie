@@ -77,12 +77,12 @@ class MongoReader(ReaderBase):
 
 class EventBase(MongoConnector, ABC):
     """
-    Base class dedicated to defining the Mongo collection 'character' related to the Marvel Characters API data
+    Base class dedicated to defining the Mongo collection 'event' related to the Github Event API data
     """
 
     collection = "event"
     check_columns = [
-        psf.col("id"),
+        psf.col("event_id"),
         psf.col("type"),
         psf.col("actor_id"),
         psf.col("repo_name"),
