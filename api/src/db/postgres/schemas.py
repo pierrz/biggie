@@ -1,4 +1,6 @@
 from abc import ABC
+from datetime import datetime
+from typing import List
 
 from pydantic import BaseModel
 
@@ -11,29 +13,40 @@ class ORM(ABC, BaseModel):
         orm_mode = True
 
 
-# class Record(ORM):
-#     id: int
-#     date: date
-#     country: str
+class Event(ORM):
+    """
+    Container for a single event record.
+    """
+    id: int
+    event_id: int
+    type: str
+    public: bool
+    created_at: datetime
+    org: str
+    actor_id: int
+    actor_login: str
+    actor_display_login: str
+    actor_gravatar_id: str
+    actor_url: str
+    actor_avatar_url: str
+    repo_id: int
+    repo_name: str
+    repo_url: str
+
+    class Config:
+        use_enum_values = True
 
 
-class Refugee(ORM):
-    index: int
-    data_date: str
-    unix_timestamp: int
-    individuals: int
+class EventPerRepoCount(ORM):
+    """
+    Model specific to count repo occurences
+    """
+    name: str
+    count: int
 
 
-class IDP(ORM):
-    index: int
-    IDPs: float
-    Date: int
-    source_url: str
-
-
-class Country(ORM):
-    index: int
-    data_date: str
-    unix_timestamp: int
-    individuals: int
-    origin_country: str
+class EventPerRepoCountList(ORM):
+    """
+    Model specific to wrap the repo occurences count results
+    """
+    repository_list: List[EventPerRepoCount]

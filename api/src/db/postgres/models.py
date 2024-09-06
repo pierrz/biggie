@@ -1,31 +1,54 @@
-from sqlalchemy import Column, Float, Integer, String
+from enum import Enum
+from typing import List
 
-from .postgres import Base
+from pydantic import BaseModel
+from sqlalchemy import Boolean, Column, DateTime
+from sqlalchemy import Enum as SQLAlchemyEnum
+from sqlalchemy import Integer, String
+from sqlalchemy.ext.declarative import declarative_base
 
-
-class Refugee(Base):
-    __tablename__ = "refugees_view"
-
-    index = Column(Integer, primary_key=True, index=True)
-    data_date = Column(String(255))
-    unix_timestamp = Column(Integer)
-    individuals = Column(Integer)
+Base = declarative_base()
 
 
-class IDP(Base):
-    __tablename__ = "idps_view"
-
-    index = Column(Integer, primary_key=True, index=True)
-    IDPs = Column(Float)
-    Date = Column(Integer)
-    source_url = Column(String(255), name="Source URL")
+class EventType(str, Enum):
+    IssuesEvent = "IssuesEvent"
+    PullRequestEvent = "PullRequestEvent"
+    WatchEvent = "WatchEvent"
 
 
-class Country(Base):
-    __tablename__ = "countries_view"
+class Event(Base):
+    """
+    Container for a single event record.
+    """
+    __tablename__ = "events"
 
-    index = Column(Integer, primary_key=True, index=True)
-    data_date = Column(String(255))
-    unix_timestamp = Column(Integer)
-    individuals = Column(Integer)
-    origin_country = Column(String(255))
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(Integer)
+    type = Column(SQLAlchemyEnum(EventType))
+    public = Column(Boolean)
+    created_at = Column(DateTime)
+    org = Column(String)
+    actor_id = Column(Integer)
+    actor_login = Column(String)
+    actor_display_login = Column(String)
+    actor_gravatar_id = Column(String)
+    actor_url = Column(String)
+    actor_avatar_url = Column(String)
+    repo_id = Column(Integer)
+    repo_name = Column(String)
+    repo_url = Column(String)
+
+
+class EventPerRepoCount(BaseModel):
+    """
+    Model specific to count repo occurences
+    """
+    name: str
+    count: int
+
+
+class EventPerRepoCountList(BaseModel):
+    """
+    Model specific to wrap the repo occurences count results
+    """
+    repository_list: List[EventPerRepoCount]

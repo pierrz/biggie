@@ -1,15 +1,9 @@
 from datetime import datetime
 from enum import Enum
-from typing import Union
+from typing import List, Union
 
 from bson import ObjectId
-from pydantic import BaseModel, Field, HttpUrl
-from src.db.mongo.py_object_id import PyObjectId
-
-# NB: When to use Field():
-# - add extra validation, like Field(gt=0) for positive integers.
-# - provide a description, like Field(description="The user's age")
-# - specify an example value, like Field(example="John Doe")
+from pydantic import BaseModel, HttpUrl
 
 
 class EventType(str, Enum):
@@ -18,22 +12,15 @@ class EventType(str, Enum):
     WatchEvent = "WatchEvent"
 
 
-class Event(BaseModel):
+class EventSchema(BaseModel):
     """
     Container for a single event record.
     Cf. https://www.mongodb.com/developer/languages/python/python-quickstart-fastapi/
     """
-
-    # The primary key for the Event model, stored as a `str` on the instance.
-    # This will be aliased to `_id` when sent to MongoDB,
-    # but provided as `id` in the API requests and responses.
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    # id: Optional[str] = Field(default_factory=str, alias="_id")
-    # id: Optional[PyObjectId] = Field(alias="_id", default=None)
-
+    id: int
     event_id: int
     type: EventType
-    public: str
+    public: bool
     created_at: datetime
     org: str
     actor_id: int
@@ -74,25 +61,8 @@ class Event(BaseModel):
             }
         }
 
-    # Pydantic > v2.x.x
-    # model_config = ConfigDict(
-    #     populate_by_name=True,
-    #     arbitrary_types_allowed=True,
-    #     # json_schema_extra={
-    #     #     "example": {
-    #     #         "name": "Jane Doe",
-    #     #         "email": "jdoe@example.com",
-    #     #         "course": "Experiments, Science, and Fashion in Nanophotonics",
-    #     #         "gpa": 3.0,
-    #     #     }
-    #     # },
-    #     json_encoders = {
-    #         datetime: lambda v: v.isoformat()
-    #     }
-    # )
 
-
-class EventPerRepoCount(BaseModel):
+class EventPerRepoCountSchema(BaseModel):
     """
     Model specific to count repo occurences
     """
@@ -100,11 +70,11 @@ class EventPerRepoCount(BaseModel):
     count: int
 
 
-class EventPerRepoCountList(BaseModel):
+class EventPerRepoCountListSchema(BaseModel):
     """
     Model specific to wrap the repo occurences count results
     """
-    repository_list: list[EventPerRepoCount]
+    repository_list: List[EventPerRepoCountSchema]
 
     class Config:
         schema_extra = {
@@ -115,3 +85,58 @@ class EventPerRepoCountList(BaseModel):
                 ]
             }
         }
+
+
+# from abc import ABC
+# from datetime import datetime
+# from typing import Union
+
+# from pydantic import BaseModel, HttpUrl
+
+# from .models import EventType
+
+
+# class ORM(ABC, BaseModel):
+
+#     # allows the app to take ORM objects and translate them into responses automatically
+#     # (no more I/O wrangling e.g. ORM -> dict -> load)
+#     class Config:
+#         orm_mode = True
+
+
+# class Event(ORM):
+#     """
+#     Schema for a single event record.
+#     Cf. https://www.mongodb.com/developer/languages/python/python-quickstart-fastapi/
+#     """
+
+#     id: str
+#     event_id: int
+#     type: EventType
+#     public: str
+#     created_at: datetime
+#     org: str
+#     actor_id: int
+#     actor_login: str
+#     actor_display_login: str
+#     actor_gravatar_id: Union[str, int]
+#     actor_url: HttpUrl
+#     actor_avatar_url: HttpUrl
+#     repo_id: int
+#     repo_name: str
+#     repo_url: HttpUrl
+
+
+# class EventPerRepoCount(ORM):
+#     """
+#     Schema specific to count repo occurences
+#     """
+#     name: str
+#     count: int
+
+
+# class EventPerRepoCountList(ORM):
+#     """
+#     Schema specific to wrap the repo occurences count results
+#     """
+#     repository_list: list[EventPerRepoCount]
