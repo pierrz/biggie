@@ -71,10 +71,8 @@ class MongoDFTest(DataframeTestBase):
 class TestReader:
 
     check_columns = [
-        psf.col("event_id"),
         psf.col("a"),
         psf.col("d_date"),
-        psf.col("created_at"),
     ]
 
 

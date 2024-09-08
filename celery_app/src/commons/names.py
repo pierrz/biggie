@@ -3,6 +3,7 @@ from enum import Enum
 # Logistics
 filepath = "filepath"
 data = "data"
+schema = "schema"
 mode = "mode"
 output_keys = [filepath, data, mode]
 

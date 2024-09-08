@@ -7,7 +7,7 @@ TODO:
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Iterable
+from typing import Callable, Dict, Iterable, Optional, Type, Union
 
 import pandas as pd
 # pylint: disable=E0611
@@ -30,15 +30,18 @@ class DataframeMaker(ABC):
     spark_df: DataFrame
     schema: StructType
     check_columns: Iterable[str] = None
+    custom_preps: Optional[Union[Callable, Type]]
 
     def __init__(
         self,
         table_or_collection: str,
-        check_columns=check_columns,
+        custom_preps,
+        check_columns=check_columns
     ):
 
         self.check_columns = check_columns
         self.table_or_collection = table_or_collection
+        self.custom_preps = custom_preps
 
     def store_spark_df(self, df):
         """
@@ -60,32 +63,8 @@ class DataframeMaker(ABC):
         print("=> Normalising data ...")
         flat_df: pd.DataFrame = pd.json_normalize(input_array, sep="_")
 
-        # preparations specific to github api data
-        print("=> Preparing dataframe ...")
-        columns_to_drop = []
-        columns_to_rename = {"id": ns.CheckedColumns.event_id.value}
-        for col in flat_df.columns.to_list():
-            if col.startswith("payload_") or col.startswith("org_"):
-                columns_to_drop.append(col)
-
-        if len(columns_to_drop) > 0:
-            flat_df.drop(
-                columns=columns_to_drop, inplace=True
-            )  # reducing the loaded data (prod)
-
-        flat_df.rename(columns=columns_to_rename, inplace=True)
-        datetime_values = pd.to_datetime(flat_df["created_at"])
-        flat_df["created_at"] = datetime_values
-        flat_df[ns.CheckedColumns.event_id.value].astype("int64")
-        print(" ... dataframe finalised")
-        print(flat_df[["event_id", "created_at"]])
-        columns = flat_df.columns.to_list()
-        print(f"=> {flat_df.shape[0]} rows and {len(columns)} columns")
-
-        # # extended logs (extra info for celery)
-        # print(columns)
-        # if self.check_columns is not None:
-        #     print(flat_df[self.check_columns])
+        if self.custom_preps is not None:
+            self.custom_preps(flat_df)
 
         self.flat_df = flat_df
 
@@ -97,8 +76,8 @@ class DataframeMaker(ABC):
 
 
 class MongoDataframeMaker(DataframeMaker):
-    def __init__(self, input_array, table_or_collection, check_columns, schema: StructType = None):
-        super().__init__(table_or_collection, check_columns)
+    def __init__(self, input_array, table_or_collection, check_columns, custom_preps=None, schema: StructType = None):
+        super().__init__(table_or_collection, custom_preps, check_columns)
         self.normalize_input_data(input_array)
         self.prepare_spark_dataframes(schema)
 
@@ -109,9 +88,9 @@ class MongoDataframeMaker(DataframeMaker):
         """
         print("=> Preparing PySpark dataframe for Mongo ...")
 
-        parameters = {"data": self.flat_df}
+        parameters = {ns.data: self.flat_df}
         if schema is not None:
-            parameters["schema"] = schema
+            parameters[ns.schema] = schema
 
         print("--> HERE A")
         print(self.flat_df.columns)
@@ -131,10 +110,10 @@ class MongoDataframeMaker(DataframeMaker):
 
 class PostgresDataframeMaker(DataframeMaker):
     """
-    TODO: align with MongoDatarameMaker (property names, flow)
+    TODO: align with MongoDataframeMaker (property names, flow)
     """
-    def __init__(self, array_or_dataframe, table_or_collection, check_columns, schema: StructType = None):
-        super().__init__(table_or_collection, check_columns)
+    def __init__(self, array_or_dataframe, table_or_collection, check_columns, custom_preps=None, schema: StructType = None):
+        super().__init__(table_or_collection, custom_preps, check_columns)
         if isinstance(array_or_dataframe, pd.DataFrame):
             self.prepare_spark_dataframes(array_or_dataframe)
         else:
@@ -149,12 +128,12 @@ class PostgresDataframeMaker(DataframeMaker):
         print("=> Preparing PySpark dataframe for Postgres ...")
 
         if df is None:
-            parameters = {"data": self.flat_df}
+            parameters = {ns.data: self.flat_df}
         else:
-            parameters = {"data": df}
+            parameters = {ns.data: df}
 
         if schema is not None:
-            parameters["schema"] = schema
+            parameters[ns.schema] = schema
 
         spark_df = spark_postgres.createDataFrame(**parameters)
         self.store_spark_df(spark_df)
