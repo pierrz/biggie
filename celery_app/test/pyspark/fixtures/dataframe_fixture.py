@@ -5,8 +5,15 @@ Test fixtures
 from datetime import datetime
 
 # pylint: disable=E0611
-from pyspark.sql.types import (ArrayType, DoubleType, LongType, StringType,
-                               StructField, StructType, TimestampType)
+from pyspark.sql.types import (
+    ArrayType,
+    DoubleType,
+    LongType,
+    StringType,
+    StructField,
+    StructType,
+    TimestampType,
+)
 
 
 class DataframeFixture:
@@ -36,13 +43,19 @@ class DataframeFixture:
         },
     ]
 
-    test_schema = StructType([
-        StructField("a", LongType(), True),  # `a` is an (long AKA 64 bytes) integer
-        StructField("b", DoubleType(), True),  # `b` is a float (double in PySpark)
-        StructField("c", StringType(), True),  # `c` is a string
-        StructField("d_date", TimestampType(), True),  # `d.date` is a datetime (flattened as `d_date`)
-        StructField("d_values", ArrayType(LongType()), True),  # `d.values` is a list of integers
-    ])
+    test_schema = StructType(
+        [
+            StructField("a", LongType(), True),  # `a` is an (long AKA 64 bytes) integer
+            StructField("b", DoubleType(), True),  # `b` is a float (double in PySpark)
+            StructField("c", StringType(), True),  # `c` is a string
+            StructField(
+                "d_date", TimestampType(), True
+            ),  # `d.date` is a datetime (flattened as `d_date`)
+            StructField(
+                "d_values", ArrayType(LongType()), True
+            ),  # `d.values` is a list of integers
+        ]
+    )
 
     def __init__(self, table_or_collection):
         self.table_or_collection = table_or_collection

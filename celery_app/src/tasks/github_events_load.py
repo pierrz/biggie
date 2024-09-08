@@ -63,7 +63,7 @@ def run_load_events(page_range: int) -> List[int]:
         output_dir_path=output_dir,
         reader_class=EventReader,
         custom_preps=github_event_data_preparation,
-        schema=event_schema
+        schema=event_schema,
     )
     logger.info("=> Data loaded successfully.")
 

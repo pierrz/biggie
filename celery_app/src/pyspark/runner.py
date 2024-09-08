@@ -10,7 +10,10 @@ spark_mongo = (
     .master("local[2]")
     .config("spark.executor.memory", "2g")
     .config("spark.mongodb.connection.uri", pyspark_config.MONGODB_URI)
-    .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:10.4.0")
+    .config(
+        "spark.jars.packages",
+        "org.mongodb.spark:mongo-spark-connector_2.12:10.4.0",
+    )
     .getOrCreate()
 )
 
@@ -18,7 +21,10 @@ spark_postgres = (
     SparkSession.builder.appName("Spark/Postgres IO")
     .master("local[2]")
     .config("spark.executor.memory", "2g")
-    .config("spark.executor.extraClassPath", "/opt/spark/jars/postgresql-42.7.3.jar")
+    .config(
+        "spark.executor.extraClassPath",
+        "/opt/spark/jars/postgresql-42.7.3.jar",
+    )
     .config("spark.driver.extraClassPath", "/opt/spark/jars/postgresql-42.7.3.jar")
     .getOrCreate()
 )

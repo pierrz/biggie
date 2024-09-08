@@ -215,7 +215,10 @@ async def write_aio(data_array: Iterable[Dict], output_dir: Path = None):
         await asyncio.gather(
             *[
                 write_with_id(
-                    id=idx, data=data, timestamp=timestamp, output_dir=output_dir
+                    id=idx,
+                    data=data,
+                    timestamp=timestamp,
+                    output_dir=output_dir,
                 )
                 for idx, data in enumerate(data_array)
             ]

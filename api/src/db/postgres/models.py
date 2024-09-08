@@ -20,6 +20,7 @@ class Event(Base):
     """
     Container for a single event record.
     """
+
     __tablename__ = "events"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -43,6 +44,7 @@ class EventPerRepoCount(BaseModel):
     """
     Model specific to count repo occurences
     """
+
     name: str
     count: int
 
@@ -51,4 +53,5 @@ class EventPerRepoCountList(BaseModel):
     """
     Model specific to wrap the repo occurences count results
     """
+
     repository_list: List[EventPerRepoCount]

@@ -50,10 +50,7 @@ class Event(BaseModel):
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
-        json_encoders = {
-            ObjectId: str,
-            datetime: lambda v: v.isoformat()
-        }
+        json_encoders = {ObjectId: str, datetime: lambda v: v.isoformat()}
         use_enum_values = True
         schema_extra = {
             "example": {
@@ -71,7 +68,7 @@ class Event(BaseModel):
                 "actor_avatar_url": "https://avatars.githubusercontent.com/u/12345?v=4",
                 "repo_id": 98765,
                 "repo_name": "username/repo",
-                "repo_url": "https://api.github.com/repos/username/repo"
+                "repo_url": "https://api.github.com/repos/username/repo",
             }
         }
 
@@ -97,6 +94,7 @@ class EventPerRepoCount(BaseModel):
     """
     Model specific to count repo occurences
     """
+
     name: str
     count: int
 
@@ -105,6 +103,7 @@ class EventPerRepoCountList(BaseModel):
     """
     Model specific to wrap the repo occurences count results
     """
+
     repository_list: list[EventPerRepoCount]
 
     class Config:
@@ -112,7 +111,7 @@ class EventPerRepoCountList(BaseModel):
             "example": {
                 "repository_list": [
                     {"name": "user/repo1", "count": 10},
-                    {"name": "user/repo2", "count": 5}
+                    {"name": "user/repo2", "count": 5},
                 ]
             }
         }

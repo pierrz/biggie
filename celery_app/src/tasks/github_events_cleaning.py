@@ -1,6 +1,7 @@
 """
 Cleaning task aka deleting all files in the local 'data/processed' directory and related Mongo collection
 """
+
 import os
 import shutil
 from pathlib import Path

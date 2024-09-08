@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 from typing import Callable, Dict, Iterable, Optional, Type, Union
 
 import pandas as pd
+
 # pylint: disable=E0611
 from pyspark.sql import DataFrame
 from pyspark.sql.types import StructType
@@ -36,7 +37,7 @@ class DataframeMaker(ABC):
         self,
         table_or_collection: str,
         custom_preps,
-        check_columns=check_columns
+        check_columns=check_columns,
     ):
 
         self.check_columns = check_columns
@@ -76,7 +77,14 @@ class DataframeMaker(ABC):
 
 
 class MongoDataframeMaker(DataframeMaker):
-    def __init__(self, input_array, table_or_collection, check_columns, custom_preps=None, schema: StructType = None):
+    def __init__(
+        self,
+        input_array,
+        table_or_collection,
+        check_columns,
+        custom_preps=None,
+        schema: StructType = None,
+    ):
         super().__init__(table_or_collection, custom_preps, check_columns)
         self.normalize_input_data(input_array)
         self.prepare_spark_dataframes(schema)
@@ -112,7 +120,15 @@ class PostgresDataframeMaker(DataframeMaker):
     """
     TODO: align with MongoDataframeMaker (property names, flow)
     """
-    def __init__(self, array_or_dataframe, table_or_collection, check_columns, custom_preps=None, schema: StructType = None):
+
+    def __init__(
+        self,
+        array_or_dataframe,
+        table_or_collection,
+        check_columns,
+        custom_preps=None,
+        schema: StructType = None,
+    ):
         super().__init__(table_or_collection, custom_preps, check_columns)
         if isinstance(array_or_dataframe, pd.DataFrame):
             self.prepare_spark_dataframes(array_or_dataframe)
@@ -120,7 +136,9 @@ class PostgresDataframeMaker(DataframeMaker):
             self.normalize_input_data(array_or_dataframe)
             self.prepare_spark_dataframes(schema)
 
-    def prepare_spark_dataframes(self, df: pd.DataFrame = None, schema: StructType = None):
+    def prepare_spark_dataframes(
+        self, df: pd.DataFrame = None, schema: StructType = None
+    ):
         """
         Generates the PySpark dataframes from the cleaned/normalised data
         :return: does its thing

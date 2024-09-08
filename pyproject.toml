@@ -17,3 +17,20 @@ pylint = "==2.14.5"
 [build-system]
 requires = ["poetry_core>=1.1.14"]  # not working with 1.1.7 and python3.10.4
 build-backend = "poetry.masonry.api"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  | \.git
+  | \.mypy_cache
+  | \.venv
+  | \__pycache__
+)/
+'''

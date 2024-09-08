@@ -2,7 +2,6 @@
 Test oriented library
 """
 
-
 import os
 from pathlib import Path
 

@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Optional, Tuple, Type, Union
 
 from pyspark.sql.types import StructType
+
 # pylint: disable=E0611
 from src.utils.json_utils import load_json
 
@@ -39,7 +40,14 @@ class SparkJobBase(ABC):
     schema: Optional[StructType]
     custom_preps: Optional[Union[Callable, Type]]
 
-    def __init__(self, table_or_collection, check_columns, reader_class, custom_preps=None, schema=None):
+    def __init__(
+        self,
+        table_or_collection,
+        check_columns,
+        reader_class,
+        custom_preps=None,
+        schema=None,
+    ):
         """
         Triggers the job sequence
         """
@@ -89,7 +97,7 @@ class ToMongoFromJson(SparkJobBase):
         check_columns,
         reader_class,
         custom_preps=None,
-        schema=None
+        schema=None,
     ):
         super().__init__(collection, check_columns, reader_class, custom_preps, schema)
         self.input_dir_paths = input_dir_paths
@@ -113,7 +121,7 @@ class ToMongoFromJson(SparkJobBase):
             maker_parameters = {
                 "input_array": self.input_array,
                 "table_or_collection": self.table_or_collection,
-                "check_columns": self.check_columns
+                "check_columns": self.check_columns,
             }
             print("--> HERE1")
             print(self.schema)
@@ -127,7 +135,9 @@ class ToMongoFromJson(SparkJobBase):
             self.reader_class()
             self.flag_files = True
 
-        except Exception as exception:  # probably some Java error ...      # pylint: disable=W0703
+        except (
+            Exception
+        ) as exception:  # probably some Java error ...      # pylint: disable=W0703
             print("Error while executing the task ...")
             print(exception)
 
@@ -165,6 +175,8 @@ class ToPostgresFromVA(SparkJobBase):
             self.reader_class(self.table_or_collection, self.check_columns)
             self.flag_files = True
 
-        except Exception as exception:  # probably some Java error ...      # pylint: disable=W0703
+        except (
+            Exception
+        ) as exception:  # probably some Java error ...      # pylint: disable=W0703
             print("Error while executing the task ...")
             print(exception)

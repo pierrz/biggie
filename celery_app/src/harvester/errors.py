@@ -1,4 +1,5 @@
 """Module gathering all error classes"""
+
 from abc import ABC
 
 

@@ -1,6 +1,7 @@
 """
 Tests focused on Postgres based features
 """
+
 from test.pyspark.base_test import PostgresDFTest, PostgresTestReader
 
 from pandas.testing import assert_frame_equal

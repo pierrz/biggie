@@ -17,6 +17,7 @@ class Event(ORM):
     """
     Container for a single event record.
     """
+
     id: int
     event_id: int
     type: str
@@ -41,6 +42,7 @@ class EventPerRepoCount(ORM):
     """
     Model specific to count repo occurences
     """
+
     name: str
     count: int
 
@@ -49,4 +51,5 @@ class EventPerRepoCountList(ORM):
     """
     Model specific to wrap the repo occurences count results
     """
+
     repository_list: List[EventPerRepoCount]
