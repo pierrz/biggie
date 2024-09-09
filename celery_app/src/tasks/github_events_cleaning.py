@@ -9,6 +9,7 @@ from typing import List
 
 from config import data_directories
 from src import logger
+from src.commons import names as ns
 from worker import celery
 
 
@@ -36,7 +37,7 @@ def clean_local_files(args: List[int], wait_minutes: int):
                     if entry.is_file():
                         os.remove(Path(entry))
                         diag_count += 1
-            logger.success(f"- {diag_count} HTML diagrams were deleted.")
+            logger.success(f"- {diag_count} HTML {ns.diagrams} were deleted.")
 
     else:
         logger.warning(

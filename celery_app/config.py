@@ -6,9 +6,10 @@ import os
 from pathlib import Path
 
 from pydantic import BaseSettings
+from src.commons import names as ns
 from src.tasks.schedules import github_events_stream
 
-data_dir_root = Path(os.sep, "opt", "data")
+data_dir_root = Path(os.sep, "opt", ns.data)
 TEST_MODE: str = bool(os.getenv("TEST_MODE"))
 
 
@@ -17,8 +18,8 @@ class CeleryConfig(BaseSettings):
     Config class.
     """
 
-    broker_url: str = os.getenv("CELERY_BROKER_URL")
-    result_backend: str = os.getenv("CELERY_RESULT_BACKEND")
+    broker_url: str
+    result_backend: str
     enable_utc = True
     timezone = "Europe/Amsterdam"
     task_track_started = True
@@ -28,7 +29,7 @@ class CeleryConfig(BaseSettings):
 
     if TEST_MODE:
         imports = ["src.tasks.dummy_task.py"]
-        # todo: implement beat test
+        # TODO: implement beat test
         # beat_schedule = {"task": "test_task", "schedule": crontab(minute="*"), "options": {**data_pipeline_queue}}
     else:
         imports = [
@@ -40,10 +41,10 @@ class CeleryConfig(BaseSettings):
 
 
 class DataDirectories(BaseSettings):
-    github_in = Path(data_dir_root, "events", "received")
-    github_out = Path(data_dir_root, "events", "processed")
-    github_diagrams = Path(data_dir_root, "events", "diagrams")
-    batch = Path(data_dir_root, "batch-io")
+    github_in = Path(data_dir_root, ns.events, ns.received)
+    github_out = Path(data_dir_root, ns.events, ns.processed)
+    github_diagrams = Path(data_dir_root, ns.events, ns.diagrams)
+    batch = Path(data_dir_root, "batch-io")  # test purposes
 
 
 class HarvesterConfig(BaseSettings):
@@ -53,7 +54,7 @@ class HarvesterConfig(BaseSettings):
 
     # if TEST_MODE:     # to implement only once the branch split has been done
     TOKEN_GITHUB_API: str
-    EVENTS = ["IssuesEvent", "PullRequestEvent", "WatchEvent"]
+    EVENTS = list(ns.GithubEventTypes)
     PER_PAGE = 20
 
 

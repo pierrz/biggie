@@ -8,11 +8,11 @@ from typing import List
 
 import pandas as pd
 from config import data_directories
+from sparky.jobs import ToMongoFromJson
+from sparky.mongo_connectors import EventReader
+from sparky.schemas import event_schema
 from src import logger
 from src.commons import names as ns
-from src.pyspark.jobs import ToMongoFromJson
-from src.pyspark.mongo_connectors import EventReader
-from src.pyspark.schemas import event_schema
 from worker import celery
 
 
@@ -34,8 +34,8 @@ def github_event_data_preparation(flat_df):
         )  # reducing the loaded data (prod)
 
     flat_df.rename(columns=columns_to_rename, inplace=True)
-    datetime_values = pd.to_datetime(flat_df["created_at"])
-    flat_df["created_at"] = datetime_values
+    datetime_values = pd.to_datetime(flat_df[ns.created_at])
+    flat_df[ns.created_at] = datetime_values
     # flat_df[ns.CheckedColumns.event_id.value].astype("int64")     # not sure whether it is wise on the long-run
     print(" ... dataframe finalised")
     columns = flat_df.columns.to_list()
@@ -59,8 +59,7 @@ def run_load_events(page_range: int) -> List[int]:
     ToMongoFromJson(
         input_dir_paths=[input_dir],
         collection=ns.events,
-        # check_columns=list(ns.CheckedColumns.__members__.keys()),
-        check_columns=["IssuesEvent", "PullRequestEvent", "WatchEvent"],
+        check_columns=list(ns.CheckedColumns),
         output_dir_path=output_dir,
         reader_class=EventReader,
         custom_preps=github_event_data_preparation,

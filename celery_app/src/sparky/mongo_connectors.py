@@ -13,6 +13,7 @@ from config import pyspark_config
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as psf
 from src import logger
+from src.commons import names as ns
 
 from .connectors import ReaderBase
 from .runner import spark_mongo
@@ -80,7 +81,7 @@ class EventBase(MongoConnector, ABC):
     Base class dedicated to defining the Mongo collection 'event' related to the Github Event API data
     """
 
-    collection = "events"
+    collection = ns.events
     check_columns = [
         psf.col("event_id"),
         psf.col("type"),

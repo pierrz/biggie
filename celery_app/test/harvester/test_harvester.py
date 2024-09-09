@@ -9,6 +9,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from config import data_directories, harvester_config
+from src.commons.json_utils import load_json  # pylint: disable=E0611
 from src.harvester.asyncio_operations import (
     download_github_events,
     download_passthrough,
@@ -18,7 +19,6 @@ from src.harvester.asyncio_operations import (
 )
 from src.harvester.auth_parameters import github_params
 from src.harvester.github_events_urls import get_events_urls
-from src.utils.json_utils import load_json  # pylint: disable=E0611
 
 
 @pytest.mark.asyncio

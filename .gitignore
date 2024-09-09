@@ -137,6 +137,8 @@ screenlog.0
 logs
 data
 dev
+pyrightconfig.json
+.vscode/
 
 # secrets
 conf/pgadmin/servers.json
