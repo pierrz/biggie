@@ -1,4 +1,4 @@
-FROM python:3.10.4-slim
+FROM python:3.11.9-slim
 
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONUNBUFFERED=1 \

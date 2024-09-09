@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "biggie"
-version = "0.4.3"
-description = "dev setup"
+version = "0.4.5"
+description = "Dev setup"
 authors = ["Pierre-Edouard Barrault"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
+python = ">=3.11,<3.12"
 
 [tool.poetry.dev-dependencies]
 black = "==22.6.0"
@@ -16,7 +16,7 @@ pylint = "==2.14.5"
 debugpy = "==1.8.5"
 
 [build-system]
-requires = ["poetry_core>=1.1.14"]  # not working with 1.1.7 and python3.10.4
+requires = ["poetry_core>=1.8.3"]
 build-backend = "poetry.masonry.api"
 
 [tool.isort]

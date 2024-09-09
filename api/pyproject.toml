@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "biggie"
-version = "0.4.3"
+version = "0.4.5"
 description = "Biggie. FastAPI containers (test & prod)"
 authors = ["Pierre-Edouard Barrault"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
+python = ">=3.11,<3.12"
 fastapi = "==0.79.0"
 Jinja2 = "==3.1.2"
 pandas = "==1.4.3"
@@ -19,7 +19,7 @@ typing = "==3.7.4.3"
 uvicorn = "==0.18.2"
 
 [build-system]
-requires = ["poetry_core>=1.8.3"]  # not working with 1.1.7 and python3.10.4
+requires = ["poetry_core>=1.8.3"]
 build-backend = "poetry.masonry.api"
 
 [tool.pytest.ini_options]

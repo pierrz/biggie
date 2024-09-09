@@ -1,14 +1,14 @@
 [tool.poetry]
 name = "biggie"
-version = "0.4.3"
+version = "0.4.5"
 description = "Biggie. Celery containers (test & prod)"
 authors = ["Pierre-Edouard Barrault"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
+python = ">=3.11,<3.12"
 aiohttp = "==3.8.1"
 asyncio = "==3.4.3"
-celery = "==5.2.7"
+celery = "==5.4.0"
 importlib_metadata = "==3.10"       # TODO: check if necessary
 loguru = "==0.7.2"
 pandas = "==1.4.3"
@@ -26,7 +26,7 @@ chardet = "==5.0.0"
 urllib3 = "==1.26.12"
 
 [build-system]
-requires = ["poetry-core>=1.1"]
+requires = ["poetry_core>=1.8.3"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
