@@ -9,12 +9,14 @@ python = ">=3.11,<3.12"
 aiohttp = "==3.10.5"
 asyncio = "==3.4.3"
 celery = "==5.4.0"
-importlib_metadata = "==3.10"       # TODO: check if necessary
+importlib_metadata = "==8.4.0"       # TODO: check if necessary
 loguru = "==0.7.2"
 # pandas = "==1.4.3"
 pandas = "==2.2.2"
-psycopg-binary = "==3.2.1"
-pydantic = "==2.9.1"
+psycopg2 = "==2.9.9 "
+psycopg-binary = "==3.2.1"          # TODO: check if necessary
+# pydantic = "==2.9.1"
+pydantic-settings = "==2.4.0"
 pymongo = "==4.8.0"                 # TODO: check if necessary
 pyspark = "==3.5.2"
 pytest = "==8.3.2"

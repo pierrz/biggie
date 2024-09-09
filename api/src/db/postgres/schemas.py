@@ -2,7 +2,7 @@ from abc import ABC
 from datetime import datetime
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ORM(ABC, BaseModel):
@@ -34,8 +34,7 @@ class Event(ORM):
     repo_name: str
     repo_url: str
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class EventPerRepoCount(ORM):

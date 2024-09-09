@@ -3,7 +3,8 @@ FROM python:3.11.9
 # java
 RUN apt-get clean \
     && apt-get update \
-    && apt-get install -qy wget default-jdk tar
+    && apt-get install -qy wget openjdk-17-jdk
+    # && apt-get install -qy wget default-jdk tar
 
 # spark
 # TODO: eventually implement Spark with Scala 2.13
@@ -18,7 +19,7 @@ RUN cd /tmp \
 RUN wget https://jdbc.postgresql.org/download/postgresql-42.7.3.jar -O /opt/spark/jars/postgresql-42.7.3.jar
 
 # environment
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
     PATH=$PATH:$JAVA_HOME/bin \
     PYSPARK_HADOOP_VERSION=3 \
     SPARK_HOME=/opt/spark \
