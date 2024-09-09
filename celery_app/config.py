@@ -18,8 +18,8 @@ class CeleryConfig(BaseSettings):
     Config class.
     """
 
-    broker_url: str
-    result_backend: str
+    broker_url: str = os.getenv("CELERY_BROKER_URL")
+    result_backend: str = os.getenv("CELERY_RESULT_BACKEND")
     enable_utc = True
     timezone = "Europe/Amsterdam"
     task_track_started = True

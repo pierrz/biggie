@@ -12,9 +12,9 @@ x-biggie-celery-prod:
     &biggie-celery-prod-env
     <<: *biggie-common-env
     TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
-    broker_url: "${CELERY_BROKER_URL}"
-    result_backend: "${CELERY_RESULT_BACKEND}"
-    PYTHON_ENABLE_DEBUGGER: 1   # debug mode
+    CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
+    CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+    # PYTHON_ENABLE_DEBUGGER: 1   # debug mode
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
     - "${VOLUME_MOUNT}"
