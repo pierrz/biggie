@@ -2,7 +2,6 @@
 Common utilities
 """
 
-
 import io
 import json
 

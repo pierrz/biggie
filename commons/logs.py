@@ -1,7 +1,7 @@
 from typing import Iterable, Tuple
 
 import pandas as pd
-from worker import logger
+from src import logger
 
 
 def dataframe_info_log(pairs: Iterable[Tuple[str, pd.DataFrame]]):

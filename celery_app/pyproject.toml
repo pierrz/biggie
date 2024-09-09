@@ -10,6 +10,7 @@ aiohttp = "==3.8.1"
 asyncio = "==3.4.3"
 celery = "==5.2.7"
 importlib_metadata = "==3.10"       # TODO: check if necessary
+loguru = "==0.7.2"
 pandas = "==1.4.3"
 psycopg2-binary = "==2.9.3"
 pydantic = "==1.9.1"

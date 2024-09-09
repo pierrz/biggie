@@ -20,4 +20,4 @@ RUN poetry config virtualenvs.create false\
 # Creating folders and files for the project:
 COPY ./api ./
 COPY ./db ./src/db/
-COPY ./utils/json_utils.py ./src/
+COPY ./commons ./src/commons

@@ -1,11 +1,12 @@
 """
 Tests focused on Mongo based features
 """
-from test.pyspark.base_test import MongoDFTest, MongoTestReader
+
+from test.sparky.base_test import MongoDFTest, MongoTestReader
 
 from pandas.testing import assert_frame_equal
 from pyspark.sql.types import StructField, StructType
-from src.db.mongo import init_mongo_connection
+from src.db.mongo_db import init_mongo_connection
 
 
 # TODO: implement schema binding when reading data with Spark
@@ -13,7 +14,12 @@ def strip_metadata(schema):
     """Used to remove the "metada: {"inferred": true}" field
     from the Mongo retrieved data, as it is missing
     from the straight Spark Dataframe compared to the one loaded from Mongo)"""
-    return StructType([StructField(field.name, field.dataType, field.nullable) for field in schema.fields])
+    return StructType(
+        [
+            StructField(field.name, field.dataType, field.nullable)
+            for field in schema.fields
+        ]
+    )
 
 
 class MongoLoaderReaderTest(MongoDFTest):

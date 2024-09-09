@@ -1,15 +1,19 @@
 """
 Mongo connectors
 """
+
 # TODO: refactoring to discard all E0611 errors from pylint (currently ignored)
 
 from abc import ABC
 from typing import Iterable, Tuple
 
 from config import pyspark_config
+
 # pylint: disable=E0611
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as psf
+from src import logger
+from src.commons import names as ns
 
 from .connectors import ReaderBase
 from .runner import spark_mongo
@@ -39,17 +43,16 @@ class MongoLoader(ABC):
     """
 
     def __init__(self, spark_df: DataFrame, collection: str):
-        print("=> Loading Mongo ...")
+        logger.info("=> Loading Mongo ...")
         mongo_write_params = {
             "collection": collection,
             "uri": pyspark_config.MONGODB_URI,
             **mongo_params,
         }
-        spark_df.write.format("mongodb") \
-            .options(**mongo_write_params) \
-            .mode("append") \
-            .save()
-        print(" ... Mongo loaded")
+        spark_df.write.format("mongodb").options(**mongo_write_params).mode(
+            "append"
+        ).save()
+        logger.success(" ... Mongo loaded")
 
 
 class MongoReader(ReaderBase):
@@ -61,14 +64,12 @@ class MongoReader(ReaderBase):
 
     def __init__(self):
 
-        print("=> Reading Mongo ...")
+        logger.info("=> Reading Mongo ...")
         mongo_read_params = {
             "collection": self.collection,
             **mongo_params,
         }
-        db_data = spark_mongo.read.format("mongodb") \
-            .options(**mongo_read_params) \
-            .load()
+        db_data = spark_mongo.read.format("mongodb").options(**mongo_read_params).load()
         self.preps_and_checks(db_data)
 
     def _name(self) -> Tuple[str]:
@@ -77,12 +78,12 @@ class MongoReader(ReaderBase):
 
 class EventBase(MongoConnector, ABC):
     """
-    Base class dedicated to defining the Mongo collection 'character' related to the Marvel Characters API data
+    Base class dedicated to defining the Mongo collection 'event' related to the Github Event API data
     """
 
-    collection = "event"
+    collection = ns.events
     check_columns = [
-        psf.col("id"),
+        psf.col("event_id"),
         psf.col("type"),
         psf.col("actor_id"),
         psf.col("repo_name"),

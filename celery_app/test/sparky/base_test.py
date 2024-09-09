@@ -1,14 +1,14 @@
 """
 Module gathering the base classes used for testing purpose
 """
+
 from abc import ABC, abstractmethod
-from test.pyspark.fixtures.dataframe_fixture import DataframeFixture
+from test.sparky.fixtures.dataframe_fixture import DataframeFixture
 
 from pyspark.sql import functions as psf  # pylint: disable=E0611
-from src.pyspark.dataframe_maker import (MongoDataframeMaker,
-                                         PostgresDataframeMaker)
-from src.pyspark.mongo_connectors import MongoReader
-from src.pyspark.postgres_connectors import PostgresReader
+from src.sparky.dataframe_maker import MongoDataframeMaker, PostgresDataframeMaker
+from src.sparky.mongo_connectors import MongoReader
+from src.sparky.postgres_connectors import PostgresReader
 
 
 class DataframeTestBase(ABC):
@@ -60,6 +60,7 @@ class MongoDFTest(DataframeTestBase):
             self.fixture.test_data,
             self.fixture.table_or_collection,
             check_columns=self.check_columns,
+            schema=self.fixture.test_schema,
         )
         self.run()
 

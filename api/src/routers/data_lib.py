@@ -12,7 +12,7 @@ def dataframe_from_mongo_data(db_data, sort_by: str = None):
 
     raw_df = pd.DataFrame(db_data)
     if raw_df.shape[0] > 1:  # at least 2 rows to get an interval
-        raw_df.drop(columns=["_id"])
+        # raw_df.drop(columns=["_id"])
         # drop_duplicates to cover potential overlaps from the GitHub events API
         clean_df = raw_df.drop_duplicates().replace(to_replace=[np.nan], value=[""])
 
@@ -21,3 +21,13 @@ def dataframe_from_mongo_data(db_data, sort_by: str = None):
         return clean_df.sort_values(by=sort_by)
 
     return None
+
+
+def validate_data(data, model):
+    """
+    Validate data (from Postgres or Mongo) based on a specific model.
+    Convert the validated data into dictionary to pass it into Pandas later on.
+    """
+
+    valid_data = [model(**doc).dict() for doc in data]
+    return valid_data

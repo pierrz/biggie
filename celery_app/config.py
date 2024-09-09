@@ -6,10 +6,11 @@ import os
 from pathlib import Path
 
 from pydantic import BaseSettings
+from src.commons import names as ns
 from src.tasks.schedules import github_events_stream
 
-data_dir_root = Path(os.sep, "opt", "data")
-TEST_MODE = bool(os.getenv("TEST_MODE"))
+data_dir_root = Path(os.sep, "opt", ns.data)
+TEST_MODE: str = bool(os.getenv("TEST_MODE"))
 
 
 class CeleryConfig(BaseSettings):
@@ -28,7 +29,7 @@ class CeleryConfig(BaseSettings):
 
     if TEST_MODE:
         imports = ["src.tasks.dummy_task.py"]
-        # todo: implement beat test
+        # TODO: implement beat test
         # beat_schedule = {"task": "test_task", "schedule": crontab(minute="*"), "options": {**data_pipeline_queue}}
     else:
         imports = [
@@ -40,10 +41,10 @@ class CeleryConfig(BaseSettings):
 
 
 class DataDirectories(BaseSettings):
-    github_in = Path(data_dir_root, "events", "received")
-    github_out = Path(data_dir_root, "events", "processed")
-    github_diagrams = Path(data_dir_root, "events", "diagrams")
-    batch = Path(data_dir_root, "batch-io")
+    github_in = Path(data_dir_root, ns.events, ns.received)
+    github_out = Path(data_dir_root, ns.events, ns.processed)
+    github_diagrams = Path(data_dir_root, ns.events, ns.diagrams)
+    batch = Path(data_dir_root, "batch-io")  # test purposes
 
 
 class HarvesterConfig(BaseSettings):
@@ -52,8 +53,8 @@ class HarvesterConfig(BaseSettings):
     """
 
     # if TEST_MODE:     # to implement only once the branch split has been done
-    TOKEN_GITHUB_API: str = os.getenv("TOKEN_GITHUB_API")
-    EVENTS = ["IssuesEvent", "PullRequestEvent", "WatchEvent"]
+    TOKEN_GITHUB_API: str
+    EVENTS = list(ns.GithubEventTypes)
     PER_PAGE = 20
 
 
@@ -62,8 +63,8 @@ class PySparkConfig(BaseSettings):
     PySpark module config
     """
 
-    MONGODB_URI: str = os.getenv("MONGODB_URI")
-    DB_NAME: str = os.getenv("DB_NAME")
+    MONGODB_URI: str
+    DB_NAME: str
 
 
 celery_config = CeleryConfig()

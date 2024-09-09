@@ -62,6 +62,14 @@ while keeping it in sync with the rest of the chain.
 
 See `kwargs={"wait_minutes": 30}` in the `github_events_stream` schedule in [**`.../tasks/schedules.py`**](celery_app/src/tasks/schedules.py).
 
+```
+docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
+docker-compose \
+  -f docker-compose.yml \
+  --profile prod_acquisition \
+  up
+```
+
 <br>
 
 #### Data acquisition with monitoring
@@ -72,33 +80,37 @@ docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile 
 docker-compose \
   -f docker-compose.yml \
   -f docker-compose.monitoring.yml \
-  --profile monitoring \
+  --profile prod_acquisition \
   up
 ```
 
 <br>
 
-#### API container
+#### API container with monitoring
 Just to have the FastAPI container up
 ```
-docker-compose up api_prod
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
+  --profile prod_analytics \
+  up
 ```
 
 <br>
 
-#### Monitoring and Production containers
+#### Acquisiton and Analytics/API Production containers
 Both production containers as well as both monitoring containers.
 ```
 docker compose \
   -f docker-compose.yml \
   -f docker-compose.monitoring.yml \
-  --profile prod --profile monitoring \
+  --profile prod_full \
   up
 ```
 
 <br>
 
-### Nginx deployment (API container only)
+### Nginx deployment (only exposing the API container)
 In this configuration, you need to have the necessary sub-domains setup on your domain provider side.
 You also need:
 - Nginx installed on the host machine
@@ -122,7 +134,7 @@ to spin up all that to the world:
 docker compose \
   -f docker-compose.yml \
   -f docker-compose.monitoring.yml \
-  --profile prod --profile monitoring --profile live_prod \
+  --profile prod_full --profile live_prod \
   up
 ```
 

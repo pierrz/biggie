@@ -1,14 +1,21 @@
 """
 Module dedicated to constructing Spark dataframes
+
+TODO:
+- typing
+- fully align Mongo and Postgres DataframeMaker (investigate)
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Iterable
+from typing import Callable, Dict, Iterable, Optional, Type, Union
 
 import pandas as pd
+
 # pylint: disable=E0611
 from pyspark.sql import DataFrame
 from pyspark.sql.types import StructType
+from src import logger
+from src.commons import names as ns
 
 from .mongo_connectors import MongoLoader
 from .postgres_connectors import PostgresLoader
@@ -25,15 +32,18 @@ class DataframeMaker(ABC):
     spark_df: DataFrame
     schema: StructType
     check_columns: Iterable[str] = None
+    custom_preps: Optional[Union[Callable, Type]]
 
     def __init__(
         self,
         table_or_collection: str,
+        custom_preps,
         check_columns=check_columns,
     ):
 
         self.check_columns = check_columns
         self.table_or_collection = table_or_collection
+        self.custom_preps = custom_preps
 
     def store_spark_df(self, df):
         """
@@ -43,7 +53,7 @@ class DataframeMaker(ABC):
         self.spark_df = df
         self.schema = self.spark_df.schema
         # # extended logs (extra info for celery)
-        # print("... PySpark dataframe prepared with inferred schema:\n")
+        # logger.info("... PySpark dataframe prepared with inferred schema:\n")
         # self.spark_df.printSchema()
         # self.spark_df.select(*self.check_columns).show()
 
@@ -52,34 +62,12 @@ class DataframeMaker(ABC):
         Takes the input data and clean/normalise it
         :return: does its thing
         """
-        print("=> Normalising data ...")
+        logger.info("=> Normalising data ...")
         flat_df: pd.DataFrame = pd.json_normalize(input_array, sep="_")
 
-        # hack to load Mongo seamlessly
-        print("=> Preparing dataframe ...")
-        columns_to_drop = []
-        mapper = {}
-        for col in flat_df.columns.to_list():
+        if self.custom_preps is not None:
+            self.custom_preps(flat_df)
 
-            # specific to github api data (minimize)
-            if col.startswith("payload_") or col.startswith("org_"):
-                columns_to_drop.append(col)
-
-        if len(columns_to_drop) > 0:
-            flat_df.drop(
-                columns=columns_to_drop, inplace=True
-            )  # reducing the loaded data (prod)
-
-        flat_df.rename(columns=mapper, inplace=True)
-        print(" ... dataframe finalised")
-
-        columns = flat_df.columns.to_list()
-        print(f"=> {flat_df.shape[0]} rows and {len(columns)} columns")
-
-        # # extended logs (extra info for celery)
-        # print(columns)
-        # if self.check_columns is not None:
-        #     print(flat_df[self.check_columns])
         self.flat_df = flat_df
 
     @abstractmethod
@@ -90,18 +78,35 @@ class DataframeMaker(ABC):
 
 
 class MongoDataframeMaker(DataframeMaker):
-    def __init__(self, input_array, table_or_collection, check_columns):
-        super().__init__(table_or_collection, check_columns)
-        self.normalize_input_data(input_array)
-        self.prepare_spark_dataframes()
+    def __init__(
+        self,
+        input_array,
+        table_or_collection,
+        check_columns,
+        custom_preps=None,
+        schema: StructType = None,
+    ):
+        try:
+            super().__init__(table_or_collection, custom_preps, check_columns)
+            self.normalize_input_data(input_array)
+            self.prepare_spark_dataframes(schema)
 
-    def prepare_spark_dataframes(self):
+        except Exception as exception:
+            logger.error("Error while preparing the data for Spark ...")
+            logger.error(exception)
+
+    def prepare_spark_dataframes(self, schema: StructType = None):
         """
         Generates the PySpark dataframes from the cleaned/normalised data
         :return: does its thing
         """
-        print("=> Preparing PySpark dataframe for Mongo ...")
-        spark_df = spark_mongo.createDataFrame(data=self.flat_df)
+        logger.info("=> Preparing PySpark dataframe for Mongo ...")
+
+        parameters = {ns.data: self.flat_df}
+        if schema is not None:
+            parameters[ns.schema] = schema
+
+        spark_df = spark_mongo.createDataFrame(**parameters)
         self.store_spark_df(spark_df)
 
     def load_mongo(self):
@@ -113,26 +118,48 @@ class MongoDataframeMaker(DataframeMaker):
 
 
 class PostgresDataframeMaker(DataframeMaker):
-    def __init__(self, array_or_dataframe, table_or_collection, check_columns):
-        super().__init__(table_or_collection, check_columns)
-        if isinstance(array_or_dataframe, pd.DataFrame):
-            self.prepare_spark_dataframes(array_or_dataframe)
-        else:
-            self.normalize_input_data(array_or_dataframe)
-            self.prepare_spark_dataframes()
+    """
+    TODO: align with MongoDataframeMaker (property names, flow)
+    """
 
-    def prepare_spark_dataframes(self, df: pd.DataFrame = None):
+    def __init__(
+        self,
+        array_or_dataframe,
+        table_or_collection,
+        check_columns,
+        custom_preps=None,
+        schema: StructType = None,
+    ):
+        try:
+            super().__init__(table_or_collection, custom_preps, check_columns)
+            if isinstance(array_or_dataframe, pd.DataFrame):
+                self.prepare_spark_dataframes(array_or_dataframe)
+            else:
+                self.normalize_input_data(array_or_dataframe)
+                self.prepare_spark_dataframes(schema)
+
+        except Exception as exception:
+            logger.error("Error while preparing the data for Spark ...")
+            logger.error(exception)
+
+    def prepare_spark_dataframes(
+        self, df: pd.DataFrame = None, schema: StructType = None
+    ):
         """
         Generates the PySpark dataframes from the cleaned/normalised data
         :return: does its thing
         """
-        print("=> Preparing PySpark dataframe for Postgres ...")
+        logger.info("=> Preparing PySpark dataframe for Postgres ...")
 
         if df is None:
-            spark_df = spark_postgres.createDataFrame(data=self.flat_df)
+            parameters = {ns.data: self.flat_df}
         else:
-            spark_df = spark_postgres.createDataFrame(data=df)
+            parameters = {ns.data: df}
 
+        if schema is not None:
+            parameters[ns.schema] = schema
+
+        spark_df = spark_postgres.createDataFrame(**parameters)
         self.store_spark_df(spark_df)
 
     def load_postgres(self):

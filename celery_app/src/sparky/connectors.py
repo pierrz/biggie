@@ -41,7 +41,6 @@ class ReaderBase(ConnectorBase):
         self.schema = self.db_data.schema
 
         # checks
-        print(self.__str__())
         if check_columns is None:
             self.db_data.select(*self.check_columns)
         else:

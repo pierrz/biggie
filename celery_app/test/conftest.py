@@ -32,7 +32,11 @@ class JsonSample:
     Data fixture
     """
 
-    test_data = {"id": None, "name": "test-", "data": ["some", "sample", "values"]}
+    test_data = {
+        "id": None,
+        "name": "test-",
+        "data": ["some", "sample", "values"],
+    }
 
     def __init__(self, row_id: int):
         self.test_data["id"] = row_id
