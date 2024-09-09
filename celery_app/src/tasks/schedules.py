@@ -3,6 +3,7 @@ from celery.schedules import crontab
 
 data_pipeline_queue = {"queue": "data_pipeline"}
 
+# Github events fetched and loaded every minute, and only cleaned every 30 minutes
 github_events_stream = {
     "task": "github-events-data-acquisition",
     "schedule": crontab(minute="*"),

@@ -8,10 +8,11 @@ from pathlib import Path
 from typing import Union
 
 from config import data_directories
+from src import logger
 from src.harvester.asyncio_operations import download_github_events, write_aio
 from src.harvester.auth_parameters import github_params
 from src.harvester.github_events_urls import get_events_urls
-from worker import celery, logger
+from worker import celery
 
 
 @celery.task(name="github-events-data-acquisition")
@@ -25,9 +26,9 @@ def run_github_events_da() -> Union[int, None]:
         Path.mkdir(input_dir, parents=True)
 
     try:
-
+        logger.info("Asyncio process initiated.")
         urls = asyncio.run(get_events_urls())
-        logger.info(f"Retrieved {len(urls)} event pages")
+        logger.success(f"Retrieved {len(urls)} event pages")
 
         start_time = time.time()
         data_array = asyncio.run(
@@ -40,5 +41,5 @@ def run_github_events_da() -> Union[int, None]:
         return len(urls)
 
     except Exception as exception:  # pylint: disable=W0703
-        logger.info(exception)
+        logger.error(exception)
         return None

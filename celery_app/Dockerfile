@@ -47,4 +47,4 @@ RUN poetry config virtualenvs.create false \
 
 COPY ./celery_app ./
 COPY ./db ./src/db
-COPY ./utils ./src/utils
+COPY ./commons ./src/commons

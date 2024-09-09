@@ -10,9 +10,10 @@ import plotly.express as px
 from config import diagrams_dir
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
-from src.db.mongo import init_mongo_connection
+from src.db.mongo.models import Event
+from src.db.mongo_db import init_mongo_connection
 from src.routers import templates
-from src.routers.data_lib import dataframe_from_mongo_data
+from src.routers.data_lib import dataframe_from_mongo_data, validate_data
 
 router = APIRouter(
     prefix="/events",
@@ -33,8 +34,9 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = 0):
 
     # data
     mongodb = init_mongo_connection()  # pylint: disable=C0103
-    db_data = mongodb.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
-    raw_df = dataframe_from_mongo_data(db_data, "created_at")
+    db_data = mongodb.events.find({"repo_name": repo_name, "type": "PullRequestEvent"})
+    valid_data_dict = validate_data(db_data, model=Event)
+    raw_df = dataframe_from_mongo_data(valid_data_dict, "created_at")
 
     if raw_df is None:
         return JSONResponse(
@@ -92,8 +94,9 @@ async def pr_average_delta(repo_name: str):
     """
 
     mongodb = init_mongo_connection()  # pylint: disable=C0103
-    db_data = mongodb.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
-    results_df = dataframe_from_mongo_data(db_data, "created_at")
+    db_data = mongodb.events.find({"repo_name": repo_name, "type": "PullRequestEvent"})
+    valid_data_dict = validate_data(db_data, model=Event)
+    results_df = dataframe_from_mongo_data(valid_data_dict, "created_at")
 
     if results_df is not None:
         dates = pd.to_datetime(results_df["created_at"])
@@ -127,8 +130,9 @@ async def count_per_type(offset: str):
     offset_filter = {"created_at": {"$lte": f"{time_with_offset}"}}
 
     mongodb = init_mongo_connection()  # pylint: disable=C0103
-    db_data = mongodb.event.find(offset_filter)
-    results_df = dataframe_from_mongo_data(db_data)
+    db_data = mongodb.events.find(offset_filter)
+    valid_data_dict = validate_data(db_data, model=Event)
+    results_df = dataframe_from_mongo_data(valid_data_dict)
 
     if results_df is not None:
         data = (

@@ -1,5 +1,8 @@
 """Module gathering all error classes"""
+
 from abc import ABC
+
+from src import logger
 
 
 class ErrorBase(ABC, Exception):
@@ -12,7 +15,7 @@ class GenericError(ErrorBase):
 
     def __init__(self, error):
         super().__init__(error)
-        print(
+        logger.error(
             f"/!\\ Error to investigate or specify better <- '{self.info}' - {type(error)}"
         )
 
@@ -25,7 +28,7 @@ class APILimitError(ErrorBase):
     def __init__(self, error):
         super().__init__(error)
         # TODO: print the missing key
-        print(
+        logger.error(
             f"/!\\ The Github Events API limit is probably reached <- '{self.info}' - KeyError"
         )
 
@@ -35,6 +38,6 @@ class EmptyResults(ErrorBase):
 
     def __init__(self, error):
         super().__init__(error)
-        print(
+        logger.error(
             f"/!\\ Empty results probably due to reaching the Github Events API limit <- '{self.info}' <- TypeError"
         )

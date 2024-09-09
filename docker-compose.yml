@@ -14,6 +14,7 @@ x-biggie-celery-prod:
     TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+    # PYTHON_ENABLE_DEBUGGER: 1   # debug mode
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
     - "${VOLUME_MOUNT}"
@@ -115,7 +116,8 @@ services:
     ports:
       - "8000:8000"
     profiles:
-      - prod
+      - prod_full
+      - prod_analytics
     volumes:
       - ./data/diagrams:/opt/api/templates/diagrams
 
@@ -146,9 +148,11 @@ services:
       - postgres
     command: sh run.sh
     profiles:
-      - prod
-      - monitoring
+      - prod_full
+      - prod_acquisition
     restart: on-failure
+    ports:
+      - "5678:5678"  # Expose debugging port
 
   rabbitmq:
     container_name: biggie_rabbitmq
@@ -160,3 +164,7 @@ services:
     volumes:
       - biggie_vrabbitmq:/var/lib/rabbitmq
       - ./logs/rabbitmq:/var/log/rabbitmq
+    profiles:
+      - test
+      - prod_full
+      - prod_acquisition

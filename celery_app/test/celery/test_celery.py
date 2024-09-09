@@ -1,7 +1,7 @@
 from src.tasks.dummy_task import dummy_task
 
 
-# todo: transform it to check/init also Beat
+# TODO: transform it to check/init also Beat
 def test_celery():
     """
     Just to check that Celery is up and running.

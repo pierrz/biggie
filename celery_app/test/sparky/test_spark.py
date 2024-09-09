@@ -1,7 +1,8 @@
 """
 Tests focused on PySpark based features
 """
-from test.pyspark.base_test import MongoDFTest
+
+from test.sparky.base_test import MongoDFTest
 
 import pandas as pd
 from pandas.testing import assert_frame_equal

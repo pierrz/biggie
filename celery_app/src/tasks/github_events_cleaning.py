@@ -1,13 +1,16 @@
 """
 Cleaning task aka deleting all files in the local 'data/processed' directory and related Mongo collection
 """
+
 import os
 import shutil
 from pathlib import Path
 from typing import List
 
 from config import data_directories
-from worker import celery, logger
+from src import logger
+from src.commons import names as ns
+from worker import celery
 
 
 @celery.task(name="github-events-cleaning")
@@ -24,7 +27,7 @@ def clean_local_files(args: List[int], wait_minutes: int):
 
         logger.info("Cleaning task initialised ...")
         shutil.rmtree(data_directories.github_out)
-        logger.info(f"- {file_count} data files were deleted.")
+        logger.success(f"- {file_count} data files were deleted.")
 
         templates_dir = data_directories.github_diagrams
         diag_count = 0
@@ -34,9 +37,9 @@ def clean_local_files(args: List[int], wait_minutes: int):
                     if entry.is_file():
                         os.remove(Path(entry))
                         diag_count += 1
-            logger.info(f"- {diag_count} HTML diagrams were deleted.")
+            logger.success(f"- {diag_count} HTML {ns.diagrams} were deleted.")
 
     else:
-        logger.info(
+        logger.warning(
             f"=> {rest_minutes} minutes remaining before next cleaning operation."
         )
