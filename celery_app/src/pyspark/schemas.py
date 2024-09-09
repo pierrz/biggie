@@ -1,3 +1,7 @@
+"""
+Module dedicated to shemas used to load data in Spark
+"""
+
 from pyspark.sql.types import (
     LongType,
     StringType,
@@ -9,14 +13,14 @@ from pyspark.sql.types import (
 # Based on api.src.db.mongo.models -> Event
 event_schema = StructType(
     [
-        # StructField("id", StringType(), True),  # `PyObjectId` -> StringType
-        StructField("event_id", LongType(), True),  # `int` -> IntegerType
+        StructField(
+            "event_id", StringType(), True
+        ),  # this is StringType, as received though it might be LongType
         StructField(
             "type", StringType(), True
         ),  # `EventType` -> StringType (since it's an Enum)
         StructField("public", StringType(), True),  # `str` -> StringType
         StructField("created_at", TimestampType(), True),  # `datetime` -> TimestampType
-        StructField("org", StringType(), True),  # `str` -> StringType
         StructField("actor_id", LongType(), True),  # `int` -> IntegerType
         StructField("actor_login", StringType(), True),  # `str` -> StringType
         StructField("actor_display_login", StringType(), True),  # `str` -> StringType

@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Optional, Tuple, Type, Union
 
 from pyspark.sql.types import StructType
+from src import logger
 
 # pylint: disable=E0611
 from src.utils.json_utils import load_json
@@ -22,7 +23,7 @@ from .dataframe_maker import MongoDataframeMaker, PostgresDataframeMaker
 class SparkJobBase(ABC):
     """
     Base class to design actual job from
-    :param flag_files: used to avoid moving unprocessed files too early
+    :param success_flag: used to avoid moving unprocessed files too early
     :param input_dir_paths: list of input directories
     :param output_dir_path: ouput directory
     :param input_array: input data, as a list of data elements/records
@@ -31,7 +32,7 @@ class SparkJobBase(ABC):
     :param custom_preps: if necessary, provide custom data preparations for the Dataframe Maker
     """
 
-    flag_files: bool = False  # to move the files once processed
+    success_flag: bool = False  # to move the files once processed
     input_dir_paths: Iterable[Path]
     output_dir_path: Path
     input_array: Iterable[Dict]
@@ -105,41 +106,40 @@ class ToMongoFromJson(SparkJobBase):
         json_array, invalid = self.get_input_array()
 
         if invalid > 0:
-            print(f"There were {invalid} invalid or empty files.")
+            logger.info(f"There were {invalid} invalid or empty files.")
 
         if len(json_array) > 0:
             self.input_array = json_array
             self.process_and_load_data()
-            if self.flag_files:
+            if self.success_flag:
                 self.move_data()
         else:
-            print("No data to import.")
+            logger.info("No data to import.")
 
     def process_and_load_data(self):
         try:
-            print(f"{len(self.input_array)} rows available")
+            logger.info(f"{len(self.input_array)} rows available")
             maker_parameters = {
                 "input_array": self.input_array,
                 "table_or_collection": self.table_or_collection,
                 "check_columns": self.check_columns,
             }
-            print("--> HERE1")
-            print(self.schema)
+
             if self.schema is not None:
-                print("--> HERE2")
                 maker_parameters["schema"] = self.schema
             if self.custom_preps is not None:
                 maker_parameters["custom_preps"] = self.custom_preps
+
             # load, read afterwards and 'flag files' to move them
             MongoDataframeMaker(**maker_parameters).load_mongo()
             self.reader_class()
-            self.flag_files = True
+            self.success_flag = True
 
         except (
             Exception
         ) as exception:  # probably some Java error ...      # pylint: disable=W0703
-            print("Error while executing the task ...")
-            print(exception)
+            logger.info("Error while executing the task ...")
+            logger.info(exception)
 
     def move_data(self):
         """
@@ -162,7 +162,7 @@ class ToPostgresFromVA(SparkJobBase):
         if dataframe.size > 0:
             self.process_and_load_data(dataframe)
         else:
-            print("No data to import.")
+            logger.info("No data to import.")
 
     def process_and_load_data(self, df):
         try:
@@ -173,10 +173,10 @@ class ToPostgresFromVA(SparkJobBase):
             ).load_postgres()
 
             self.reader_class(self.table_or_collection, self.check_columns)
-            self.flag_files = True
+            self.success_flag = True
 
         except (
             Exception
         ) as exception:  # probably some Java error ...      # pylint: disable=W0703
-            print("Error while executing the task ...")
-            print(exception)
+            logger.info("Error while executing the task ...")
+            logger.info(exception)

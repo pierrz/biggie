@@ -11,6 +11,7 @@ from typing import Dict, Iterable, List, Tuple, Union
 import aiohttp
 import pandas as pd
 from config import data_directories, harvester_config
+from src import logger
 from src.commons import names as ns
 from src.harvester.errors import APILimitError, EmptyResults, GenericError
 
@@ -18,17 +19,17 @@ from src.harvester.errors import APILimitError, EmptyResults, GenericError
 async def get_url(auth: Dict = None, **kwargs):
 
     url = kwargs["url"]
-    print(f"Start downloading {url}")
+    logger.info(f"Start downloading {url}")
     try:
         async with aiohttp.ClientSession() as client:
 
             if isinstance(auth, Dict):
-                print(f"=> Authenticated call: {auth}")
+                logger.info(f"=> Authenticated call: {auth}")
                 response = await client.get(url, headers=auth)
 
             else:
                 response = await client.get(url)
-            print(f"Done downloading {url}")
+            logger.success(f"Done downloading {url}")
 
             if "mode" in kwargs:
                 if kwargs["mode"] == "json":
@@ -41,8 +42,8 @@ async def get_url(auth: Dict = None, **kwargs):
             # TODO: check why that still throws something ...
             # status = response.status
             # headers = response.headers
-            # print(status)
-            # print(headers)
+            # logger.info(status)
+            # logger.info(headers)
             # # return (status, headers)
             # return response
 
@@ -151,15 +152,15 @@ async def write(filepath: Path, data: Dict, mode: str, output_dir: Path):
     if not fullpath.parent.exists():
         fullpath.parent.mkdir(parents=True)
 
-    print(f"Start writing file '{fullpath.name}' ...")
+    logger.info(f"Start writing file '{fullpath.name}' ...")
     with open(fullpath, "w", encoding="utf8") as output_file:
-        print(mode)
+        logger.info(mode)
         if mode == "json":
             json.dump(data, output_file, indent=4)
         elif mode in ["csv", "txt"]:
             output_file.write(data.decode("utf-8"))
             output_file.close()
-    print(f"=> File '{fullpath.name}' saved.")
+    logger.success(f"=> File '{fullpath.name}' saved.")
 
 
 async def write_with_id(

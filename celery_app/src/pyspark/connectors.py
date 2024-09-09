@@ -34,8 +34,6 @@ class ReaderBase(ConnectorBase):
         # preps
         self.n_rows = db_data.count()
         self.columns = list(db_data.columns)
-        print("--> HERE5")
-        print(self.columns)
         self.initial_id_col = self.columns[
             1
         ]  # hack to enforce ascending order (test purpose)
@@ -43,12 +41,10 @@ class ReaderBase(ConnectorBase):
         self.schema = self.db_data.schema
 
         # checks
-        print(self.__str__())
         if check_columns is None:
             self.db_data.select(*self.check_columns)
         else:
             self.db_data.select(*check_columns)
-        print("--> HERE6")
 
     @abstractmethod
     def _name(self) -> Tuple[str]:

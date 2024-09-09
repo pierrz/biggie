@@ -13,6 +13,7 @@ flake8 = "==5.0.4"
 isort = "==5.10.1"
 pre-commit = "==2.20.0"
 pylint = "==2.14.5"
+debugpy = "==1.8.5"
 
 [build-system]
 requires = ["poetry_core>=1.1.14"]  # not working with 1.1.7 and python3.10.4

@@ -8,6 +8,7 @@ from typing import Iterable, Tuple
 
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as psf
+from src import logger
 from src.db.postgres_db import host_db
 
 from .connectors import ReaderBase
@@ -36,7 +37,7 @@ class PostgresLoader(ABC):
     """
 
     def __init__(self, spark_df: DataFrame, table: str):
-        print("=> Loading Postgres ...")
+        logger.info("=> Loading Postgres ...")
         pg_params["dbtable"] = table
         spark_df.write.format("jdbc").options(**pg_params).mode("append").save()
 
@@ -54,7 +55,7 @@ class PostgresReader(PostgresBase, ReaderBase):
             self.table = table
         pg_params["dbtable"] = self.table
         db_data = spark_postgres.read.format("jdbc").options(**pg_params).load()
-        print(" ... data fetched from Postgres")
+        logger.success(" ... data fetched from Postgres")
 
         if check_columns is None:
             self.preps_and_checks(db_data)
