@@ -68,6 +68,7 @@ class PySparkConfig(BaseSettings):
 
     MONGODB_URI: str
     DB_NAME: str
+    # DB_USER: str
 
 
 celery_config = CeleryConfig()

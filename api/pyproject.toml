@@ -12,15 +12,13 @@ httpx = "==0.27.2"
 Jinja2 = "==3.1.4"
 pandas = "==2.2.2"
 plotly = "==5.24.0"
-psycopg-binary = "==3.2.1"
+# psycopg-binary = "==3.2.1"        # might be necessary with more endpoints/tests
 pydantic = "==2.9.1"
 pydantic-settings = "==2.4.0"
-pymongo = "==4.8.0"     # check if necessary
+pymongo = "==4.8.0"
 pytest = "==8.3.2"
-SQLAlchemy = "==1.4.54"
-# SQLAlchemy = "==2.0.34"
-# typing = "==3.10.0.0"
-typing = "3.7.4.3"
+SQLAlchemy = "==2.0.34"             # previous version was 1.4.54
+typing = "3.7.4.3"                  # issues with installing the latest version 3.10.0.0
 uvicorn = "==0.30.6"
 
 [build-system]

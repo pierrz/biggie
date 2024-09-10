@@ -4,7 +4,7 @@ Mongo oriented APIs
 
 from fastapi import APIRouter
 from src.db.mongo.models import EventPerRepoCount, EventPerRepoCountList
-from src.db.mongo_db import init_mongo_connection
+from src.db.mongo_db import init_pymongo_client
 from src.routers.data_lib import dataframe_from_mongo_data
 
 router = APIRouter(
@@ -16,7 +16,7 @@ router = APIRouter(
 
 @router.get("/aggregated_repo_list")
 async def aggregated_repo_list():
-    mongodb = init_mongo_connection()  # pylint: disable=C0103
+    mongodb = init_pymongo_client()  # pylint: disable=C0103
     db_data = mongodb.events.aggregate([{"$sortByCount": "$repo_name"}])
 
     results_df = dataframe_from_mongo_data(db_data)

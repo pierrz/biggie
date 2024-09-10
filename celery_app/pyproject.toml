@@ -9,27 +9,19 @@ python = ">=3.11,<3.12"
 aiohttp = "==3.10.5"
 asyncio = "==3.4.3"
 celery = "==5.4.0"
-importlib_metadata = "==8.4.0"       # TODO: check if necessary
 loguru = "==0.7.2"
-# pandas = "==1.4.3"
 pandas = "==2.2.2"
 psycopg2 = "==2.9.9 "
-psycopg-binary = "==3.2.1"          # TODO: check if necessary
-# pydantic = "==2.9.1"
 pydantic-settings = "==2.4.0"
-pymongo = "==4.8.0"                 # TODO: check if necessary
+pymongo = "==4.8.0"
 pyspark = "==3.5.2"
 pytest = "==8.3.2"
 pytest-asyncio = "==0.24.0"
 requests = "==2.32.3"
-SQLAlchemy = "==1.4.54"
-# SQLAlchemy = "==2.0.34"
-# typing = "==3.10.0.0"
-typing = "3.7.4.3"
-# warnings for these 2 (blockers on fix/update end 2022)
+SQLAlchemy = "==2.0.34"             # previous version was 1.4.54
+typing = "3.7.4.3"                  # issues with installing the latest version 3.10.0.0
 chardet = "==5.2.0"
-urllib3 = "==1.26.20"
-# urllib3 = "==2.2.2"
+urllib3 = "==2.2.2"
 
 [build-system]
 requires = ["poetry_core>=1.8.3"]
@@ -38,6 +30,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 pythonpath = [ "/opt/celery_app", ]
 asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"       # function, class, module, package, session
 filterwarnings = [
     "error",
     "ignore::pytest.PytestCollectionWarning",

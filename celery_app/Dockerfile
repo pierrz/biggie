@@ -4,7 +4,6 @@ FROM python:3.11.9
 RUN apt-get clean \
     && apt-get update \
     && apt-get install -qy wget openjdk-17-jdk
-    # && apt-get install -qy wget default-jdk tar
 
 # spark
 # TODO: eventually implement Spark with Scala 2.13
@@ -16,7 +15,7 @@ RUN cd /tmp \
     && mv spark-3.5.2-bin-hadoop3/ /opt/spark
 
 # postgres lib
-RUN wget https://jdbc.postgresql.org/download/postgresql-42.7.3.jar -O /opt/spark/jars/postgresql-42.7.3.jar
+RUN wget https://jdbc.postgresql.org/download/postgresql-42.7.4.jar -O /opt/spark/jars/postgresql-42.7.4.jar
 
 # environment
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \

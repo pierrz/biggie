@@ -11,7 +11,7 @@ from config import diagrams_dir
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from src.db.mongo.models import Event
-from src.db.mongo_db import init_mongo_connection
+from src.db.mongo_db import init_pymongo_client
 from src.routers import templates
 from src.routers.data_lib import dataframe_from_mongo_data, validate_data
 
@@ -33,7 +33,7 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = 0):
     """
 
     # data
-    mongodb = init_mongo_connection()  # pylint: disable=C0103
+    mongodb = init_pymongo_client()  # pylint: disable=C0103
     db_data = mongodb.events.find({"repo_name": repo_name, "type": "PullRequestEvent"})
     valid_data_dict = validate_data(db_data, model=Event)
     raw_df = dataframe_from_mongo_data(valid_data_dict, "created_at")
@@ -93,7 +93,7 @@ async def pr_average_delta(repo_name: str):
     :return: a json response
     """
 
-    mongodb = init_mongo_connection()  # pylint: disable=C0103
+    mongodb = init_pymongo_client()  # pylint: disable=C0103
     db_data = mongodb.events.find({"repo_name": repo_name, "type": "PullRequestEvent"})
     valid_data_dict = validate_data(db_data, model=Event)
     results_df = dataframe_from_mongo_data(valid_data_dict, "created_at")
@@ -129,7 +129,7 @@ async def count_per_type(offset: str):
     ).isoformat()
     offset_filter = {"created_at": {"$lte": f"{time_with_offset}"}}
 
-    mongodb = init_mongo_connection()  # pylint: disable=C0103
+    mongodb = init_pymongo_client()  # pylint: disable=C0103
     db_data = mongodb.events.find(offset_filter)
     valid_data_dict = validate_data(db_data, model=Event)
     results_df = dataframe_from_mongo_data(valid_data_dict)
