@@ -18,6 +18,6 @@ RUN poetry config virtualenvs.create false\
     && poetry install --no-interaction --no-ansi
 
 # Creating folders and files for the project:
-# COPY ./api ./
-# COPY ./db ./src/db/
-# COPY ./commons ./src/commons
+COPY ./api ./
+COPY ./db ./src/db/
+COPY ./commons ./src/commons

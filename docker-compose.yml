@@ -114,10 +114,10 @@ services:
       - test
     volumes:
       - ./logs/api:/var/log/api/
-      - ./api:/opt/api
-      - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
-      - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
-      - ./commons:/opt/api/src/commons
+      # - ./api:/opt/api
+      # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
+      # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
+      # - ./commons:/opt/api/src/commons
 
   api_prod:
     container_name: biggie_api_prod
@@ -133,19 +133,13 @@ services:
     profiles:
       - prod_full
       - prod_analytics
-    # logging:
-    #   driver: "json-file"
-    #   options:
-    #     max-size: "10m"
-    #     max-file: "3"
-        # level: "debug"
     volumes:
-      - ./data/diagrams:/opt/api/templates/diagrams
       - ./logs/api:/var/log/api/
-      - ./api:/opt/api
-      - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
-      - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
-      - ./commons:/opt/api/src/commons
+      - ./data/diagrams:/opt/api/templates/diagrams
+      # - ./api:/opt/api
+      # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
+      # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
+      # - ./commons:/opt/api/src/commons
 
   celery_test:
     container_name: biggie_celery_test
