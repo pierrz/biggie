@@ -130,7 +130,7 @@ jobs:
           --env DB_USER=${{ env.DB_USER }}
           --env DB_PASSWORD=${{ env.DB_PASSWORD }}
           --network=${{ env.NETWORK }}
-          biggie_postgres:14.9
+          biggie_postgres:latest
 
       - name: Test API image
         run: >
