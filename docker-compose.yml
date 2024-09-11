@@ -1,3 +1,9 @@
+# TODO:
+#  - mount Mongo and Postgres logs
+#  - simplify Postgres container (mount init script, no dockerfile)
+#  - implement Mongo conf for authentication
+#  - debug setup
+
 x-biggie-common:
   environment:
     &biggie-common-env
@@ -40,7 +46,7 @@ volumes:
 services:
 
   nginx:
-    image: nginx
+    image: nginx:1.27.1
     container_name: biggie_nginx
     volumes:
       - ./conf/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
@@ -57,7 +63,7 @@ services:
       - live_prod
 
   mongo:
-    image: mongo:7.0.12
+    image: mongo:7.0.14
     container_name: biggie_mongo
     restart: always
     environment:
@@ -65,6 +71,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
     volumes:
       - biggie_vmongo:/data/db
+      - ./logs/mongodb:/var/log/mongodb
       # TODO: implement authentication for api container calls
       # - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
 
@@ -83,6 +90,7 @@ services:
       DB_PASSWORD: "${DB_PASSWORD}"
     volumes:
       - biggie_vpostgres:/var/lib/postgresql/data
+      - ./logs/postgres:/var/log/postgresql #/postgresql-16.4-main.log
       # todo: implement that to remove the dockerfile
       # - ./conf/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
@@ -98,18 +106,25 @@ services:
       <<: *biggie-common-env
       TEST_MODE: "True"
     command: pytest -v
+    # command: sleep 5m
     depends_on:
       - mongo
       - postgres
     profiles:
       - test
+    volumes:
+      - ./logs/api:/var/log/api/
+      # - ./api:/opt/api
+      # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
+      # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
+      # - ./commons:/opt/api/src/commons
 
   api_prod:
     container_name: biggie_api_prod
     image: biggie_api_img
     environment:
       <<: *biggie-common-env
-    command: uvicorn main:app --host 0.0.0.0 --reload --log-level error
+    command: uvicorn main:app --host 0.0.0.0 --reload --log-level info
     depends_on:
       - mongo
       - postgres
@@ -119,7 +134,12 @@ services:
       - prod_full
       - prod_analytics
     volumes:
+      - ./logs/api:/var/log/api/
       - ./data/diagrams:/opt/api/templates/diagrams
+      # - ./api:/opt/api
+      # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
+      # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
+      # - ./commons:/opt/api/src/commons
 
   celery_test:
     container_name: biggie_celery_test
@@ -133,7 +153,6 @@ services:
       - mongo
       - postgres
     command: python3 -m pytest -vv
-    # command: sleep 5m
     profiles:
       - test
     restart: on-failure
@@ -151,12 +170,12 @@ services:
       - prod_full
       - prod_acquisition
     restart: on-failure
-    ports:
-      - "5678:5678"  # Expose debugging port
+    # ports:
+    #   - "5678:5678"  # Expose debugging port
 
   rabbitmq:
     container_name: biggie_rabbitmq
-    image: rabbitmq:3.8-management
+    image: rabbitmq:3.13.7-management
     restart: on-failure
     ports:
       - "5672:5672"

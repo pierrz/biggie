@@ -1,5 +1,7 @@
 """
 Module dedicated to all Asyncio functions
+
+TODO: fix the orders of line in the logs i.e. writes befores gets
 """
 
 import asyncio
@@ -11,25 +13,27 @@ from typing import Dict, Iterable, List, Tuple, Union
 import aiohttp
 import pandas as pd
 from config import data_directories, harvester_config
-from src import logger
 from src.commons import names as ns
+from src.harvester import logger
 from src.harvester.errors import APILimitError, EmptyResults, GenericError
 
 
 async def get_url(auth: Dict = None, **kwargs):
 
-    url = kwargs["url"]
-    logger.info(f"Start downloading {url}")
     try:
         async with aiohttp.ClientSession() as client:
 
-            if isinstance(auth, Dict):
-                logger.info(f"=> Authenticated call: {auth}")
-                response = await client.get(url, headers=auth)
+            url = kwargs["url"]
+            parameters = {"url": url}
+            get_message = f"Start downloading {url}"
 
-            else:
-                response = await client.get(url)
-            logger.success(f"Done downloading {url}")
+            if isinstance(auth, Dict):
+                get_message += " (with authentication parameters i.e. key/token)"
+                parameters["headers"] = auth
+
+            logger.info(get_message)
+            response = await client.get(**parameters)
+            logger.success("Successful download.")
 
             if "mode" in kwargs:
                 if kwargs["mode"] == "json":
@@ -152,15 +156,14 @@ async def write(filepath: Path, data: Dict, mode: str, output_dir: Path):
     if not fullpath.parent.exists():
         fullpath.parent.mkdir(parents=True)
 
-    logger.info(f"Start writing file '{fullpath.name}' ...")
+    logger.info(f"Start writing file '{fullpath.name}' ('{mode}' mode) ...")
     with open(fullpath, "w", encoding="utf8") as output_file:
-        logger.info(mode)
         if mode == "json":
             json.dump(data, output_file, indent=4)
         elif mode in ["csv", "txt"]:
             output_file.write(data.decode("utf-8"))
             output_file.close()
-    logger.success(f"=> File '{fullpath.name}' saved.")
+    logger.success("File saved successfully.")
 
 
 async def write_with_id(

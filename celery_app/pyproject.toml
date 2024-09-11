@@ -1,37 +1,36 @@
 [tool.poetry]
 name = "biggie"
-version = "0.4.3"
+version = "0.4.5"
 description = "Biggie. Celery containers (test & prod)"
 authors = ["Pierre-Edouard Barrault"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
-aiohttp = "==3.8.1"
+python = ">=3.11,<3.12"
+aiohttp = "==3.10.5"
 asyncio = "==3.4.3"
-celery = "==5.2.7"
-importlib_metadata = "==3.10"       # TODO: check if necessary
+celery = "==5.4.0"
 loguru = "==0.7.2"
-pandas = "==1.4.3"
-psycopg2-binary = "==2.9.3"
-pydantic = "==1.9.1"
-pymongo = "==4.2.0"                 # TODO: check if necessary
+pandas = "==2.2.2"
+psycopg2 = "==2.9.9 "
+pydantic-settings = "==2.4.0"
+pymongo = "==4.8.0"
 pyspark = "==3.5.2"
-pytest = "==7.1.2"
-pytest-asyncio = "==0.19.0"
-requests = "==2.28.1"
-SQLAlchemy = "==1.4.39"
-typing = "==3.7.4.3"
-# warnings for these 2 (blockers on fix/update end 2022)
-chardet = "==5.0.0"
-urllib3 = "==1.26.12"
+pytest = "==8.3.2"
+pytest-asyncio = "==0.24.0"
+requests = "==2.32.3"
+SQLAlchemy = "==2.0.34"             # previous version was 1.4.54
+typing = "3.7.4.3"                  # issues with installing the latest version 3.10.0.0
+chardet = "==5.2.0"
+urllib3 = "==2.2.2"
 
 [build-system]
-requires = ["poetry-core>=1.1"]
+requires = ["poetry_core>=1.8.3"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 pythonpath = [ "/opt/celery_app", ]
 asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"       # function, class, module, package, session
 filterwarnings = [
     "error",
     "ignore::pytest.PytestCollectionWarning",

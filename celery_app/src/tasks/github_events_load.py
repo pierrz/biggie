@@ -8,11 +8,11 @@ from typing import List
 
 import pandas as pd
 from config import data_directories
-from sparky.jobs import ToMongoFromJson
-from sparky.mongo_connectors import EventReader
-from sparky.schemas import event_schema
 from src import logger
 from src.commons import names as ns
+from src.sparky.jobs import ToMongoFromJson
+from src.sparky.mongo_connectors import EventReader
+from src.sparky.schemas import event_schema
 from worker import celery
 
 
