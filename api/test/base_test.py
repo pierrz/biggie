@@ -8,7 +8,7 @@ from test.lib_test import (
     get_expected_results_dict,  # pylint: disable=E0611     # , get_expected_results_dict_for_specific_file
 )
 
-from main import logger
+from src import logger
 
 
 @dataclass
