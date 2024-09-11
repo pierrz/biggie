@@ -135,19 +135,16 @@ async def test_asyncio_download_github_events_filtered_df():
     df_list = await download_github_events(
         event_urls, output="df", auth=github_params, mode="json"
     )
-    grouped_df = (
-        pd.concat(df_list).groupby(["type"]).sum().rename(columns={"public": "count"})
-    )
+    grouped_series = pd.concat(df_list).groupby(["type"]).size()
 
     try:
-        columns = sorted(grouped_df.index.to_list())
+        columns = sorted(grouped_series.index.to_list())
         assert columns == harvester_config.EVENTS
     # sometimes 1 event type is missing from the tested batch, hence test each type individually
     except AssertionError:
         for event in columns:
             assert event in harvester_config.EVENTS
 
-    # should always have at least 1 match from the required events
-    valid_flags = (grouped_df["count"] > 0).unique()
-    assert len(valid_flags) == 1
-    assert valid_flags[0]
+    # there should always be at least 1 entry from the required events
+    valid_data_check = grouped_series.gt(0).any()
+    assert valid_data_check

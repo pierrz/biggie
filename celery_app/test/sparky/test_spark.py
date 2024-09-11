@@ -3,6 +3,7 @@ Tests focused on PySpark based features
 """
 
 from test.sparky.base_test import MongoDFTest
+from test.sparky.fixtures.mongo_schema import test_mongo_schema
 
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -16,7 +17,7 @@ class DataframeMakerTest(MongoDFTest):
     def run(self):
 
         assert (
-            self.data.schema == self.fixture.test_schema
+            self.data.schema == test_mongo_schema
         )  # /!\ done before pd.json_normalize
 
         # data
@@ -36,4 +37,4 @@ def test_pyspark_dataframe_maker():
     Starts the test
     :return: does its thing
     """
-    DataframeMakerTest("test_spark")
+    DataframeMakerTest(collection="test_spark", schema=test_mongo_schema)

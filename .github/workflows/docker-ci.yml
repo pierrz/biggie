@@ -17,7 +17,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  RELEASE: 0.4.4    # /!\ increase this to avoid overwriting older image
+  RELEASE: 0.4.5    # /!\ increase this to avoid overwriting older image
 
 jobs:
 
@@ -116,7 +116,7 @@ jobs:
           --env MONGO_INITDB_ROOT_USERNAME=${{ env.MONGO_INITDB_ROOT_USERNAME }}
           --env MONGO_INITDB_ROOT_PASSWORD=${{ env.MONGO_INITDB_ROOT_PASSWORD }}
           --network=${{ env.NETWORK }}
-          mongo:5.0.8
+          mongo:7.0.14
 
       - name: Create Postgres container
         run: >
@@ -157,4 +157,4 @@ jobs:
           --env TEST_MODE="True"
           --network=${{ env.NETWORK }}
           ghcr.io/pierrz/biggie_celery_img:latest
-          python3.10 -m pytest -vv --asyncio-mode=strict
+          python3.11 -m pytest -vv --asyncio-mode=strict

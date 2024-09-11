@@ -23,9 +23,9 @@ spark_postgres = (
     .config("spark.executor.memory", "2g")
     .config(
         "spark.executor.extraClassPath",
-        "/opt/spark/jars/postgresql-42.7.3.jar",
+        "/opt/spark/jars/postgresql-42.7.4.jar",
     )
-    .config("spark.driver.extraClassPath", "/opt/spark/jars/postgresql-42.7.3.jar")
+    .config("spark.driver.extraClassPath", "/opt/spark/jars/postgresql-42.7.4.jar")
     .getOrCreate()
 )
 

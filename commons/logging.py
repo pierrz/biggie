@@ -18,16 +18,17 @@ class LoggerManager:
         # tuned on the longest level label i.e. CRITICAL + icon
         logger_format = (
             "<light-blue>{time:%Y-%m-%d %H:%M:%S}</light-blue>"
-            " | {level: <11}"
+            " | {level: <10}"
             " | <level>{message}</level>"
         )
         # use the following to show either the source file/line or function
         # " | {name}.{file}:{line}" \
         # " | {function}" \
 
+        # some parameters disabled as not used anymore, though kept for tests/debugging
         logging_parameters = {
             "format": logger_format,
-            "filter": self.log_tuning,
+            # "filter": self.log_tuning,
             # "backtrace": False,
             # "diagnose": False
         }
@@ -35,18 +36,21 @@ class LoggerManager:
         loguru_logger.add(log_filepath, rotation="20MB", **logging_parameters)
         loguru_logger.add(sys.stderr, colorize=True, **logging_parameters)
 
-    @staticmethod
-    def log_tuning(record):
+    # previous approach, discarded to avoid some erratic issues with tests
+    # + unconsitent messages length due to icon width not identical
+    # @staticmethod
+    # def log_tuning(record):
 
-        # exclude filepath from log message (was useful)
-        # record["extra"].clear()
+    #     # exclude filepath from log message (was useful)
+    #     # record["extra"].clear()
 
-        # include icon
-        level = record["level"].name
-        icon = record["level"].icon
-        record["level"] = f"{level} {icon}"
+    #     # include icon
+    #     if not TEST_MODE:
+    #         level = record["level"].name
+    #         icon = record["level"].icon
+    #         record["level"] = f"{level} {icon}"
 
-        return record
+    #     return record
 
     @staticmethod
     def get_logger():

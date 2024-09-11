@@ -5,7 +5,8 @@ Tests focused on Postgres based features
 from test.sparky.base_test import PostgresDFTest, PostgresTestReader
 
 from pandas.testing import assert_frame_equal
-from src.db.postgres_db import pg_engine
+from sqlalchemy import Table
+from src.db.postgres_db import metadata, pg_engine
 
 
 class PostgresLoaderReaderTest(PostgresDFTest):
@@ -30,5 +31,10 @@ def test_postgres_loader_reader():
     :return: does its thing
     """
 
-    PostgresLoaderReaderTest(PostgresTestReader.table)
-    pg_engine.execute(f"DROP TABLE {PostgresTestReader.table}")
+    test_table = PostgresTestReader.table
+    PostgresLoaderReaderTest(test_table)
+
+    # db cleaning
+    table_to_drop = Table(test_table, metadata, autoload_with=pg_engine)
+    with pg_engine.begin() as context:
+        table_to_drop.drop(context)

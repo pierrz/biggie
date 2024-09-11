@@ -54,13 +54,13 @@ class MongoDFTest(DataframeTestBase):
     Class used for Postgres test dfs
     """
 
-    def __init__(self, collection):
+    def __init__(self, collection, schema):
         super().__init__(collection)
         self.data = MongoDataframeMaker(
             self.fixture.test_data,
             self.fixture.table_or_collection,
             check_columns=self.check_columns,
-            schema=self.fixture.test_schema,
+            schema=schema,
         )
         self.run()
 

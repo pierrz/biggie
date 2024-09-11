@@ -1,3 +1,10 @@
+"""
+Schedule for Celery chained tasks.
+
+TODO: investigate/fix the erratic cleaning waiting time interval
+ (jumps between remaining minutes, not working consistently anymore since last package update)
+"""
+
 from celery import signature
 from celery.schedules import crontab
 

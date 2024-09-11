@@ -7,14 +7,16 @@ from config import app_config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from src.routers import dummy_endpoint, github_events, mongo_endpoints
+
+# from src import logger
+from src.routers import dummy_endpoint, github_events
 
 # from src.db import models
 # from src.db.postgres import pg_engine
 
 # models.Base.metadata.create_all(bind=pg_engine)
 
-app = FastAPI()
+app = FastAPI(debug=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if app_config.LOCAL_DEV:
@@ -36,4 +38,3 @@ if app_config.LOCAL_DEV:
 # routers
 app.include_router(dummy_endpoint.router)
 app.include_router(github_events.router)
-app.include_router(mongo_endpoints.router)
