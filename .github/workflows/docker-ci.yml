@@ -116,7 +116,7 @@ jobs:
           --env MONGO_INITDB_ROOT_USERNAME=${{ env.MONGO_INITDB_ROOT_USERNAME }}
           --env MONGO_INITDB_ROOT_PASSWORD=${{ env.MONGO_INITDB_ROOT_PASSWORD }}
           --network=${{ env.NETWORK }}
-          mongo:5.0.8
+          mongo:7.0.14
 
       - name: Create Postgres container
         run: >
@@ -130,7 +130,7 @@ jobs:
           --env DB_USER=${{ env.DB_USER }}
           --env DB_PASSWORD=${{ env.DB_PASSWORD }}
           --network=${{ env.NETWORK }}
-          biggie_postgres:latest
+          biggie_postgres:14.9
 
       - name: Test API image
         run: >
@@ -157,4 +157,4 @@ jobs:
           --env TEST_MODE="True"
           --network=${{ env.NETWORK }}
           ghcr.io/pierrz/biggie_celery_img:latest
-          python3.10 -m pytest -vv --asyncio-mode=strict
+          python3.11 -m pytest -vv --asyncio-mode=strict
