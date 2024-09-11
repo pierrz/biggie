@@ -17,15 +17,19 @@ class PyObjectId(ObjectId):
     def __get_pydantic_core_schema__(
         cls, source_type: type, handler: GetCoreSchemaHandler
     ) -> core_schema.CoreSchema:
+        # Register the custom validator for ObjectId
         return core_schema.with_info_plain_validator_function(cls.validate)
 
     @classmethod
-    def validate(cls, value):
+    def validate(cls, value, info):  # Accepting an additional 'info' argument
+        if isinstance(value, ObjectId):
+            return value
         if not ObjectId.is_valid(value):
             raise ValueError(f"Invalid ObjectId: {value}")
         return ObjectId(value)
 
     @classmethod
     def __modify_json_schema__(cls, json_schema: JsonSchemaValue) -> JsonSchemaValue:
+        # Modify the schema to expect a string representation
         json_schema.update(type="string")
         return json_schema

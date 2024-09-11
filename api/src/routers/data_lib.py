@@ -23,6 +23,7 @@ def dataframe_from_mongo_data(db_data, sort_by: str = None):
     return None
 
 
+# TODO: to discard as covered by pydantic model validation
 def validate_data(data, model):
     """
     Validate data (from Postgres or Mongo) based on a specific model.

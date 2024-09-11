@@ -22,7 +22,8 @@ class CeleryConfig(BaseSettings):
     broker_url: str = os.getenv("CELERY_BROKER_URL")
     result_backend: str = os.getenv("CELERY_RESULT_BACKEND")
     enable_utc: bool = True
-    timezone: str = "Europe/Amsterdam"
+    # timezone: str = "Europe/Amsterdam"
+    timezone: str = "Indian/Antananarivo"
     task_track_started: bool = True
     result_persistent: bool = True
     task_publish_retry: bool = True

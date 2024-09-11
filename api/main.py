@@ -7,6 +7,8 @@ from config import app_config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
+# from src import logger
 from src.routers import dummy_endpoint, github_events, mongo_endpoints
 
 # from src.db import models
@@ -14,7 +16,7 @@ from src.routers import dummy_endpoint, github_events, mongo_endpoints
 
 # models.Base.metadata.create_all(bind=pg_engine)
 
-app = FastAPI()
+app = FastAPI(debug=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if app_config.LOCAL_DEV:
@@ -37,3 +39,13 @@ if app_config.LOCAL_DEV:
 app.include_router(dummy_endpoint.router)
 app.include_router(github_events.router)
 app.include_router(mongo_endpoints.router)
+
+
+# @app.middleware("http")
+# async def log_requests(request: Request, call_next):
+#     # start_time = time.time()
+#     response = await call_next(request)
+#     # process_time = time.time() - start_time
+#     # logger.info(f"Request: {request.method} {request.url} took {process_time:.2f}s")
+#     logger.info(response)
+#     return response

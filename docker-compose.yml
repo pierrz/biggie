@@ -1,7 +1,7 @@
 # TODO:
 #  - mount Mongo and Postgres logs
 #  - simplify Postgres container (mount init script, no dockerfile)
-#  - implemment Mongo conf for authentication
+#  - implement Mongo conf for authentication
 #  - debug setup
 
 x-biggie-common:
@@ -106,18 +106,25 @@ services:
       <<: *biggie-common-env
       TEST_MODE: "True"
     command: pytest -v
+    # command: sleep 5m
     depends_on:
       - mongo
       - postgres
     profiles:
       - test
+    volumes:
+      - ./logs/api:/var/log/api/
+    #   - ./api:/opt/api
+    #   - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
+    #   - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
+    #   - ./commons:/opt/api/src/commons
 
   api_prod:
     container_name: biggie_api_prod
     image: biggie_api_img
     environment:
       <<: *biggie-common-env
-    command: uvicorn main:app --host 0.0.0.0 --reload --log-level error
+    command: uvicorn main:app --host 0.0.0.0 --reload --log-level info
     depends_on:
       - mongo
       - postgres
@@ -126,8 +133,19 @@ services:
     profiles:
       - prod_full
       - prod_analytics
+    # logging:
+    #   driver: "json-file"
+    #   options:
+    #     max-size: "10m"
+    #     max-file: "3"
+        # level: "debug"
     volumes:
       - ./data/diagrams:/opt/api/templates/diagrams
+      - ./logs/api:/var/log/api/
+      # - ./api:/opt/api
+      # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
+      # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
+      # - ./commons:/opt/api/src/commons
 
   celery_test:
     container_name: biggie_celery_test

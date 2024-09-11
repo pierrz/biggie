@@ -8,6 +8,8 @@ from test.lib_test import (
     get_expected_results_dict,  # pylint: disable=E0611     # , get_expected_results_dict_for_specific_file
 )
 
+from main import logger
+
 
 @dataclass
 class EndpointTestBase(ABC):
@@ -23,8 +25,8 @@ class EndpointTestBase(ABC):
 
     def _get_test_parts(self, client):
         url = f"http://api_test/{self.test_name}"
-        print(f"TEST: {self.test_name}")
-        print(f"=> url: {url}")
+        logger.info(f"TEST: {self.test_name}")
+        logger.info(f"=> url: {url}")
         expected_response = get_expected_results_dict(
             f"{self.test_name.replace('/', '_')}"
         )
@@ -35,3 +37,4 @@ class EndpointTestBase(ABC):
         response, expected_response = self._get_test_parts(client)
         assert response.status_code == 200
         assert response.json() == expected_response
+        logger.success(f"TEST: {self.test_name} --> Success!")

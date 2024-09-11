@@ -10,7 +10,9 @@ import plotly.express as px
 from config import diagrams_dir
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
-from src.db.mongo.models import Event
+
+# from main import logger
+from src.db.mongo.models import Event, EventTypeCount, EventTypeCountList
 from src.db.mongo_db import init_pymongo_client
 from src.routers import templates
 from src.routers.data_lib import dataframe_from_mongo_data, validate_data
@@ -124,23 +126,41 @@ async def count_per_type(offset: str):
     :return: a json response
     """
 
-    time_with_offset = (
-        datetime.now(timezone.utc) - timedelta(minutes=int(offset))
-    ).isoformat()
-    offset_filter = {"created_at": {"$lte": f"{time_with_offset}"}}
+    mongodb = init_pymongo_client()
 
-    mongodb = init_pymongo_client()  # pylint: disable=C0103
-    db_data = mongodb.events.find(offset_filter)
-    valid_data_dict = validate_data(db_data, model=Event)
-    results_df = dataframe_from_mongo_data(valid_data_dict)
+    iso_date_with_delta = datetime.now(timezone.utc) - timedelta(minutes=int(offset))
+    aggregation_pipeline = [
+        {"$match": {"created_at": {"$lte": iso_date_with_delta}}},
+        {"$sortByCount": "$type"},
+        {
+            "$project": {
+                "type": "$_id",  # Rename _id to type
+                "count": 1,  # Keep the count field
+            }
+        },
+    ]
+
+    db_data = mongodb.events.aggregate(aggregation_pipeline)
+    results_df = dataframe_from_mongo_data(db_data)
 
     if results_df is not None:
-        data = (
-            results_df[["repo_name", "type"]]
-            .rename(columns={"repo_name": "type_count"})
-            .groupby(["type"])
-            .count()
+        return EventTypeCountList(
+            count_per_type=[
+                EventTypeCount(type=record["type"], count=record["count"])
+                for record in results_df.to_dict(orient="records")
+            ]
         )
-        return JSONResponse(data.to_dict())
+
+        # DEV (pandas approach)
+        # offset_filter_with_delta = {"created_at": {"$lte": iso_date_with_delta}}
+        # db_data = mongodb.events.find(offset_filter_with_delta)
+        # results_df = dataframe_from_mongo_data(db_data)
+        # data = (
+        #     results_df[["repo_name", "type"]]
+        #     .rename(columns={"repo_name": "type_count"})
+        #     .groupby(["type"])
+        #     .count()
+        # )
+        # return JSONResponse(data.to_dict())
 
     return JSONResponse({"result": "no events retrieved with this offset"})

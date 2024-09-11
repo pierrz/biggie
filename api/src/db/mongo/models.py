@@ -41,7 +41,6 @@ class Event(BaseModel):
     type: EventType
     public: str
     created_at: datetime
-    org: str
     actor_id: int
     actor_login: str
     actor_display_login: str
@@ -74,7 +73,6 @@ class Event(BaseModel):
                 "type": "IssuesEvent",
                 "public": True,
                 "created_at": "2023-09-06T12:00:00Z",
-                "org": "SomeOrg",
                 "actor_id": 67890,
                 "actor_login": "username",
                 "actor_display_login": "User Name",
@@ -111,6 +109,34 @@ class EventPerRepoCountList(BaseModel):
                 "repository_list": [
                     {"name": "user/repo1", "count": 10},
                     {"name": "user/repo2", "count": 5},
+                ]
+            }
+        }
+    )
+
+
+class EventTypeCount(BaseModel):
+    """
+    Model specific to count type occurences
+    """
+
+    type: EventType
+    count: int
+
+
+class EventTypeCountList(BaseModel):
+    """
+    Model specific to wrap the repo occurences count results
+    """
+
+    count_per_type: list[EventTypeCount]
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "count_per_type": [
+                    {"type": EventType.WatchEvent, "count": 10},
+                    {"type": EventType.PullRequestEvent, "count": 5},
                 ]
             }
         }
