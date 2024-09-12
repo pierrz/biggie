@@ -1,6 +1,9 @@
 name: Update All Release Tags
 
 on:
+  push:
+    branches:
+      - 'fix/**'
   workflow_dispatch:  # This allows manual triggering
 
 jobs:
