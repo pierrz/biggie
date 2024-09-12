@@ -1,0 +1,10 @@
+{% extends "title.html" %}
+
+{% block title_parts %}
+<h3 class="subtitle is-spaced" style="margin-bottom: 2rem;">
+    {{ repo_name }}
+</h3>
+<p class="subtitle is-spaced" style="margin-bottom: 2rem; font-size: 1.1rem;">
+    {{ pr_count }} PRs with an average interval of {{ pr_average_delta }} seconds
+</p>
+{% endblock %}

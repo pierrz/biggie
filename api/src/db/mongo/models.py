@@ -126,7 +126,7 @@ class EventTypeCount(BaseModel):
 
 class EventTypeCountList(BaseModel):
     """
-    Model specific to wrap the repo occurences count results
+    Model specific to wrap the type occurence count results
     """
 
     count_per_type: list[EventTypeCount]
@@ -141,3 +141,11 @@ class EventTypeCountList(BaseModel):
             }
         }
     )
+
+
+class EventAverageTime(BaseModel):
+    """
+    Model specific to the calculation of the average time between PRs
+    """
+
+    pr_average_time_in_seconds: float

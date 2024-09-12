@@ -45,9 +45,9 @@ class CeleryConfig(BaseSettings):
 
 
 class DataDirectories(BaseSettings):
-    github_in: Path = Path(data_dir_root, ns.events, ns.received)
-    github_out: Path = Path(data_dir_root, ns.events, ns.processed)
-    github_diagrams: Path = Path(data_dir_root, ns.events, ns.diagrams)
+    github_in: Path = Path(data_dir_root, ns.github_events, ns.received)
+    github_out: Path = Path(data_dir_root, ns.github_events, ns.processed)
+    github_diagrams: Path = Path(data_dir_root, ns.github_events, ns.diagrams)
     batch: Path = Path(data_dir_root, "batch-io")  # test purposes
 
 
@@ -56,7 +56,6 @@ class HarvesterConfig(BaseSettings):
     Harvester module config
     """
 
-    # if TEST_MODE:     # to implement only once the branch split has been done
     TOKEN_GITHUB_API: str
     EVENTS: List[str] = list(ns.GithubEventTypes)
     PER_PAGE: int = 20
@@ -69,7 +68,7 @@ class PySparkConfig(BaseSettings):
 
     MONGODB_URI: str
     DB_NAME: str
-    # DB_USER: str
+    # DB_USER: str      # TODO: might be usefult to implement Postgres 16.4
 
 
 celery_config = CeleryConfig()
