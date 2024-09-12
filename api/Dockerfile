@@ -15,7 +15,7 @@ COPY ./api/pyproject.toml ./api/poetry.lock* ./
 
 # Project initialization:
 RUN poetry config virtualenvs.create false\
-    && poetry install --no-interaction --no-ansi --no-dev
+    && poetry install --no-interaction --no-ansi --only main
 
 # Creating folders and files for the project:
 # NB: Can be disabled if the "Dev speed up" lines are enabled

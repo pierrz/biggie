@@ -43,7 +43,7 @@ WORKDIR /opt/celery_app
 COPY ./celery_app/pyproject.toml ./celery_app/poetry.lock* ./
 
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-dev
+    && poetry install --no-interaction --no-ansi --only main
 
 COPY ./celery_app ./
 COPY ./db ./src/db

@@ -105,9 +105,9 @@ services:
     environment:
       <<: *biggie-common-env
       TEST_MODE: "True"
-    command: |
-      poetry install --only dev
-      pytest -vv
+    command: >
+      sh -c "poetry install --only dev && \
+             pytest -vv"
     depends_on:
       - mongo
       - postgres
@@ -155,9 +155,9 @@ services:
       - rabbitmq
       - mongo
       - postgres
-    command: |
-      poetry install --only dev
-      python3.11 -m pytest -vv
+    command: >
+      sh -c "poetry install --only dev && \
+             python3.11 -m pytest -vv"
     profiles:
       - test
     restart: on-failure

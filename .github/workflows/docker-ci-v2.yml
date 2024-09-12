@@ -174,8 +174,8 @@ jobs:
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
             ghcr.io/pierrz/biggie_api_img:latest \
-            sh -c "poetry install --only dev \
-                   && pytest -vv"
+            sh -c "poetry install --only dev && \
+                   pytest -vv"
 
       - name: Test Celery image
         run: |
@@ -191,8 +191,8 @@ jobs:
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
             ghcr.io/pierrz/biggie_celery_img:latest \
-            sh -c "poetry install --only dev \
-                   && python3.11 -m pytest -vv --asyncio-mode=strict"
+            sh -c "poetry install --only dev && \
+                   python3.11 -m pytest -vv --asyncio-mode=strict"
 
       # Publish test coverage report
       - name: Run tests and generate coverage report
