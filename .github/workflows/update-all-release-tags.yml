@@ -23,4 +23,5 @@ jobs:
       env:
         RENAME_RELEASE_TOKEN: ${{ secrets.RENAME_RELEASE_TOKEN }}
       run: |
+        printenv
         python update_release_tags.py
