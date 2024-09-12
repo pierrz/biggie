@@ -27,11 +27,11 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.7
 
       # Cache for Poetry dependencies
       - name: Set up caching for Poetry
-        uses: actions/cache@v3
+        uses: actions/cache@v4.0.2
         with:
           path: ~/.cache/pypoetry
           key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
@@ -71,11 +71,11 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.7
 
       # Cache for Poetry dependencies
       - name: Set up caching for Poetry
-        uses: actions/cache@v3
+        uses: actions/cache@v4.0.2
         with:
           path: ~/.cache/pypoetry
           key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
@@ -133,10 +133,10 @@ jobs:
     steps:
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.7
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3.3.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -174,7 +174,8 @@ jobs:
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
             ghcr.io/pierrz/biggie_api_img:latest \
-            pytest -vv
+            sh -c "poetry install --only dev \
+                   && pytest -vv"
 
       - name: Test Celery image
         run: |
@@ -190,7 +191,8 @@ jobs:
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
             ghcr.io/pierrz/biggie_celery_img:latest \
-            python3.11 -m pytest -vv --asyncio-mode=strict
+            sh -c "poetry install --only dev \
+                   && python3.11 -m pytest -vv --asyncio-mode=strict"
 
       # Publish test coverage report
       - name: Run tests and generate coverage report
@@ -199,7 +201,7 @@ jobs:
             pytest --cov-report xml:coverage.xml --cov=.
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.2.1-node20
         with:
           name: coverage-report
           path: coverage.xml

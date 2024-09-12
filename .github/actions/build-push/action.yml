@@ -26,7 +26,7 @@ runs:
 
     # Log in to the Container registry
     - name: Log in to the Container registry
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3.3.0
       with:
         registry: ${{ inputs.registry }}
         username: ${{ inputs.actor }}
@@ -35,13 +35,13 @@ runs:
     # Extract metadata (tags, labels) for Docker
     - name: Extract metadata (tags, labels) for Docker - ${{ inputs.name }}
       id: meta
-      uses: docker/metadata-action@v4
+      uses: docker/metadata-action@v5.5.1
       with:
         images: ${{ inputs.registry }}/${{ inputs.image }}
 
     # Build and push Docker image
     - name: Build and push Docker image - ${{ inputs.name }}
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6.7.0
       with:
         context: .
         file: ${{ inputs.src }}/Dockerfile
