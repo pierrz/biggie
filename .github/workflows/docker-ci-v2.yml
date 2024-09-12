@@ -202,7 +202,7 @@ jobs:
         run: |
           ls ${{ github.workspace }}/tmp/
           pip install coverage
-          coverage combine ${{ github.workspace }}/tmp/coverage-api.xml ${{ github.workspace }}/tmp/coverage-celery.xml --keep
+          coverage combine ${{ github.workspace }}/tmp/coverage-api.xml ${{ github.workspace }}/tmp/coverage-celery.xml
           coverage xml -o ${{ github.workspace }}/tmp/coverage-merged.xml
 
       - name: Comment coverage
