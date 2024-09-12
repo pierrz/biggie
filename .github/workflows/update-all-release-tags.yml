@@ -21,6 +21,6 @@ jobs:
         pip install PyGithub requests
     - name: Run update script
       env:
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB_API }}
       run: |
         python update_release_tags.py
