@@ -8,7 +8,7 @@ import os
 from github import Github, GithubException
 
 # GitHub personal access token
-GITHUB_TOKEN = os.environ["TOKEN_GITHUB_API"]
+GITHUB_TOKEN = os.environ["RENAME_RELEASE_TOKEN"]
 
 # Repository name (format: "owner/repo")
 REPO_NAME = "pierrz/biggie"
