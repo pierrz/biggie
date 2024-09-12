@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 
 {% block template %}
+
+<section class="section">
+    <nav class="level">
+        <div class="level-item has-text-centered" style="display: block;">
+            <h3 class="subtitle is-spaced" style="margin-bottom: 2rem;">
+                {{ repo_name }}
+            </h3>
+        </div>
+    </nav>
+</section>
+
 <nav class="level" id="details">
 
     <div class="level-item" style="display: block;">
@@ -8,7 +19,7 @@
     </div>
 
     <div class="level-item" style="display: block;">
-
+        {% include diagram_filepath %}
     </div>
 
 </nav>

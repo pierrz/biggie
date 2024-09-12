@@ -7,7 +7,9 @@ import pandas as pd
 import plotly.express as px
 from config import diagrams_dir
 from pydantic import BaseModel
+from pymongo import MongoClient
 from pymongo.command_cursor import CommandCursor
+from src.db.mongo.models import Event, EventType
 
 
 def dataframe_from_mongo_data(
@@ -36,6 +38,30 @@ def validate_data(data: CommandCursor, model: Type[BaseModel]) -> List[BaseModel
 
     valid_data = [model(**doc).dict() for doc in data]
     return valid_data
+
+
+def delta_timeline_data(
+    mongodb: MongoClient, repo_name: str, size: int
+) -> pd.DataFrame:
+    """
+    Prepare the data to compute the deltas between PRs
+    :param mongodb: mongo client
+    :param repo_name: name of the related repository
+    :param size: data size
+    :return: the prepared dataframe
+    """
+    db_data = mongodb.events.find(
+        {"repo_name": repo_name, "type": EventType.PullRequestEvent}
+    )
+    valid_data_dict = validate_data(db_data, model=Event)
+    raw_df = dataframe_from_mongo_data(valid_data_dict, "created_at")
+
+    if size > 2:
+        results_df = raw_df.tail(size).reset_index()
+    else:
+        results_df = raw_df.reset_index()
+
+    return results_df
 
 
 def generate_diagram(results_df: pd.DataFrame, repo_name: str, size: int) -> str:
@@ -73,6 +99,6 @@ def generate_diagram(results_df: pd.DataFrame, repo_name: str, size: int) -> str
         Path.mkdir(diagrams_dir, parents=True)
 
     file_path = Path(diagrams_dir, filename)
-    print(file_path)
     fig.write_html(file_path)
-    return str(file_path)
+
+    return f"{diagrams_dir.name}/{filename}"

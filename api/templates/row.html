@@ -4,6 +4,6 @@
     {% for field in table_headers %}
         <td style="text-align: left">{{ row[field] }}</td>
     {% endfor %}
-    <td style="text-align: left"><a href="{{ row.name }}/details">details</a></td>
+    <td style="text-align: left"><a href="details?repo_name={{ row.name }}">details</a></td>
 </tr>
 {% endblock %}

@@ -4,9 +4,6 @@ All API endpoints.
 
 from datetime import datetime, timedelta, timezone
 
-# import pandas as pd
-# import plotly.express as px
-# from config import diagrams_dir
 from fastapi import APIRouter, HTTPException, Request
 
 # from src import logger
@@ -23,6 +20,7 @@ from src.db.mongo_db import init_pymongo_client
 from src.routers import templates
 from src.routers.data_lib import (
     dataframe_from_mongo_data,
+    delta_timeline_data,
     generate_diagram,
     validate_data,
 )
@@ -34,8 +32,8 @@ router = APIRouter(
 )
 
 
-@router.get("/most_active_repositories")
-async def most_active_repositories(limit: str | int = 50):
+@router.get("/counts")
+async def counts(limit: str | int = 50):
     """
     List of repositories with the most PR occurences. Default size is 50.
     :param limit: size of the response, can be changed with '?limit=<int>' query parameter.
@@ -65,8 +63,27 @@ async def most_active_repositories(limit: str | int = 50):
     )
 
 
-@router.get("/count_per_type")
-async def count_per_type(offset: str):
+@router.get("/count")
+async def count(repo_name: str):
+    """
+    PR events count for a given repo.
+    :param repo_name: name of the repository
+    :return: a json response
+    """
+    mongodb = init_pymongo_client()  # pylint: disable=C0103
+    query = {"repo_name": repo_name, "type": EventType.PullRequestEvent}
+    count = mongodb.events.count_documents(query)
+
+    if count == 0:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No events data available for the repository '{repo_name}'.",
+        )
+    return EventPerRepoCount(name=repo_name, count=count)
+
+
+@router.get("/count_per_type/all")
+async def count_per_type_all(offset: str = "0"):
     """
     Return the total number of events grouped by the event type for a given offset.
     The offset determines how much time we want to look back
@@ -79,10 +96,13 @@ async def count_per_type(offset: str):
 
     iso_date_with_delta = datetime.now(timezone.utc) - timedelta(minutes=int(offset))
     offset_query = {"created_at": {"$lte": iso_date_with_delta}}
+
+    # if repo_name is None:
     count = mongodb.events.count_documents(offset_query)
     if count == 0:
         raise HTTPException(
-            status_code=404, detail="No events retrieved with this offset."
+            status_code=404,
+            detail=f"No events retrieved with an offset of {offset} minutes.",
         )
 
     aggregation_pipeline = [
@@ -97,6 +117,7 @@ async def count_per_type(offset: str):
     ]
     db_data = mongodb.events.aggregate(aggregation_pipeline)
     results_df = dataframe_from_mongo_data(db_data)
+
     return EventTypeCountList(
         count_per_type=[
             EventTypeCount(type=record["type"], count=record["count"])
@@ -104,19 +125,44 @@ async def count_per_type(offset: str):
         ]
     )
 
-    # DEV (pandas approach)
-    # offset_filter_with_delta = {"created_at": {"$lte": iso_date_with_delta}}
-    # db_data = mongodb.events.find(offset_filter_with_delta)
-    # results_df = dataframe_from_mongo_data(db_data)
-    # data = (
-    #     results_df[["repo_name", "type"]]
-    #     .rename(columns={"repo_name": "type_count"})
-    #     .groupby(["type"])
-    #     .count()
-    # )
-    # return JSONResponse(data.to_dict())
 
-    # return JSONResponse({"result": "no events retrieved with this offset"})
+@router.get("/count_per_type")
+async def count_per_type(repo_name: str, offset: str = "0"):
+    """
+    Return the total number of events grouped by the event type for a given offset.
+    The offset determines how much time we want to look back
+    i.e. an offset of 10 means we count only the events which have been created in the last 10 minutes
+    :param offset: offset in minutes
+    :return: a json response
+    """
+
+    mongodb = init_pymongo_client()
+
+    iso_date_with_delta = datetime.now(timezone.utc) - timedelta(minutes=int(offset))
+    offset_query = {"created_at": {"$lte": iso_date_with_delta}}
+    query = {"repo_name": repo_name, **offset_query}
+    db_data = mongodb.events.find(query)
+    results_df = dataframe_from_mongo_data(db_data)
+
+    if results_df.shape[0] == 0:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No events retrieved with an offset of {offset} minutes and/or the repository '{repo_name}'.",
+        )
+
+    grouped_df = (
+        results_df[["repo_name", "type"]]
+        .rename(columns={"repo_name": "count"})
+        .groupby(["type"])
+        .count()
+        .reset_index()
+    )
+    return EventTypeCountList(
+        count_per_type=[
+            EventTypeCount(type=record["type"], count=record["count"])
+            for record in grouped_df.to_dict(orient="records")
+        ]
+    )
 
 
 @router.get("/pr_average_delta")
@@ -148,8 +194,6 @@ async def pr_average_delta(repo_name: str):
     )  # rounded to millisecond floats
 
     return EventAverageTime(pr_average_time_in_seconds=average_time)
-    # response_data = {"pr_average_time[seconds]": average_time}
-    # return JSONResponse(response_data)
 
 
 @router.get("/pr_deltas_timeline")
@@ -162,7 +206,6 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = 0):
     :return: a json response
     """
 
-    # data
     mongodb = init_pymongo_client()  # pylint: disable=C0103
 
     query = {"repo_name": repo_name, "type": EventType.PullRequestEvent}
@@ -174,47 +217,10 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = 0):
             " 3 PullRequestEvents minimum are required to generate 2 intervals.",
         )
 
-    db_data = mongodb.events.find(
-        {"repo_name": repo_name, "type": EventType.PullRequestEvent}
-    )
-    valid_data_dict = validate_data(db_data, model=Event)
-    raw_df = dataframe_from_mongo_data(valid_data_dict, "created_at")
-
-    if size > 2:
-        results_df = raw_df.tail(size).reset_index()
-    else:
-        results_df = raw_df.reset_index()
-
+    results_df = delta_timeline_data(mongodb, repo_name, size)
     diagram_filepath = generate_diagram(results_df, repo_name, size)
-    # dates = pd.to_datetime(results_df["created_at"]).rename("#PR")
-    # deltas = dates.diff().dt.total_seconds().drop(index=0)
-    # plot_df = pd.DataFrame(
-    #     list(zip(deltas.index, deltas)), columns=["#PR", "delta (seconds)"]
-    # ).astype({"#PR": "int32"})
-
-    # # diagram
-    # fig = px.line(plot_df, x="#PR", y="delta (seconds)")
-    # fig.update_xaxes(nticks=plot_df.shape[0])  # shows only integers for that axe
-
-    # title_text = (
-    #     f"<span style='font-weight:800;'>PR deltas timeline</span> [{repo_name}]"
-    # )
-    # if 0 < size < 3:
-    #     title_text += "<br><span style='font-size: .8rem;'>/!\\ the required size is too small (< 2)</span>"
-    # fig.update_layout(title_text=title_text)
-
-    # # html
-    # timestamp = datetime.now(timezone.utc).isoformat()
-    # normalized_repo_name = repo_name.replace("/", "_-_")
-    # filename = f"pr_deltas_timeline_{normalized_repo_name}_{timestamp}.html"
-
-    # if not diagrams_dir.exists():
-    #     Path.mkdir(diagrams_dir, parents=True)
-
-    # fig.write_html(Path(diagrams_dir, filename))
 
     return templates.TemplateResponse(
-        # str(Path("diagrams", filename)),
         diagram_filepath,
         context={
             "request": request,
@@ -224,9 +230,12 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = 0):
 
 @router.get("/dashboard")
 async def dashboard(request: Request):
+    """
+    Dashboard page
+    """
 
-    events = await most_active_repositories()
-    data = [event.dict() for event in events.repository_list]
+    event_counts = await counts()
+    data = [event.dict() for event in event_counts.repository_list]
 
     return templates.TemplateResponse(
         "dashboard.html",
@@ -239,19 +248,27 @@ async def dashboard(request: Request):
     )
 
 
-# @router.get("/{repo_name}/details")
-@router.get("/details")
+@router.get(
+    "/details"
+)  # 'details/{repo_name}' generated errors due to the '/' in repo_name
 async def details(request: Request, repo_name: str):
+    """
+    Detailed page for each event, with embedded average PR time and diagram
+    """
 
+    mongodb = init_pymongo_client()  # pylint: disable=C0103
     average_delta = await pr_average_delta(repo_name)
-
-    print(pr_average_delta)
+    repo_count = await count(repo_name)
+    results_df = delta_timeline_data(mongodb, repo_name, repo_count.count)
+    diagram_filepath = generate_diagram(results_df, repo_name, repo_count.count)
 
     return templates.TemplateResponse(
         "details.html",
         context={
             "request": request,
+            "repo_name": repo_name,
             "pr_average_delta": average_delta.pr_average_time_in_seconds,
+            "diagram_filepath": diagram_filepath,
             "title": "Details",
         },
     )
