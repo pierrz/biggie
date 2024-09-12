@@ -1,10 +1,10 @@
-name: Docker CI
+name: Docker CI V2
 
 on:
   push:
     branches:
       - main
-      - 'fix/**'
+    #   - 'features/**'
   pull_request:
     branches:
       - main
@@ -41,7 +41,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'  # Specify Python version
+          python-version: '3.11.9'
 
       - name: Install Poetry
         run: curl -sSL https://install.python-poetry.org | python3 -
@@ -85,10 +85,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'  # Specify Python version
+          python-version: '3.11.9'
 
       - name: Install Poetry
-        run: curl -sSL https://install.python-poetry.org | python3 -
+        run: curl -sSL https://install.python-poetry.org | python3.11 -
 
       - name: Install dependencies using Poetry
         run: poetry install
