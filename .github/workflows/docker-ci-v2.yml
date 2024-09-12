@@ -39,7 +39,7 @@ jobs:
             poetry-${{ runner.os }}-
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5.2.0
         with:
           python-version: '3.11.9'
 
@@ -173,9 +173,10 @@ jobs:
             --env DB_USER=${{ env.DB_USER }} \
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
+            -v ${{ github.workspace }}/tmp:/tmp \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
-                   pytest -vv"
+                   pytest -vv --cov-report xml:/tmp/coverage-api.xml --cov=."
 
       - name: Test Celery image
         run: |
@@ -190,18 +191,32 @@ jobs:
             --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }} \
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
+            -v ${{ github.workspace }}/tmp:/tmp \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
-                   python3.11 -m pytest -vv --asyncio-mode=strict"
+                   python3.11 -m pytest -vv --asyncio-mode=strict --cov-report xml:/tmp/coverage-celery.xml --cov=."
 
-      # Publish test coverage report
-      - name: Run tests and generate coverage report
+      # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
+      # for refined merging approach
+      - name: Merge coverage reports
         run: |
-          docker run ghcr.io/pierrz/biggie_api_img:latest \
-            pytest --cov-report xml:coverage.xml --cov=.
+          pip install coverage
+          coverage combine tmp/coverage-api.xml tmp/coverage-celery.xml
+          coverage xml -o tmp/coverage-merged.xml
 
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v3.2.1-node20
+      - name: Comment API coverage
+        uses: py-cov-action/python-coverage-comment-action@v3.28
         with:
-          name: coverage-report
-          path: coverage.xml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERAGE_PATH: tmp/
+          MINIMUM_GREEN: 80
+          MINIMUM_ORANGE: 50
+          COMMENT_TEMPLATE: |
+            ### API Coverage Report
+            {coverage_report}
+
+      - name: Upload API coverage report
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: merged-coverage-report
+          path: tmp/coverage-merged.xml
