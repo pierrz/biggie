@@ -1,10 +1,11 @@
 {% block thead %}
 <thead>
 <tr>
-    <th scope="col">#</th>
-    <th scope="col">Date</th>
-    <th scope="col">Individuals</th>
-    <th scope="col">Country</th>
+    <th><abbr>#</abbr></th>
+    {% for field in table_headers %}
+        <th><abbr>{{ field }}</abbr></th>
+    {% endfor %}
+
 </tr>
 </thead>
 {% endblock %}

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
+
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="{{url_for('static', path='/css/main.css')}}" rel="stylesheet" media="screen">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" media="screen" href="{{url_for('static', path='/css/main.css')}}">
   </head>
 
   <body>
@@ -15,30 +16,14 @@
       <nav class="level">
         <div class="level-item has-text-centered" style="display: block;">
           <h1 class="title is-spaced" style="margin-bottom: 2rem;">
-            Data Platorm POC
+            {{ title }}
           </h1>
-          <p class="subtitle is-spaced">{{ total }} rows retrieved</p>
         </div>
       </nav>
     </section>
 
-    <!-- Inserts if results present -->
-    {% if total > 0 %}
-      <section class="section">
-      {% block data %}
-      {% endblock %}
-      </section>
-
-    {% else %}
-    <section class="section">
-      <nav class="level" id="full_table">
-        <div class="level-item" style="display: block;">
-          <p style="text-align:center; font-style:italic;">Did you load some data in the database?</p>
-        </div>
-      </nav>
-    </section>
-
-    {% endif %}
+    {% block template %}
+    {% endblock %}
 
   </body>
 </html>

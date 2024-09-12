@@ -1,7 +1,11 @@
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import List, Type
 
 import numpy as np
 import pandas as pd
+import plotly.express as px
+from config import diagrams_dir
 from pydantic import BaseModel
 from pymongo.command_cursor import CommandCursor
 
@@ -32,3 +36,43 @@ def validate_data(data: CommandCursor, model: Type[BaseModel]) -> List[BaseModel
 
     valid_data = [model(**doc).dict() for doc in data]
     return valid_data
+
+
+def generate_diagram(results_df: pd.DataFrame, repo_name: str, size: int) -> str:
+    """
+    Generate the diagram for the PR deltas timeline
+    :param results_df: input dataframe
+    :param repo_name: name of the related repository
+    :param size: data size
+    :return: path of the generated file
+    """
+
+    dates = pd.to_datetime(results_df["created_at"]).rename("#PR")
+    deltas = dates.diff().dt.total_seconds().drop(index=0)
+    plot_df = pd.DataFrame(
+        list(zip(deltas.index, deltas)), columns=["#PR", "delta (seconds)"]
+    ).astype({"#PR": "int32"})
+
+    # diagram
+    fig = px.line(plot_df, x="#PR", y="delta (seconds)")
+    fig.update_xaxes(nticks=plot_df.shape[0])  # shows only integers for that axe
+
+    title_text = (
+        f"<span style='font-weight:800;'>PR deltas timeline</span> [{repo_name}]"
+    )
+    if 0 < size < 3:
+        title_text += "<br><span style='font-size: .8rem;'>/!\\ the required size is too small (< 2)</span>"
+    fig.update_layout(title_text=title_text)
+
+    # html
+    timestamp = datetime.now(timezone.utc).isoformat()
+    normalized_repo_name = repo_name.replace("/", "_-_")
+    filename = f"pr_deltas_timeline_{normalized_repo_name}_{timestamp}.html"
+
+    if not diagrams_dir.exists():
+        Path.mkdir(diagrams_dir, parents=True)
+
+    file_path = Path(diagrams_dir, filename)
+    print(file_path)
+    fig.write_html(file_path)
+    return str(file_path)

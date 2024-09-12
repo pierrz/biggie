@@ -3,17 +3,16 @@ All API endpoints.
 """
 
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 
-import pandas as pd
-import plotly.express as px
-from config import diagrams_dir
+# import pandas as pd
+# import plotly.express as px
+# from config import diagrams_dir
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
 
 # from src import logger
 from src.db.mongo.models import (
     Event,
+    EventAverageTime,
     EventPerRepoCount,
     EventPerRepoCountList,
     EventType,
@@ -22,7 +21,11 @@ from src.db.mongo.models import (
 )
 from src.db.mongo_db import init_pymongo_client
 from src.routers import templates
-from src.routers.data_lib import dataframe_from_mongo_data, validate_data
+from src.routers.data_lib import (
+    dataframe_from_mongo_data,
+    generate_diagram,
+    validate_data,
+)
 
 router = APIRouter(
     prefix="/events",
@@ -127,6 +130,7 @@ async def pr_average_delta(repo_name: str):
     mongodb = init_pymongo_client()  # pylint: disable=C0103
     query = {"repo_name": repo_name, "type": EventType.PullRequestEvent}
     count = mongodb.events.count_documents(query)
+    average_time = None
 
     if not count > 1:
         raise HTTPException(
@@ -139,10 +143,13 @@ async def pr_average_delta(repo_name: str):
     results_df = dataframe_from_mongo_data(valid_data, "created_at")
 
     deltas = results_df["created_at"].diff().dt.total_seconds()
-    average_pr = round(deltas.drop(index=0).mean(), 3)  # rounded to millisecond floats
+    average_time = round(
+        deltas.drop(index=0).mean(), 3
+    )  # rounded to millisecond floats
 
-    response_data = {"pr_average_time[seconds]": average_pr}
-    return JSONResponse(response_data)
+    return EventAverageTime(pr_average_time_in_seconds=average_time)
+    # response_data = {"pr_average_time[seconds]": average_time}
+    # return JSONResponse(response_data)
 
 
 @router.get("/pr_deltas_timeline")
@@ -178,36 +185,73 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = 0):
     else:
         results_df = raw_df.reset_index()
 
-    dates = pd.to_datetime(results_df["created_at"]).rename("#PR")
-    deltas = dates.diff().dt.total_seconds().drop(index=0)
-    plot_df = pd.DataFrame(
-        list(zip(deltas.index, deltas)), columns=["#PR", "delta (seconds)"]
-    ).astype({"#PR": "int32"})
+    diagram_filepath = generate_diagram(results_df, repo_name, size)
+    # dates = pd.to_datetime(results_df["created_at"]).rename("#PR")
+    # deltas = dates.diff().dt.total_seconds().drop(index=0)
+    # plot_df = pd.DataFrame(
+    #     list(zip(deltas.index, deltas)), columns=["#PR", "delta (seconds)"]
+    # ).astype({"#PR": "int32"})
 
-    # diagram
-    fig = px.line(plot_df, x="#PR", y="delta (seconds)")
-    fig.update_xaxes(nticks=plot_df.shape[0])  # shows only integers for that axe
+    # # diagram
+    # fig = px.line(plot_df, x="#PR", y="delta (seconds)")
+    # fig.update_xaxes(nticks=plot_df.shape[0])  # shows only integers for that axe
 
-    title_text = (
-        f"<span style='font-weight:800;'>PR deltas timeline</span> [{repo_name}]"
-    )
-    if 0 < size < 3:
-        title_text += "<br><span style='font-size: .8rem;'>/!\\ the required size is too small (< 2)</span>"
-    fig.update_layout(title_text=title_text)
+    # title_text = (
+    #     f"<span style='font-weight:800;'>PR deltas timeline</span> [{repo_name}]"
+    # )
+    # if 0 < size < 3:
+    #     title_text += "<br><span style='font-size: .8rem;'>/!\\ the required size is too small (< 2)</span>"
+    # fig.update_layout(title_text=title_text)
 
-    # html
-    timestamp = datetime.now(timezone.utc).isoformat()
-    normalized_repo_name = repo_name.replace("/", "_-_")
-    filename = f"pr_deltas_timeline_{normalized_repo_name}_{timestamp}.html"
+    # # html
+    # timestamp = datetime.now(timezone.utc).isoformat()
+    # normalized_repo_name = repo_name.replace("/", "_-_")
+    # filename = f"pr_deltas_timeline_{normalized_repo_name}_{timestamp}.html"
 
-    if not diagrams_dir.exists():
-        Path.mkdir(diagrams_dir, parents=True)
+    # if not diagrams_dir.exists():
+    #     Path.mkdir(diagrams_dir, parents=True)
 
-    fig.write_html(Path(diagrams_dir, filename))
+    # fig.write_html(Path(diagrams_dir, filename))
 
     return templates.TemplateResponse(
-        str(Path("diagrams", filename)),
+        # str(Path("diagrams", filename)),
+        diagram_filepath,
         context={
             "request": request,
+        },
+    )
+
+
+@router.get("/dashboard")
+async def dashboard(request: Request):
+
+    events = await most_active_repositories()
+    data = [event.dict() for event in events.repository_list]
+
+    return templates.TemplateResponse(
+        "dashboard.html",
+        context={
+            "request": request,
+            "data": data,
+            "title": "Dashboard",
+            "table_headers": list(EventPerRepoCount.model_fields),
+        },
+    )
+
+
+# @router.get("/{repo_name}/details")
+@router.get("/details")
+async def details(request: Request, repo_name: str):
+
+    average_delta = await pr_average_delta(repo_name)
+
+    print(pr_average_delta)
+
+    return templates.TemplateResponse(
+        "details.html",
+        context={
+            "request": request,
+            "pr_average_delta": average_delta.pr_average_time_in_seconds,
+            "title": "Details",
         },
     )

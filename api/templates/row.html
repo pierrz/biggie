@@ -1,8 +1,9 @@
 {% block row %}
 <tr>
     <th>{{ row_idx }}</th>
-    <th scope="row">{{ row.data_date }}</th>
-    <td style="text-align: center">{{ row.individuals }}</td>
-    <td style="text-align: center">{{ row.origin_country }}</td>
+    {% for field in table_headers %}
+        <td style="text-align: left">{{ row[field] }}</td>
+    {% endfor %}
+    <td style="text-align: left"><a href="{{ row.name }}/details">details</a></td>
 </tr>
 {% endblock %}

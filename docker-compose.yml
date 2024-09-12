@@ -114,17 +114,17 @@ services:
       - test
     volumes:
       - ./logs/api:/var/log/api/
-      # - ./api:/opt/api
-      # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
-      # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
-      # - ./commons:/opt/api/src/commons
+      - ./api:/opt/api
+      - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
+      - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
+      - ./commons:/opt/api/src/commons
 
   api_prod:
     container_name: biggie_api_prod
     image: biggie_api_img
     environment:
       <<: *biggie-common-env
-    command: uvicorn main:app --host 0.0.0.0 --reload --log-level info
+    command: uvicorn main:app --host 0.0.0.0 --reload --log-level debug
     depends_on:
       - mongo
       - postgres
@@ -136,10 +136,10 @@ services:
     volumes:
       - ./logs/api:/var/log/api/
       - ./data/diagrams:/opt/api/templates/diagrams
-      # - ./api:/opt/api
-      # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
-      # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
-      # - ./commons:/opt/api/src/commons
+      - ./api:/opt/api
+      - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
+      - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
+      - ./commons:/opt/api/src/commons
 
   celery_test:
     container_name: biggie_celery_test
