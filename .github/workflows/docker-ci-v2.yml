@@ -201,8 +201,8 @@ jobs:
       - name: Merge coverage reports
         run: |
           pip install coverage
-          coverage combine /tmp/coverage-api.xml /tmp/coverage-celery.xml
-          coverage xml -o /tmp/coverage-merged.xml
+          coverage combine tmp/coverage-api.xml tmp/coverage-celery.xml --keep
+          coverage xml -o tmp/coverage-merged.xml
 
       - name: Comment coverage
         uses: py-cov-action/python-coverage-comment-action@v3.28
@@ -220,4 +220,4 @@ jobs:
         uses: actions/upload-artifact@v4.4.0
         with:
           name: merged-coverage-report
-          path: /tmp/coverage-merged.xml
+          path: tmp/coverage-merged.xml
