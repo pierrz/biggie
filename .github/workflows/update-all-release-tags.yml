@@ -21,6 +21,6 @@ jobs:
         pip install PyGithub requests
     - name: Run update script
       env:
-        TOKEN_GITHUB_API: ${{ secrets.RENAME_RELEASE_TOKEN }}
+        RENAME_RELEASE_TOKEN: ${{ secrets.RENAME_RELEASE_TOKEN }}
       run: |
         python update_release_tags.py
