@@ -29,25 +29,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
 
-      # Cache for Poetry dependencies
-      - name: Set up caching for Poetry
-        uses: actions/cache@v4.0.2
-        with:
-          path: ~/.cache/pypoetry
-          key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            poetry-${{ runner.os }}-
+      # # Cache for Poetry dependencies
+      # - name: Set up caching for Poetry
+      #   uses: actions/cache@v4.0.2
+      #   with:
+      #     path: ~/.cache/pypoetry
+      #     key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+      #     restore-keys: |
+      #       poetry-${{ runner.os }}-
 
-      - name: Set up Python
-        uses: actions/setup-python@v5.2.0
-        with:
-          python-version: '3.11.9'
+      # - name: Set up Python
+      #   uses: actions/setup-python@v5.2.0
+      #   with:
+      #     python-version: '3.11.9'
 
-      - name: Install Poetry
-        run: curl -sSL https://install.python-poetry.org | python3 -
+      # - name: Install Poetry
+      #   run: curl -sSL https://install.python-poetry.org | python3 -
 
-      - name: Install dependencies using Poetry
-        run: poetry install
+      # - name: Install dependencies using Poetry
+      #   run: poetry install
 
       - name: Run 'build-push' local action
         uses: ./.github/actions/build-push
@@ -73,25 +73,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
 
-      # Cache for Poetry dependencies
-      - name: Set up caching for Poetry
-        uses: actions/cache@v4.0.2
-        with:
-          path: ~/.cache/pypoetry
-          key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            poetry-${{ runner.os }}-
+      # # Cache for Poetry dependencies
+      # - name: Set up caching for Poetry
+      #   uses: actions/cache@v4.0.2
+      #   with:
+      #     path: ~/.cache/pypoetry
+      #     key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+      #     restore-keys: |
+      #       poetry-${{ runner.os }}-
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11.9'
+      # - name: Set up Python
+      #   uses: actions/setup-python@v5.2.0
+      #   with:
+      #     python-version: '3.11.9'
 
-      - name: Install Poetry
-        run: curl -sSL https://install.python-poetry.org | python3.11 -
+      # - name: Install Poetry
+      #   run: curl -sSL https://install.python-poetry.org | python3.11 -
 
-      - name: Install dependencies using Poetry
-        run: poetry install
+      # - name: Install dependencies using Poetry
+      #   run: poetry install
 
       - name: Run 'build-push' local action
         uses: ./.github/actions/build-push
@@ -198,18 +198,19 @@ jobs:
 
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # for refined merging approach
-      # - name: Merge coverage reports
-      #   run: |
-      #     pip install coverage
-      #     coverage combine tmp/coverage-api.xml tmp/coverage-celery.xml --keep
-      #     coverage xml -o tmp/coverage-merged.xml
+      - name: Merge coverage reports
+        run: |
+          ls ${{ github.workspace }}/tmp/
+          pip install coverage
+          coverage combine ${{ github.workspace }}/tmp/coverage-api.xml ${{ github.workspace }}/tmp/coverage-celery.xml --keep
+          coverage xml -o ${{ github.workspace }}/tmp/coverage-merged.xml
 
       - name: Comment coverage
         uses: py-cov-action/python-coverage-comment-action@v3.28
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERAGE_PATH: ${{ github.workspace }}/tmp/
-          MERGE_COVERAGE_FILES: True
+          # MERGE_COVERAGE_FILES: True
           MINIMUM_GREEN: 80
           MINIMUM_ORANGE: 50
           COMMENT_TEMPLATE: |
