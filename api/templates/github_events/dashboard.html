@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block template %}
+
+{% include 'github_events/dashboard_title.html' %}
+
+<section class="section">
+    <nav class="level" id="dashboard_table">
+        <div class="level-item" style="display: block;">
+
+            <!-- Inserts if results present -->
+            {% if data|length > 0 %}
+
+                <div class="table-container">
+                <table id class="table is-striped" aria-describedby="results table">
+
+                    {% include 'github_events/table_head.html' %}
+
+                    <tbody>
+                        {% for row in data %}
+                            {% set row_idx = loop.index %}
+                            {% include 'github_events/row.html' %}
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+                </div>
+
+
+            {% else %}
+                <p style="text-align:center; font-style:italic;">Did you load some data in the database?</p>
+
+            {% endif %}
+
+        </div>
+    </nav>
+</section>
+
+{% endblock %}

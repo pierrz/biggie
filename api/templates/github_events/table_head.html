@@ -1,0 +1,12 @@
+{% block thead %}
+<thead>
+<tr>
+    <th><abbr>#</abbr></th>
+    {% for field in table_headers %}
+        <th><abbr>{{ field|upper }} </abbr></th>
+    {% endfor %}
+    <th><abbr>DETAILS</abbr></th>
+
+</tr>
+</thead>
+{% endblock %}

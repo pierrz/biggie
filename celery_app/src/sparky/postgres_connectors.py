@@ -16,8 +16,6 @@ from src.db.postgres_db import Base, host_db, pg_engine
 from .connectors import ReaderBase
 from .runner import spark_postgres
 
-# from config import pyspark_config
-
 pg_params = {
     "driver": "org.postgresql.Driver",
     "url": f"jdbc:postgresql://{host_db}",
@@ -43,6 +41,7 @@ class PostgresLoader(ABC):
     def __init__(self, spark_df: DataFrame, table: str):
         logger.info("=> Loading Postgres ...")
         pg_params["dbtable"] = table
+        # TODO: fix/implement with Postgres 16.4
         # pg_params["dbtable"] = f"{pyspark_config.DB_USER}_schema.{table}"
 
         Base.metadata.create_all(pg_engine)  # /!\ IMPORTANT
