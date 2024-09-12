@@ -198,18 +198,18 @@ jobs:
 
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # for refined merging approach
-      - name: Merge coverage reports
-        run: |
-          pip install coverage
-          coverage combine tmp/coverage-api.xml tmp/coverage-celery.xml --keep
-          coverage xml -o tmp/coverage-merged.xml
+      # - name: Merge coverage reports
+      #   run: |
+      #     pip install coverage
+      #     coverage combine tmp/coverage-api.xml tmp/coverage-celery.xml --keep
+      #     coverage xml -o tmp/coverage-merged.xml
 
       - name: Comment coverage
         uses: py-cov-action/python-coverage-comment-action@v3.28
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERAGE_PATH: tmp/
-          # MERGE_COVERAGE_FILES: True
+          COVERAGE_PATH: ${{ github.workspace }}/tmp/
+          MERGE_COVERAGE_FILES: True
           MINIMUM_GREEN: 80
           MINIMUM_ORANGE: 50
           COMMENT_TEMPLATE: |
@@ -220,4 +220,4 @@ jobs:
         uses: actions/upload-artifact@v4.4.0
         with:
           name: merged-coverage-report
-          path: tmp/coverage-merged.xml
+          path: ${{ github.workspace }}/tmp/coverage-merged.xml
