@@ -24,7 +24,7 @@ x-biggie-celery-prod:
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
     - "${VOLUME_MOUNT}"
-    - ./data/diagrams:/opt/data/diagrams  # necessary for the cleaning task
+    - ./data/github_events/diagrams:/opt/data/github_events/diagrams  # necessary for the cleaning task
 
 x-biggie-celery-test:
   &biggie-celery-test
@@ -106,7 +106,6 @@ services:
       <<: *biggie-common-env
       TEST_MODE: "True"
     command: pytest -v
-    # command: sleep 5m
     depends_on:
       - mongo
       - postgres
@@ -114,10 +113,11 @@ services:
       - test
     volumes:
       - ./logs/api:/var/log/api/
-      - ./api:/opt/api
-      - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
-      - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
-      - ./commons:/opt/api/src/commons
+      # Dev speed up (no build)
+      # - ./api:/opt/api
+      # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
+      # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
+      # - ./commons:/opt/api/src/commons
 
   api_prod:
     container_name: biggie_api_prod
@@ -135,11 +135,12 @@ services:
       - prod_analytics
     volumes:
       - ./logs/api:/var/log/api/
-      - ./data/diagrams:/opt/api/templates/diagrams
-      - ./api:/opt/api
-      - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
-      - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
-      - ./commons:/opt/api/src/commons
+      - ./data/github_events/diagrams:/opt/api/templates/github_events/diagrams
+      # Dev speed up (no build)
+      # - ./api:/opt/api
+      # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
+      # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
+      # - ./commons:/opt/api/src/commons
 
   celery_test:
     container_name: biggie_celery_test

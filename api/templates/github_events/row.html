@@ -1,0 +1,13 @@
+{% block row %}
+<tr>
+    <th>{{ row_idx }}</th>
+    {% for field in table_headers %}
+        <td style="text-align: left">{{ row[field] }}</td>
+    {% endfor %}
+    <td style="text-align: left">
+        <a href="details?repo_name={{ row.name }}" target="_blank">
+            <span class="material-icons">open_in_new</span>
+        </a>
+    </td>
+</tr>
+{% endblock %}

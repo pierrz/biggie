@@ -6,7 +6,8 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings
 
-diagrams_dir = Path("templates", "diagrams")  # github endpoints specific
+github_events = "github_events"
+diagrams_dir = Path("templates", github_events, "diagrams")  # github endpoints specific
 
 
 class Config(BaseSettings):

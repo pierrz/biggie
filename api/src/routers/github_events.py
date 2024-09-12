@@ -4,9 +4,9 @@ All API endpoints.
 
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, HTTPException, Request
-
 # from src import logger
+from config import github_events
+from fastapi import APIRouter, HTTPException, Request
 from src.db.mongo.models import (
     Event,
     EventAverageTime,
@@ -238,7 +238,7 @@ async def dashboard(request: Request):
     data = [event.dict() for event in event_counts.repository_list]
 
     return templates.TemplateResponse(
-        "dashboard.html",
+        f"{github_events}/dashboard.html",
         context={
             "request": request,
             "data": data,
@@ -248,9 +248,8 @@ async def dashboard(request: Request):
     )
 
 
-@router.get(
-    "/details"
-)  # 'details/{repo_name}' generated errors due to the '/' in repo_name
+# 'details/{repo_name}' generated errors due to the '/' in repo_name
+@router.get("/details")
 async def details(request: Request, repo_name: str):
     """
     Detailed page for each event, with embedded average PR time and diagram
@@ -258,15 +257,16 @@ async def details(request: Request, repo_name: str):
 
     mongodb = init_pymongo_client()  # pylint: disable=C0103
     average_delta = await pr_average_delta(repo_name)
-    repo_count = await count(repo_name)
-    results_df = delta_timeline_data(mongodb, repo_name, repo_count.count)
-    diagram_filepath = generate_diagram(results_df, repo_name, repo_count.count)
+    pr_count = await count(repo_name)
+    results_df = delta_timeline_data(mongodb, repo_name, pr_count.count)
+    diagram_filepath = generate_diagram(results_df, repo_name, pr_count.count)
 
     return templates.TemplateResponse(
-        "details.html",
+        f"{github_events}/details.html",
         context={
             "request": request,
             "repo_name": repo_name,
+            "pr_count": pr_count.count,
             "pr_average_delta": average_delta.pr_average_time_in_seconds,
             "diagram_filepath": diagram_filepath,
             "title": "Details",

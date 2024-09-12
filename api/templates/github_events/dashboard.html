@@ -2,6 +2,8 @@
 
 {% block template %}
 
+{% include 'github_events/dashboard_title.html' %}
+
 <section class="section">
     <nav class="level" id="dashboard_table">
         <div class="level-item" style="display: block;">
@@ -12,12 +14,12 @@
                 <div class="table-container">
                 <table id class="table is-striped" aria-describedby="results table">
 
-                    {% include 'table_head.html' %}
+                    {% include 'github_events/table_head.html' %}
 
                     <tbody>
                         {% for row in data %}
                             {% set row_idx = loop.index %}
-                            {% include 'row.html' %}
+                            {% include 'github_events/row.html' %}
                         {% endfor %}
                     </tbody>
 

@@ -6,6 +6,7 @@ data = "data"
 diagrams = "diagrams"
 schema = "schema"
 mode = "mode"
+github_events = "github_events"
 received = "received"
 processed = "processed"
 output_keys = [filepath, data, mode]

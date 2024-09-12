@@ -101,4 +101,4 @@ def generate_diagram(results_df: pd.DataFrame, repo_name: str, size: int) -> str
     file_path = Path(diagrams_dir, filename)
     fig.write_html(file_path)
 
-    return f"{diagrams_dir.name}/{filename}"
+    return f"{Path(*diagrams_dir.parts[-2:], filename)}"
