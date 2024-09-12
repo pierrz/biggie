@@ -5,7 +5,7 @@ and remove this prefix.
 
 import os
 
-from github import Github
+from github import Github, GithubException
 
 # GitHub personal access token
 GITHUB_TOKEN = os.environ["TOKEN_GITHUB_API"]
@@ -23,15 +23,24 @@ def update_release_tag(release):
     if old_tag.startswith("v"):
         new_tag = old_tag[1:]
         try:
-            # Update the release tag
-            release.update_release(tag_name=new_tag)
+            # Create new release with updated tag
+            repo.create_git_release(
+                tag=new_tag,
+                name=release.title,
+                message=release.body,
+                draft=release.draft,
+                prerelease=release.prerelease,
+                target_commitish=release.target_commitish,
+            )
+
+            # Delete the old release
+            release.delete_release()
 
             # Delete the old tag
-            repo.get_git_ref(f"tags/{old_tag}").delete()
-
-            # Create the new tag
-            sha = repo.get_commits()[0].sha
-            repo.create_git_ref(f"refs/tags/{new_tag}", sha)
+            try:
+                repo.get_git_ref(f"tags/{old_tag}").delete()
+            except GithubException:
+                print(f"Old tag {old_tag} not found, skipping deletion")
 
             print(f"Updated release tag from {old_tag} to {new_tag}")
         except Exception as e:
@@ -41,7 +50,9 @@ def update_release_tag(release):
 
 
 # Fetch all releases
-releases = repo.get_releases()
+releases = list(
+    repo.get_releases()
+)  # Convert to list to avoid issues with deleting during iteration
 
 # Update each release
 for release in releases:
