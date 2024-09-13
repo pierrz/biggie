@@ -176,7 +176,8 @@ jobs:
             -v ${{ github.workspace }}/tmp:/tmp \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
-                   pytest -vv --cov-report xml:/tmp/coverage-api.xml --cov=."
+                   pytest -vv --cov=. --cov-report= && \
+                   cp .coverage /tmp/.coverage.api"
 
       - name: Test Celery image
         run: |
@@ -194,7 +195,8 @@ jobs:
             -v ${{ github.workspace }}/tmp:/tmp \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
-                   python3.11 -m pytest -vv --asyncio-mode=strict --cov-report xml:/tmp/coverage-celery.xml --cov=."
+                   python3.11 -m pytest -vv --asyncio-mode=strict --cov=. --cov-report= && \
+                   cp .coverage /tmp/.coverage.celery"
 
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # for refined merging approach
@@ -202,7 +204,7 @@ jobs:
         run: |
           ls ${{ github.workspace }}/tmp/
           pip install coverage
-          coverage combine ${{ github.workspace }}/tmp/coverage-api.xml ${{ github.workspace }}/tmp/coverage-celery.xml
+          coverage combine ${{ github.workspace }}/tmp/.coverage.api ${{ github.workspace }}/tmp/.coverage.celery
           coverage xml -o ${{ github.workspace }}/tmp/coverage-merged.xml
 
       - name: Comment coverage
@@ -210,12 +212,19 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERAGE_PATH: ${{ github.workspace }}/tmp/
-          # MERGE_COVERAGE_FILES: True
+          MERGE_COVERAGE_FILES: True
           MINIMUM_GREEN: 80
           MINIMUM_ORANGE: 50
           COMMENT_TEMPLATE: |
             ### API Coverage Report
             {coverage_report}
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v4
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt
 
       - name: Upload merged coverage report
         uses: actions/upload-artifact@v4.4.0
