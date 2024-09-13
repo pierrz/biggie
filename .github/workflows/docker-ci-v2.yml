@@ -173,11 +173,13 @@ jobs:
             --env DB_USER=${{ env.DB_USER }} \
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
-            -v ${{ github.workspace }}/tmp:/tmp \
+            --volume ${{ env.VOLUME_MOUNT }} \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
-                   pytest -vv --cov=. --cov-report= && \
-                   cp .coverage /tmp/.coverage.api"
+            pytest -vv --cov=. --cov-report= && \
+            cp .coverage /opt/data/.coverage.api"
+
+        # -v ${{ github.workspace }}/opt/data:/opt/data \
 
       - name: Test Celery image
         run: |
@@ -192,26 +194,28 @@ jobs:
             --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }} \
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
-            -v ${{ github.workspace }}/tmp:/tmp \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
-                   python3.11 -m pytest -vv --asyncio-mode=strict --cov=. --cov-report= && \
-                   cp .coverage /tmp/.coverage.celery"
+            python3.11 -m pytest -vv --asyncio-mode=strict --cov=. --cov-report= && \
+            cp .coverage /opt/data/.coverage.celery"
 
+            # -v ${{ github.workspace }}/tmp:/tmp \
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # for refined merging approach
       - name: Merge coverage reports
         run: |
           ls ${{ github.workspace }}/tmp/
+          ls ${{ github.workspace }}/data
+          ls data
           pip install coverage
-          coverage combine ${{ github.workspace }}/tmp/.coverage.api ${{ github.workspace }}/tmp/.coverage.celery
-          coverage xml -o ${{ github.workspace }}/tmp/coverage-merged.xml
+          coverage combine ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
+          coverage xml -o ${{ github.workspace }}/data/coverage-merged.xml
 
       - name: Comment coverage
         uses: py-cov-action/python-coverage-comment-action@v3.28
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERAGE_PATH: ${{ github.workspace }}/tmp/
+          COVERAGE_PATH: ${{ github.workspace }}/data/
           MERGE_COVERAGE_FILES: True
           MINIMUM_GREEN: 80
           MINIMUM_ORANGE: 50
@@ -230,4 +234,4 @@ jobs:
         uses: actions/upload-artifact@v4.4.0
         with:
           name: merged-coverage-report
-          path: ${{ github.workspace }}/tmp/coverage-merged.xml
+          path: ${{ github.workspace }}/data/coverage-merged.xml
