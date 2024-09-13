@@ -183,7 +183,8 @@ jobs:
             -v ${{ github.workspace }}/data:/opt/data \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
-            pytest -vv --cov=. --cov-report= && \
+            pytest -vv && \
+            coverage run --source=. -m pytest && \
             cp .coverage /opt/data/.coverage.api"
 
         # --volume ${{ env.VOLUME_MOUNT }} \
@@ -203,18 +204,19 @@ jobs:
             -v ${{ github.workspace }}/data:/opt/data \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
-            python3.11 -m pytest -vv --asyncio-mode=strict --cov=. --cov-report= && \
+            python3.11 -m pytest -vv --asyncio-mode=strict && \
+            coverage run --relative-files --source=. -m pytest && \
             cp .coverage /opt/data/.coverage.celery"
 
             # --volume ${{ env.VOLUME_MOUNT }} \
             # -v ${{ github.workspace }}/tmp:/tmp \
+
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # for refined merging approach
       # - name: Merge coverage reports
       #   run: |
       #     ls ${{ github.workspace }}/data
       #     ls data
-      #     pip install coverage
       #     coverage combine ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
       #     coverage xml -o ${{ github.workspace }}/data/coverage-merged.xml
 
