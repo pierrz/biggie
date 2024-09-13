@@ -183,7 +183,7 @@ jobs:
             -v ${{ github.workspace }}/data:/opt/data \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
-            pytest -vv --cov=. --cov-report= --relative-files && \
+            pytest -vv --cov=. --cov-report= && \
             cp .coverage /opt/data/.coverage.api"
 
         # --volume ${{ env.VOLUME_MOUNT }} \
@@ -203,7 +203,7 @@ jobs:
             -v ${{ github.workspace }}/data:/opt/data \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
-            python3.11 -m pytest -vv --asyncio-mode=strict --cov=. --cov-report= --relative-files && \
+            python3.11 -m pytest -vv --asyncio-mode=strict --cov=. --cov-report= && \
             cp .coverage /opt/data/.coverage.celery"
 
             # --volume ${{ env.VOLUME_MOUNT }} \
