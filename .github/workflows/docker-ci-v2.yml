@@ -204,7 +204,6 @@ jobs:
       # for refined merging approach
       - name: Merge coverage reports
         run: |
-          ls ${{ github.workspace }}/tmp/
           ls ${{ github.workspace }}/data
           ls data
           pip install coverage
