@@ -173,20 +173,19 @@ jobs:
             --env DB_USER=${{ env.DB_USER }} \
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
-            --volume ${{ env.VOLUME_MOUNT }} \
+            -v ${{ github.workspace }}/data:/opt/data \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
             pytest -vv --cov=. --cov-report= && \
             cp .coverage /opt/data/.coverage.api"
 
-        # -v ${{ github.workspace }}/opt/data:/opt/data \
+        # --volume ${{ env.VOLUME_MOUNT }} \
 
       - name: Test Celery image
         run: |
           docker run \
             --env CELERY_BROKER_URL=${{ env.CELERY_BROKER_URL }} \
             --env CELERY_RESULT_BACKEND=${{ env.CELERY_RESULT_BACKEND }} \
-            --volume ${{ env.VOLUME_MOUNT }} \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
             --env DB_NAME=${{ env.DB_NAME }} \
             --env DB_USER=${{ env.DB_USER }} \
@@ -194,11 +193,13 @@ jobs:
             --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }} \
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
+            -v ${{ github.workspace }}/data:/opt/data \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict --cov=. --cov-report= && \
             cp .coverage /opt/data/.coverage.celery"
 
+            # --volume ${{ env.VOLUME_MOUNT }} \
             # -v ${{ github.workspace }}/tmp:/tmp \
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # for refined merging approach
