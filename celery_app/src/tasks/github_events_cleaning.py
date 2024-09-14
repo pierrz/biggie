@@ -1,5 +1,6 @@
 """
 Cleaning task aka deleting all files in the local 'data/processed' directory and related Mongo collection
+TODO: ensure all messages actually do not go through the celery built-in logger
 """
 
 import os

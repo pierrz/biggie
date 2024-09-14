@@ -154,18 +154,10 @@ jobs:
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
             --volume ${{ github.workspace }}/${{ env.VOLUME_MOUNT }} \
-            --volume ${{ github.workspace }}/.github/.coveragerc:/opt/celery_app/.coveragerc \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
             mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
-
-        # --volume ${{ github.workspace }}/data:/opt/data \
-        # coverage run --source=. -m pytest && \
-        # mkdir /opt/data/coverage_html_report && \
-        # mkdir /opt/data/coverage_parts"
-        # --volume ${{ env.VOLUME_MOUNT }} \
-        # -v ${{ github.workspace }}/tmp:/tmp \
 
       - name: Upload merged coverage report
         uses: actions/upload-artifact@v4.4.0
