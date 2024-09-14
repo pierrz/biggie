@@ -204,7 +204,6 @@ jobs:
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --cov=. --cov-report= --cov-config=pyproject.toml --asyncio-mode=strict && \
-            coverage run --relative-files --source=. -m pytest && \
             cp .coverage /opt/data/.coverage.celery"
 
             # --volume ${{ env.VOLUME_MOUNT }} \
