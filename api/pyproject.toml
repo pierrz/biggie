@@ -46,4 +46,4 @@ source = ["."]
 show_missing = true
 
 [tool.coverage.html]
-directory = api_coverage_html_report
+directory = "api_coverage_html_report"
