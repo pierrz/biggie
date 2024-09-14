@@ -184,10 +184,10 @@ jobs:
             -v ${{ github.workspace }}/.github/.coveragerc:/opt/api/.coveragerc \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
-            pytest -vv && \
-            coverage run --source=. -m pytest && \
-            cp .coverage /opt/data/.coverage.api"
+            pytest -vv --cov-config=poetry.toml --cov=. --cov-report=html && \
+            mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage.api"
 
+        # coverage run --source=. -m pytest && \
         # --volume ${{ env.VOLUME_MOUNT }} \
 
       - name: Test Celery image
@@ -206,40 +206,60 @@ jobs:
             -v ${{ github.workspace }}/.github/.coveragerc:/opt/celery_app/.coveragerc \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
-            python3.11 -m pytest -vv --asyncio-mode=strict && \
-            coverage run --source=. -m pytest && \
-            cp .coverage /opt/data/.coverage.celery && \
-            mkdir /opt/data/coverage_html_report && \
-            mkdir /opt/data/coverage_parts"
+            python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=poetry.toml --cov=. --cov-report=html && \
+            mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage.celery"
 
-            # --volume ${{ env.VOLUME_MOUNT }} \
-            # -v ${{ github.workspace }}/tmp:/tmp \
+        # coverage run --source=. -m pytest && \
+        # mkdir /opt/data/coverage_html_report && \
+        # mkdir /opt/data/coverage_parts"
+        # --volume ${{ env.VOLUME_MOUNT }} \
+        # -v ${{ github.workspace }}/tmp:/tmp \
 
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # for refined merging approach
-      - name: Merge coverage reports
-        run: |
-          ls -al ${{ github.workspace }}/data
-          ls -al data
-          pip install coverage
-          coverage combine --keep ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
-          coverage html -d ${{ github.workspace }}/data
-          cp ${{ github.workspace }}/data/.coverage ${{ github.workspace }}/data/merged_coverage/.coverage
+      # - name: Merge coverage reports
+      #   run: |
+      #     ls -al ${{ github.workspace }}/data
+      #     ls -al data
+      #     pip install coverage
+      #     coverage combine --keep ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
+      #     coverage html -d ${{ github.workspace }}/data
+      #     cp ${{ github.workspace }}/data/.coverage ${{ github.workspace }}/data/merged_coverage/.coverage
 
       - name: Upload merged coverage report
         uses: actions/upload-artifact@v4.4.0
         with:
           name: merged-coverage-report
           path: |
-            ${{ github.workspace }}/data/coverage_html_report
-            ${{ github.workspace }}/data/merged_coverage/.coverage*
-            ${{ github.workspace }}/data/.coverage*
+            ${{ github.workspace }}/data/celery_coverage_html_report
+            ${{ github.workspace }}/data/api_coverage_html_report
+          # ${{ github.workspace }}/data/merged_coverage/.coverage*
+          # ${{ github.workspace }}/data/.coverage*
 
       - name: Comment coverage
         uses: py-cov-action/python-coverage-comment-action@v3.28
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERAGE_PATH: ${{ github.workspace }}/data/merged_coverage
+          COVERAGE_PATH: ${{ github.workspace }}/data/celery_coverage
+          # MERGE_COVERAGE_FILES: True
+          MINIMUM_GREEN: 80
+          MINIMUM_ORANGE: 50
+          COMMENT_TEMPLATE: |
+            ### CELERY Coverage Report
+            {coverage_report}
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v4
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action-celery
+          path: python-coverage-comment-action.txt
+
+      - name: Comment coverage
+        uses: py-cov-action/python-coverage-comment-action@v3.28
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERAGE_PATH: ${{ github.workspace }}/data/api_coverage
           # MERGE_COVERAGE_FILES: True
           MINIMUM_GREEN: 80
           MINIMUM_ORANGE: 50
@@ -251,5 +271,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
-          name: python-coverage-comment-action
+          name: python-coverage-comment-action-api
           path: python-coverage-comment-action.txt

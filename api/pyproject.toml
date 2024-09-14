@@ -39,8 +39,11 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-relative_files = true
+# relative_files = true
 source = ["."]
 
 [tool.coverage.report]
 show_missing = true
+
+[tool.coverage.html]
+directory = api_coverage_html_report
