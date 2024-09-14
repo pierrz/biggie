@@ -220,7 +220,7 @@ jobs:
           ls -al ${{ github.workspace }}/data
           ls -al data
           pip install coverage
-          coverage combine ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
+          coverage combine --keep ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
           coverage html -o ${{ github.workspace }}/data/coverage-merged.html
 
       # - name: Comment coverage
