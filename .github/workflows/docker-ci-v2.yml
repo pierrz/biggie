@@ -203,7 +203,7 @@ jobs:
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
             -v ${{ github.workspace }}/data:/opt/data \
-            -v ${{ github.workspace }}/.github/.coveragerc:/opt/celery_app/.coveragerc \
+            # -v ${{ github.workspace }}/.github/.coveragerc:/opt/celery_app/.coveragerc \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict && \
@@ -217,8 +217,9 @@ jobs:
       # for refined merging approach
       - name: Merge coverage reports
         run: |
-          ls ${{ github.workspace }}/data
-          ls data
+          ls -al ${{ github.workspace }}/data
+          ls -al data
+          pip install coverage
           coverage combine ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
           coverage html -o ${{ github.workspace }}/data/coverage-merged.html
 
