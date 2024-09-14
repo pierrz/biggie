@@ -1,13 +1,13 @@
-name: Docker CI V2
+name: CI Pipeline
 
 on:
-  # push:
-  #   branches:
-  #     - main
-  #   #   - 'features/**'
-  # pull_request:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
+    #   - 'features/**'
+  pull_request:
+    branches:
+      - main
 
   workflow_dispatch:
 
@@ -28,26 +28,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
-
-      # # Cache for Poetry dependencies
-      # - name: Set up caching for Poetry
-      #   uses: actions/cache@v4.0.2
-      #   with:
-      #     path: ~/.cache/pypoetry
-      #     key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-      #     restore-keys: |
-      #       poetry-${{ runner.os }}-
-
-      # - name: Set up Python
-      #   uses: actions/setup-python@v5.2.0
-      #   with:
-      #     python-version: '3.11.9'
-
-      # - name: Install Poetry
-      #   run: curl -sSL https://install.python-poetry.org | python3 -
-
-      # - name: Install dependencies using Poetry
-      #   run: poetry install
 
       - name: Run 'build-push' local action
         uses: ./.github/actions/build-push
@@ -73,26 +53,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
 
-      # # Cache for Poetry dependencies
-      # - name: Set up caching for Poetry
-      #   uses: actions/cache@v4.0.2
-      #   with:
-      #     path: ~/.cache/pypoetry
-      #     key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-      #     restore-keys: |
-      #       poetry-${{ runner.os }}-
-
-      # - name: Set up Python
-      #   uses: actions/setup-python@v5.2.0
-      #   with:
-      #     python-version: '3.11.9'
-
-      # - name: Install Poetry
-      #   run: curl -sSL https://install.python-poetry.org | python3.11 -
-
-      # - name: Install dependencies using Poetry
-      #   run: poetry install
-
       - name: Run 'build-push' local action
         uses: ./.github/actions/build-push
         with:
@@ -111,14 +71,9 @@ jobs:
     needs: [build-and-push-image-api, build-and-push-image-celery]
     runs-on: ubuntu-latest
     permissions:
-      # contents: read
       packages: write
-      # Gives the action the necessary permissions for publishing new
-      # comments in pull requests.
+      # specific to py-cov-action/python-coverage-comment-action (WIP)
       pull-requests: write
-      # Gives the action the necessary permissions for pushing data to the
-      # python-coverage-comment-action branch, and for editing existing
-      # comments (to avoid publishing multiple comments in the same PR)
       contents: write
 
     env:
@@ -180,15 +135,11 @@ jobs:
             --env DB_USER=${{ env.DB_USER }} \
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
-            -v ${{ github.workspace }}/data:/opt/data \
-            -v ${{ github.workspace }}/.github/.coveragerc:/opt/api/.coveragerc \
+            --volume ${{ github.workspace }}/${{ env.VOLUME_MOUNT }} \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
-            pytest -vv && \
-            coverage run --source=. -m pytest && \
-            cp .coverage /opt/data/.coverage.api"
-
-        # --volume ${{ env.VOLUME_MOUNT }} \
+            pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
+            mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage"
 
       - name: Test Celery image
         run: |
@@ -202,47 +153,78 @@ jobs:
             --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }} \
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
-            -v ${{ github.workspace }}/data:/opt/data \
-            -v ${{ github.workspace }}/.github/.coveragerc:/opt/celery_app/.coveragerc \
+            --volume ${{ github.workspace }}/${{ env.VOLUME_MOUNT }} \
+            --volume ${{ github.workspace }}/.github/.coveragerc:/opt/celery_app/.coveragerc \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
-            python3.11 -m pytest -vv --asyncio-mode=strict && \
-            coverage run --source=. -m pytest && \
-            cp .coverage /opt/data/.coverage.celery"
+            python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
+            mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
 
-            # --volume ${{ env.VOLUME_MOUNT }} \
-            # -v ${{ github.workspace }}/tmp:/tmp \
+        # --volume ${{ github.workspace }}/data:/opt/data \
+        # coverage run --source=. -m pytest && \
+        # mkdir /opt/data/coverage_html_report && \
+        # mkdir /opt/data/coverage_parts"
+        # --volume ${{ env.VOLUME_MOUNT }} \
+        # -v ${{ github.workspace }}/tmp:/tmp \
 
+      - name: Upload merged coverage report
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: html-coverage-report
+          path: |
+            ${{ github.workspace }}/data/celery_coverage_html_report
+            ${{ github.workspace }}/data/api_coverage_html_report
+
+      # TODO: fix py-cov-action/python-coverage-comment-action errors (permissions, absolute/relative files)
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
+      # Error: Cannot read .coverage files because files are absolute. You need to configure coverage to write relative paths by adding the following option to your coverage configuration file:
+      # [run]
+      # relative_files = true
+      # Note that the specific format can be slightly different if you're using setup.cfg or pyproject.toml. See details in: https://coverage.readthedocs.io/en/latest/config.html#config-run-relative-files
+      # Error: Critical error. This error possibly occurred because the permissions of the workflow are set incorrectly. You can see the correct setting of permissions here: https://github.com/py-cov-action/python-coverage-comment-action#basic-usage
+
       # for refined merging approach
       # - name: Merge coverage reports
       #   run: |
-      #     ls ${{ github.workspace }}/data
-      #     ls data
-      #     coverage combine ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
-      #     coverage xml -o ${{ github.workspace }}/data/coverage-merged.xml
+      #     ls -al ${{ github.workspace }}/data
+      #     ls -al data
+      #     pip install coverage
+      #     coverage combine --keep ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
+      #     coverage html -d ${{ github.workspace }}/data
+      #     cp ${{ github.workspace }}/data/.coverage ${{ github.workspace }}/data/merged_coverage/.coverage
 
-      - name: Comment coverage
-        uses: py-cov-action/python-coverage-comment-action@v3.28
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERAGE_PATH: ${{ github.workspace }}/data/
-          MERGE_COVERAGE_FILES: True
-          MINIMUM_GREEN: 80
-          MINIMUM_ORANGE: 50
-          COMMENT_TEMPLATE: |
-            ### API Coverage Report
-            {coverage_report}
-
-      - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v4
-        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
-        with:
-          name: python-coverage-comment-action
-          path: python-coverage-comment-action.txt
-
-      # - name: Upload merged coverage report
-      #   uses: actions/upload-artifact@v4.4.0
+      # - name: Comment coverage
+      #   uses: py-cov-action/python-coverage-comment-action@v3.28
       #   with:
-      #     name: merged-coverage-report
-      #     path: ${{ github.workspace }}/data/coverage-merged.xml
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     COVERAGE_PATH: data/celery_coverage
+      #     MINIMUM_GREEN: 80
+      #     MINIMUM_ORANGE: 50
+      #     COMMENT_TEMPLATE: |
+      #       ### CELERY Coverage Report
+      #       {coverage_report}
+
+      # - name: Store Pull Request comment to be posted
+      #   uses: actions/upload-artifact@v4
+      #   if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+      #   with:
+      #     name: python-coverage-comment-action-celery
+      #     path: python-coverage-comment-action.txt
+
+      # - name: Comment coverage
+      #   uses: py-cov-action/python-coverage-comment-action@v3.28
+      #   with:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     COVERAGE_PATH: ${{ github.workspace }}/data/api_coverage
+      #     MINIMUM_GREEN: 80
+      #     MINIMUM_ORANGE: 50
+      #     COMMENT_TEMPLATE: |
+      #       ### API Coverage Report
+      #       {coverage_report}
+
+      # - name: Store Pull Request comment to be posted
+      #   uses: actions/upload-artifact@v4
+      #   if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+      #   with:
+      #     name: python-coverage-comment-action-api
+      #     path: python-coverage-comment-action.txt
