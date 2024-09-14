@@ -229,18 +229,18 @@ jobs:
       - name: Upload merged coverage report
         uses: actions/upload-artifact@v4.4.0
         with:
-          name: merged-coverage-report
+          name: html-coverage-report
           path: |
             ${{ github.workspace }}/data/celery_coverage_html_report
             ${{ github.workspace }}/data/api_coverage_html_report
           # ${{ github.workspace }}/data/merged_coverage/.coverage*
           # ${{ github.workspace }}/data/.coverage*
 
-      - name: Merge coverage reports
+      - name: Checks
         run: |
-          ls -al /opt/data
-          ls -al /opt/data/api_coverage
-          ls -al /opt/data/celery_coverage
+          ls -al data
+          ls -al data/api_coverage
+          ls -al data/celery_coverage
 
       - name: Comment coverage
         uses: py-cov-action/python-coverage-comment-action@v3.28
