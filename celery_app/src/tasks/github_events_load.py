@@ -1,5 +1,6 @@
 """
 Loads required data from JSON files into MongoDB
+TODO: ensure all messages actually do not go through the celery built-in logger
 """
 
 import os
@@ -21,7 +22,7 @@ def github_event_data_preparation(flat_df):
     Prepare incoming data from the Github Event API and keep only the relevant bits.
     """
 
-    print("=> Preparing dataframe ...")
+    logger.info("=> Preparing dataframe ...")
     columns_to_drop = []
     columns_to_rename = {"id": ns.CheckedColumns.event_id.value}
     for col in flat_df.columns.to_list():
@@ -37,9 +38,9 @@ def github_event_data_preparation(flat_df):
     datetime_values = pd.to_datetime(flat_df[ns.created_at])
     flat_df[ns.created_at] = datetime_values
     # flat_df[ns.CheckedColumns.event_id.value].astype("int64")     # not sure whether it is wise on the long-run
-    print(" ... dataframe finalised")
+    logger.success(" ... dataframe finalised")
     columns = flat_df.columns.to_list()
-    print(f"=> {flat_df.shape[0]} rows and {len(columns)} columns")
+    logger.info(f"=> {flat_df.shape[0]} rows and {len(columns)} columns")
 
 
 @celery.task(name="load-github-events")
