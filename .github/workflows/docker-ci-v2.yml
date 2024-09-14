@@ -236,6 +236,12 @@ jobs:
           # ${{ github.workspace }}/data/merged_coverage/.coverage*
           # ${{ github.workspace }}/data/.coverage*
 
+      - name: Merge coverage reports
+        run: |
+          ls -al /opt/data
+          ls -al /opt/data/api_coverage
+          ls -al /opt/data/celery_coverage
+
       - name: Comment coverage
         uses: py-cov-action/python-coverage-comment-action@v3.28
         with:
