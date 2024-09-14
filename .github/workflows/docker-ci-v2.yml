@@ -184,7 +184,7 @@ jobs:
             -v ${{ github.workspace }}/.github/.coveragerc:/opt/api/.coveragerc \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
-            pytest -vv --cov-config=poetry.toml --cov=. --cov-report=html && \
+            pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
             mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage.api"
 
         # coverage run --source=. -m pytest && \
@@ -206,7 +206,7 @@ jobs:
             -v ${{ github.workspace }}/.github/.coveragerc:/opt/celery_app/.coveragerc \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
-            python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=poetry.toml --cov=. --cov-report=html && \
+            python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
             mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage.celery"
 
         # coverage run --source=. -m pytest && \
