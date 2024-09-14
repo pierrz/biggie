@@ -111,7 +111,6 @@ jobs:
     needs: [build-and-push-image-api, build-and-push-image-celery]
     runs-on: ubuntu-latest
     permissions:
-      # contents: read
       packages: write
       # Gives the action the necessary permissions for publishing new
       # comments in pull requests.
@@ -185,7 +184,7 @@ jobs:
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
             pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
-            mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage.api"
+            mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage"
 
         # coverage run --source=. -m pytest && \
         # --volume ${{ env.VOLUME_MOUNT }} \
@@ -207,7 +206,7 @@ jobs:
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
-            mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage.celery"
+            mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
 
         # coverage run --source=. -m pytest && \
         # mkdir /opt/data/coverage_html_report && \
@@ -246,7 +245,7 @@ jobs:
         uses: py-cov-action/python-coverage-comment-action@v3.28
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERAGE_PATH: ${{ github.workspace }}/data/celery_coverage
+          COVERAGE_PATH: data/celery_coverage
           # MERGE_COVERAGE_FILES: True
           MINIMUM_GREEN: 80
           MINIMUM_ORANGE: 50
