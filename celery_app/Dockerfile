@@ -42,8 +42,9 @@ RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/etc/poetry python
 WORKDIR /opt/celery_app
 COPY ./celery_app/pyproject.toml ./celery_app/poetry.lock* ./
 
+# Project initialization (only main and security groups installed here)
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi
+    && poetry install --no-interaction --no-ansi --only main,security
 
 COPY ./celery_app ./
 COPY ./db ./src/db

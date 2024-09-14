@@ -13,9 +13,9 @@ RUN pip install poetry
 WORKDIR /opt/api
 COPY ./api/pyproject.toml ./api/poetry.lock* ./
 
-# Project initialization:
+# Project initialization (only main and security groups installed here)
 RUN poetry config virtualenvs.create false\
-    && poetry install --no-interaction --no-ansi
+    && poetry install --no-interaction --no-ansi --only main,security
 
 # Creating folders and files for the project:
 # NB: Can be disabled if the "Dev speed up" lines are enabled

@@ -144,12 +144,16 @@ docker compose \
 
 [API docs](http://localhost:8000/docs)
 
-Github events consumer
-- [Count per type with a given time offset in minutes](http://localhost:8000/events/count_per_type?offset=90)
+- [List of PR events count per repo; default limit at 50 repos](http://localhost:8000/events/counts?limit=10)
+- [PR events count for a given repo](http://localhost:8000/events/count?repo_name=<repository-name>)
+- [Events total counts for all gathered repos with offset in minutes from now; default offset is 0 minute](http://localhost:8000/events/count_per_type/all?offset=<int>)
+- [Events total counts for a given repo with offset; same default as above](http://localhost:8000/events/count_per_type?repo_name=<repository-name>&offset=<int>)
 - [PR average delta for a given repository](http://localhost:8000/events/pr_average_delta?repo_name=<repository-name>)
-- [Timeline of PR deltas for a given repository (dataviz)](http://localhost:8000/events/pr_deltas_timeline?repo_name=<repository-name>)
+- [Timeline of PR deltas for a given repository (dataviz); default size is 3](http://localhost:8000/events/pr_deltas_timeline?repo_name=<repository-name>&size=<int>)
+- [Dashboard (list of counts for 50 most active repos)](http://localhost:8000/events/dashboard)
+- [Detailed UI for a given repo, based on several endpoints and dataviz above.](http://localhost:8000/events/details?repo_name=<repository-name>)
 
-NB: For the last 2 endpoints, the repository name parameter takes the full repository name
+NB: The repository name parameter takes the full repository name
 including the actor name such as `pierrz/biggie`.
 
 Monitoring
