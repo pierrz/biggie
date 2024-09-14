@@ -181,6 +181,7 @@ jobs:
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
             -v ${{ github.workspace }}/data:/opt/data \
+            -v .github/.coveragerc:/opt/api/.coveragerc \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
             pytest -vv && \
@@ -202,6 +203,7 @@ jobs:
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
             -v ${{ github.workspace }}/data:/opt/data \
+            -v .github/.coveragerc:/opt/celery_app/.coveragerc \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict && \
