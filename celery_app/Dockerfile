@@ -1,29 +1,29 @@
 FROM python:3.11.9
 
 # java
-RUN apt-get clean \
-    && apt-get update \
-    && apt-get install -qy wget openjdk-17-jdk
+# RUN apt-get clean \
+#     && apt-get update \
+#     && apt-get install -qy wget openjdk-17-jdk
 
 # spark
 # TODO: eventually implement Spark with Scala 2.13
 # (currently not the default version in many related PaaS offers though)
 # https://dlcdn.apache.org/spark/spark-3.5.2/spark-3.5.2-bin-hadoop3-scala2.13.tgz
-RUN cd /tmp \
-    && wget https://dlcdn.apache.org/spark/spark-3.5.2/spark-3.5.2-bin-hadoop3.tgz \
-    && tar -xvzf spark-3.5.2-bin-hadoop3.tgz \
-    && mv spark-3.5.2-bin-hadoop3/ /opt/spark
+# RUN cd /tmp \
+#     && wget https://dlcdn.apache.org/spark/spark-3.5.2/spark-3.5.2-bin-hadoop3.tgz \
+#     && tar -xvzf spark-3.5.2-bin-hadoop3.tgz \
+#     && mv spark-3.5.2-bin-hadoop3/ /opt/spark
 
 # postgres lib
-RUN wget https://jdbc.postgresql.org/download/postgresql-42.7.4.jar -O /opt/spark/jars/postgresql-42.7.4.jar
+# RUN wget https://jdbc.postgresql.org/download/postgresql-42.7.4.jar -O /opt/spark/jars/postgresql-42.7.4.jar
 
 # environment
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
-    PATH=$PATH:$JAVA_HOME/bin \
-    PYSPARK_HADOOP_VERSION=3 \
-    SPARK_HOME=/opt/spark \
-    PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin \
-    PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3.11 \
+# ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
+#     PATH=$PATH:$JAVA_HOME/bin \
+#     PYSPARK_HADOOP_VERSION=3 \
+#     SPARK_HOME=/opt/spark \
+#     PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin \
+ENV PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3.11 \
     PYSPARK_PYTHON=/usr/local/bin/python3.11 \
     # python environment
     PYTHONFAULTHANDLER=1 \

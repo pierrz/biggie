@@ -155,6 +155,9 @@ services:
       - rabbitmq
       - mongo
       - postgres
+      - spark-master
+      - spark-worker-1
+      - spark-worker-2
     command: >
       sh -c "poetry install --only dev && \
              python3.11 -m pytest -vv"
@@ -170,6 +173,9 @@ services:
       - rabbitmq
       - mongo
       - postgres
+      - spark-master
+      - spark-worker-1
+      - spark-worker-2
     command: sh run.sh
     profiles:
       - prod_full
@@ -192,3 +198,37 @@ services:
       - test
       - prod_full
       - prod_acquisition
+
+  spark-master:
+    build:
+      context: conf/spark
+      dockerfile: Dockerfile
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "7077:7077"  # Spark master port
+      - "8080:8080"  # Web UI for Spark master
+
+  spark-worker-1:
+    build:
+      context: conf/spark
+      dockerfile: Dockerfile
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    ports:
+      - "8091:8091"  # Web UI for this worker
+
+  spark-worker-2:
+    build:
+      context: conf/spark
+      dockerfile: Dockerfile
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    ports:
+      - "8092:8092"  # Web UI for this worker

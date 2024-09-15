@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "biggie"
-version = "0.4.7"
+version = "0.4.8"
 package-mode = false
 description = "Biggie. FastAPI containers (test & prod)"
 authors = ["Pierre-Edouard Barrault"]

@@ -176,3 +176,7 @@ To change the code of the core containers, you need to `cd` to the related direc
 and either:
 - run `poetry update` to simply install the required dependencies
 - run the previous command to create a dedicated virtualenv
+
+### Contribute
+You can always propose a PR, just don't forget to update the release version
+that you can find in `ci.yml` and all `pyproject.toml` files.

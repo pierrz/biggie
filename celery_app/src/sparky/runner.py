@@ -7,7 +7,7 @@ from pyspark.sql import SparkSession  # pylint: disable=E0611
 
 spark_mongo = (
     SparkSession.builder.appName("Spark/Mongo IO")
-    .master("local[2]")
+    .master("spark://spark-master:7077")
     .config("spark.executor.memory", "2g")
     .config("spark.mongodb.connection.uri", pyspark_config.MONGODB_URI)
     .config(
@@ -19,7 +19,7 @@ spark_mongo = (
 
 spark_postgres = (
     SparkSession.builder.appName("Spark/Postgres IO")
-    .master("local[2]")
+    .master("spark://spark-master:7077")
     .config("spark.executor.memory", "2g")
     .config(
         "spark.executor.extraClassPath",
