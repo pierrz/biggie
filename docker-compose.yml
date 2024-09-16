@@ -158,7 +158,7 @@ services:
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: python3 -m pytest -vv test/sparky/test_mongo.py
+    command: python3 -m pytest -vv test/sparky/test_postgres.py
     profiles:
       - test
     restart: on-failure
