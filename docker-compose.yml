@@ -158,7 +158,8 @@ services:
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: python3 -m pytest -vv test/sparky/test_postgres.py
+    command: python3 -m pytest -vv test/sparky/test_mongo.py
+    # command: sleep 10m
     profiles:
       - test
     restart: on-failure
@@ -198,6 +199,7 @@ services:
       - prod_acquisition
 
   spark-master:
+    # container_name: biggie_spark_master
     build:
       context: conf/spark
       dockerfile: Dockerfile

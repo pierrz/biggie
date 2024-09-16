@@ -1,4 +1,5 @@
 FROM bitnami/spark:3.5.2
+# FROM spark:3.5.2-java17
 
 # Install Python 3.11 to align with the version used in the Celery container
 # NB: this Bitnami image comes with Python 3.12 installed, but it is not stable enough for our use case

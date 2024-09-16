@@ -22,6 +22,14 @@ spark_mongo = (
         "spark.jars.packages",
         "org.mongodb.spark:mongo-spark-connector_2.12:10.4.0",
     )
+    .config(
+        "spark.driver.extraClassPath",
+        "/opt/bitnami/spark/jars/mongo-java-driver-3.12.10.jar",
+    )
+    .config(
+        "spark.executor.extraClassPath",
+        "/opt/bitnami/spark/jars/mongo-java-driver-3.12.10.jar",
+    )
     .getOrCreate()
 )
 
@@ -29,12 +37,24 @@ spark_postgres = (
     SparkSession.builder.appName("Spark/Postgres IO")
     .master("spark://spark-master:7077")
     .config("spark.executor.memory", "2g")
-    .config("spark.jars", "/opt/bitnami/spark/jars/postgresql-42.7.4.jar")
     .config(
-        "spark.driver.extraClassPath", "/opt/bitnami/spark/jars/postgresql-42.7.4.jar"
+        "spark.jars.packages",
+        "org.postgres:postgresql-42.7.4",
+    )
+    .config(
+        "spark.driver.extraClassPath",
+        "org.postgresql:postgresql-42.7.4",
+    )
+    .config(
+        "spark.executor.extraClassPath",
+        "org.postgresql:postgresql-42.7.4",
     )
     .getOrCreate()
 )
+# .config("spark.jars", "/opt/bitnami/spark/jars/postgresql-42.7.4.jar")
+# .config(
+#     "spark.driver.extraClassPath", "/opt/bitnami/spark/jars/postgresql-42.7.4.jar"
+# )
 
 # .config(
 #     "spark.executor.extraClassPath",
