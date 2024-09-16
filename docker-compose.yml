@@ -160,7 +160,7 @@ services:
       - spark-worker-2
     command: >
       sh -c "poetry install --only dev && \
-             python3.11 -m pytest -vv"
+             python3 -m pytest -vv test/sparky/test_spark.py"
     profiles:
       - test
     restart: on-failure
@@ -205,6 +205,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - SPARK_MODE=master
+    # command: python3 --version
     ports:
       - "7077:7077"  # Spark master port
       - "8080:8080"  # Web UI for Spark master

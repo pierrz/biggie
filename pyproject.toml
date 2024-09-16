@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "biggie"
-version = "0.4.8"
+version = "0.5.1"
 package-mode = false
 description = "Dev setup"
 authors = ["Pierre-Edouard Barrault"]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.12"
+python = ">=3.11,<3.13"
 
 [tool.poetry.group.dev.dependencies]
 black = "==24.8.0"

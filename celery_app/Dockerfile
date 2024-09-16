@@ -1,9 +1,10 @@
-FROM python:3.11.9
+# Python version aligned with the one available in the Bitnami/Spark image
+FROM python:3.12.5
 
 # java
-# RUN apt-get clean \
-#     && apt-get update \
-#     && apt-get install -qy wget openjdk-17-jdk
+RUN apt-get clean \
+    && apt-get update \
+    && apt-get install -qy wget openjdk-17-jdk
 
 # spark
 # TODO: eventually implement Spark with Scala 2.13
@@ -23,8 +24,10 @@ FROM python:3.11.9
 #     PYSPARK_HADOOP_VERSION=3 \
 #     SPARK_HOME=/opt/spark \
 #     PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin \
-ENV PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3.11 \
-    PYSPARK_PYTHON=/usr/local/bin/python3.11 \
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
+    PYSPARK_HADOOP_VERSION=3 \
+    PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3 \
+    PYSPARK_PYTHON=/usr/local/bin/python3 \
     # python environment
     PYTHONFAULTHANDLER=1 \
     PYTHONUNBUFFERED=1 \
@@ -35,8 +38,8 @@ ENV PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3.11 \
     PATH="${PATH}:/etc/poetry/bin"
 
 # poetry
-RUN python3.11 -m pip install --upgrade pip
-RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/etc/poetry python3.11 -
+RUN python3 -m pip install --upgrade pip
+RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/etc/poetry python3 -
 
 # Copy only requirements to cache them in docker layer
 WORKDIR /opt/celery_app
