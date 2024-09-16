@@ -14,8 +14,8 @@ python = ">=3.11,<3.13"
 aiohttp = "==3.10.5"
 asyncio = "==3.4.3"
 celery = "==5.4.0"
-frozenlist = "==1.4.1"
-greenlet = "==3.1.0"
+# frozenlist = "==1.4.1"
+# greenlet = "==3.1.0"
 idna = "==3.9"
 loguru = "==0.7.2"
 pandas = "==2.2.2"
@@ -27,7 +27,7 @@ requests = "==2.32.3"
 setuptools = "==75.1.0"
 SQLAlchemy = "==2.0.34"             # previous version was 1.4.54
 typing = "3.7.4.3"                  # issues with installing the latest version 3.10.0.0
-yarl = "==1.11.1"
+# yarl = "==1.11.1"
 
 [tool.poetry.group.security.dependencies]
 certifi = "==2024.8.30"

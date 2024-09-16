@@ -1,5 +1,5 @@
 # Python version aligned with the one available in the Bitnami/Spark image
-FROM python:3.12.5
+FROM python:3.11.9
 
 # java
 RUN apt-get clean \
@@ -26,8 +26,8 @@ RUN apt-get clean \
 #     PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin \
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
     PYSPARK_HADOOP_VERSION=3 \
-    PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3 \
-    PYSPARK_PYTHON=/usr/local/bin/python3 \
+    PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3.11 \
+    PYSPARK_PYTHON=/usr/local/bin/python3.11 \
     # python environment
     PYTHONFAULTHANDLER=1 \
     PYTHONUNBUFFERED=1 \
