@@ -127,6 +127,28 @@ jobs:
             --network=${{ env.NETWORK }} \
             biggie_postgres:latest
 
+      - name: Create Spark containers (master and workers)
+        run: |
+          cd /home/runner/work/biggie/biggie/conf/spark \
+          && docker build . --tag biggie_spark:latest \
+          && docker run -d --name biggie_spark-master \
+            --env SPARK_MODE=master \
+            --port 7077:7077 \
+            --network=${{ env.NETWORK }} \
+            biggie_spark:latest \
+          && docker run -d --name biggie_spark-worker-1 \
+            --env SPARK_MODE=worker \
+            --env SPARK_MASTER_URL=spark://spark-master:7077 \
+            --port 7077:7077 \
+            --network=${{ env.NETWORK }} \
+            biggie_spark:latest \
+          && docker run -d --name biggie_spark-worker-2 \
+            --env SPARK_MODE=worker \
+            --env SPARK_MASTER_URL=spark://spark-master:7077 \
+            --port 7077:7077 \
+            --network=${{ env.NETWORK }} \
+            biggie_spark:latest
+
       - name: Test API image
         run: |
           docker run \
