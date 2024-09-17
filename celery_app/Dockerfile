@@ -41,13 +41,13 @@ RUN if [ $(echo $TEST_MODE | tr -d '\"') = "True" ]; then \
         echo "Running in normal mode"; \
     fi
 
-RUN mkdir -p /opt/bitnami/spark/jars
-RUN curl https://jdbc.postgresql.org/download/postgresql-42.7.4.jar \
-    --output /opt/bitnami/spark/jars/postgresql-42.7.4.jar
-RUN curl https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/10.4.0/mongo-spark-connector_2.12-10.4.0.jar \
-    --output /opt/bitnami/spark/jars/mongo-spark-connector_2.12-10.4.0.jar
-RUN curl https://repo1.maven.org/maven2/org/mongodb/mongo-java-driver/3.12.14/mongo-java-driver-3.12.14.jar \
-    --output /opt/bitnami/spark/jars/mongo-java-driver-3.12.14.jar
+# RUN mkdir -p /opt/bitnami/spark/jars
+# RUN curl https://jdbc.postgresql.org/download/postgresql-42.7.4.jar \
+#     --output /opt/bitnami/spark/jars/postgresql-42.7.4.jar
+# RUN curl https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/10.4.0/mongo-spark-connector_2.12-10.4.0.jar \
+#     --output /opt/bitnami/spark/jars/mongo-spark-connector_2.12-10.4.0.jar
+# RUN curl https://repo1.maven.org/maven2/org/mongodb/mongo-java-driver/3.12.14/mongo-java-driver-3.12.14.jar \
+#     --output /opt/bitnami/spark/jars/mongo-java-driver-3.12.14.jar
 
 COPY ./celery_app ./
 COPY ./db ./src/db
