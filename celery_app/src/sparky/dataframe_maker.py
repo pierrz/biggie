@@ -19,7 +19,7 @@ from src.commons import names as ns
 
 from .mongo_connectors import MongoLoader
 from .postgres_connectors import PostgresLoader
-from .runner import spark_mongo, spark_postgres
+from .session import spark_session
 
 
 class DataframeMaker(ABC):
@@ -106,7 +106,7 @@ class MongoDataframeMaker(DataframeMaker):
         if schema is not None:
             parameters[ns.schema] = schema
 
-        spark_df = spark_mongo.createDataFrame(**parameters)
+        spark_df = spark_session.createDataFrame(**parameters)
         self.store_spark_df(spark_df)
 
     def load_mongo(self):
@@ -159,7 +159,7 @@ class PostgresDataframeMaker(DataframeMaker):
         if schema is not None:
             parameters[ns.schema] = schema
 
-        spark_df = spark_postgres.createDataFrame(**parameters)
+        spark_df = spark_session.createDataFrame(**parameters)
         self.store_spark_df(spark_df)
 
     def load_postgres(self):

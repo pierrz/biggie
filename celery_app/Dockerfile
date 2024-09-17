@@ -19,7 +19,6 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=off \
     PIP_DEFAULT_TIMEOUT=100
-    # PATH="${PATH}:/etc/poetry/bin"
 
 # Poetry
 RUN python3 -m pip install --upgrade pip \

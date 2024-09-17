@@ -34,9 +34,7 @@ as in the `jobs > env` section in `.github/workflows/docker-ci.yml` (see **line 
 
 <br>
 
-#### Build
-The `docker-compose.main` file is structured to make the `test` containers build the image
-used by the `prod` image. Hence the need to run one of the following commands on the very first run:
+#### Test
 ```
 docker compose up api_test celery_test
 OR
@@ -73,8 +71,12 @@ docker-compose \
 <br>
 
 #### Data acquisition with monitoring
-Spin up the Mongo-Express container to access the Mongo-Express and Flower UI
-along the Celery production container.
+You can just pass the monitoring configuration to include the pending containers
+with any profile or container command:
+```-f docker-compose.monitoring.yml```
+
+For Data acquisition, this will spin up both the Mongo-Express and Flower containers
+along the production containers.
 ```
 docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
 docker-compose \
