@@ -113,11 +113,11 @@ jobs:
             --network=${{ env.NETWORK }} \
             mongo:7.0.14
 
+      # cd /home/runner/work/biggie/biggie/conf/postgres
       - name: Create Postgres container
         run: |
-          cd /home/runner/work/biggie/biggie/conf/postgres \
-          && docker build . --tag biggie_postgres:latest \
-          && docker run -d --name biggie_postgres \
+          docker build conf/postgres --tag biggie_postgres:latest
+          docker run -d --name biggie_postgres \
             --env POSTGRES_DB=${{ env.POSTGRES_DB }} \
             --env POSTGRES_USER=${{ env.POSTGRES_USER }} \
             --env POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} \
@@ -129,9 +129,8 @@ jobs:
 
       - name: Create Spark containers (master and workers)
         run: |
-          cd /home/runner/work/biggie/biggie/conf/spark \
-          && docker build . --tag biggie_spark:latest \
-          && docker run -d --name biggie_spark-master \
+          docker build conf/spark --tag biggie_spark:latest
+          docker run -d --name biggie_spark-master \
             --env SPARK_MODE=master \
             --publish 7077:7077 \
             --network=${{ env.NETWORK }} \
@@ -146,6 +145,11 @@ jobs:
             --env SPARK_MASTER_URL=spark://spark-master:7077 \
             --network=${{ env.NETWORK }} \
             biggie_spark:latest
+
+      - name: List Containers in Network
+        run: |
+          docker ps \
+          docker network inspect ${{ env.NETWORK }} -f '{{range .Containers}}{{.Name}} {{end}}'
 
       - name: Test API image
         run: |
