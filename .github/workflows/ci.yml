@@ -148,8 +148,8 @@ jobs:
 
       - name: List Containers in Network
         run: |
-          docker ps \
-          docker network inspect ${{ env.NETWORK }} -f '{{range .Containers}}{{.Name}} {{end}}'
+          docker ps
+          docker network inspect ${{ env.NETWORK }} --format '{{range .Containers}}{{.Name}} {{end}}'
 
       - name: Test API image
         run: |
