@@ -28,7 +28,7 @@ RUN if [ $(echo $TEST_MODE | tr -d '\"') = "True" ]; then \
         echo "Running in normal mode"; \
     fi
 
-# Creating folders and files for the project:
+# Include project files
 # NB: Can be disabled if the "Dev speed up" lines are enabled
 # in the docker-compose volume for api contianers
 COPY ./api ./

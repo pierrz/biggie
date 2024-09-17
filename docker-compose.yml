@@ -209,7 +209,7 @@ services:
       - "7077:7077"  # Spark master port
       - "8080:8080"  # Web UI for Spark master
     volumes:
-      - .logs/spark:/opt/bitnami/logs
+      - ./logs/spark:/opt/bitnami/spark/logs
 
   spark-worker-1:
     build:
@@ -223,7 +223,7 @@ services:
     ports:
       - "8091:8091"  # Web UI for this worker
     volumes:
-      - .logs/spark:/opt/bitnami/logs
+      - ./logs/spark:/opt/bitnami/spark/logs
 
   spark-worker-2:
     build:
@@ -237,4 +237,4 @@ services:
     ports:
       - "8092:8092"  # Web UI for this worker
     volumes:
-      - .logs/spark:/opt/bitnami/logs
+      - ./logs/spark:/opt/bitnami/spark/logs
