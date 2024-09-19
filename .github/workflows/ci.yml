@@ -134,6 +134,8 @@ jobs:
             --env SPARK_MODE=master \
             --publish 7077:7077 \
             --network=${{ env.NETWORK }} \
+            --conf spark.driver.bindAddress=0.0.0.0 \
+            --network-alias spark-master \
             biggie_spark:latest \
           && docker run -d --name biggie_spark-worker-1 \
             --env SPARK_MODE=worker \
@@ -146,14 +148,19 @@ jobs:
             --network=${{ env.NETWORK }} \
             biggie_spark:latest
 
-      - name: List Containers in Network
+      - name: Spark containers checks
         run: |
           docker ps
           docker network inspect ${{ env.NETWORK }} --format '{{range .Containers}}{{.Name}} {{end}}'
+          docker exec biggie_spark-worker-1 nc -zv spark-master 7077
+          # docker network inspect ${{ env.NETWORK }}
+          docker exec -it biggie_spark-worker-1 ping -c 4 spark-master
+          docker exec -it biggie_spark-worker-2 ping -c 4 spark-master
+          docker exec -it spark-master ping -c 4 biggie_spark-worker-1
 
       - name: Test API image
         run: |
-          docker run \
+          docker run --name biggie_api-test \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
             --env DB_NAME=${{ env.DB_NAME }} \
             --env DB_USER=${{ env.DB_USER }} \
@@ -165,9 +172,9 @@ jobs:
             pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
             mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage"
 
-      - name: Test Celery image
+      - name: Create Celery container
         run: |
-          docker run \
+          docker run --name biggie_celery-test \
             --env CELERY_BROKER_URL=${{ env.CELERY_BROKER_URL }} \
             --env CELERY_RESULT_BACKEND=${{ env.CELERY_RESULT_BACKEND }} \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
@@ -179,6 +186,13 @@ jobs:
             --network=${{ env.NETWORK }} \
             --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
             ghcr.io/pierrz/biggie_celery_img:latest \
+            sleep 10m
+      
+       - name: Test Celery image
+        run: |
+            docker exec -it biggie_celery-test ping -c 4 spark-master
+            docker exec -it biggie_celery-test ping -c 4 biggie_spark-worker-1
+            docker exec -it biggie_celery-test \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
             mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
