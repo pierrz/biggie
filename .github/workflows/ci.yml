@@ -20,7 +20,8 @@ jobs:
   build-and-push-image-api:
 
     name: API - build/push image
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: read
       packages: write
@@ -44,7 +45,8 @@ jobs:
   build-and-push-image-celery:
 
     name: Celery - build/push image
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: read
       packages: write
@@ -69,7 +71,8 @@ jobs:
 
     name: Tests
     needs: [build-and-push-image-api, build-and-push-image-celery]
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       packages: write
       # specific to py-cov-action/python-coverage-comment-action (WIP)
@@ -134,8 +137,6 @@ jobs:
             --env SPARK_MODE=master \
             --publish 7077:7077 \
             --network=${{ env.NETWORK }} \
-            --conf spark.driver.bindAddress=0.0.0.0 \
-            --network-alias spark-master \
             biggie_spark:latest \
           && docker run -d --name biggie_spark-worker-1 \
             --env SPARK_MODE=worker \
