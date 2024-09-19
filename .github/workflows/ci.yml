@@ -151,13 +151,12 @@ jobs:
 
       - name: Spark containers checks
         run: |
-          docker ps
           docker network inspect ${{ env.NETWORK }} --format '{{range .Containers}}{{.Name}} {{end}}'
           # docker exec ci_biggie_spark-worker-1 nc -zv spark-master 7077
           # docker network inspect ${{ env.NETWORK }}
-          docker exec -it ci_biggie_spark-worker-1 ping -c 4 ci_biggie_spark-master
-          docker exec -it ci_biggie_spark-worker-2 ping -c 4 ci_biggie_spark-master
-          docker exec -it ci_biggie_spark-master ping -c 4 ci_biggie_spark-worker-1
+          docker exec ci_biggie_spark-worker-1 ping -c 4 ci_biggie_spark-master
+          docker exec ci_biggie_spark-worker-2 ping -c 4 ci_biggie_spark-master
+          docker exec ci_biggie_spark-master ping -c 4 ci_biggie_spark-worker-1
 
       - name: Test API image
         run: |
