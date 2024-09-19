@@ -89,7 +89,7 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       TOKEN_GITHUB_API: ${{ secrets.TOKEN_GITHUB_API }}
-      VOLUME_MOUNT: ${{ secrets.VOLUME_MOUNT }}
+      DATA_DIR: ${{ secrets.DATA_DIR }}
       NETWORK: test_network
 
     steps:
@@ -159,7 +159,7 @@ jobs:
             --env DB_USER=${{ env.DB_USER }} \
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
-            --volume ${{ github.workspace }}/${{ env.VOLUME_MOUNT }} \
+            --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
             pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
@@ -177,7 +177,7 @@ jobs:
             --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }} \
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
-            --volume ${{ github.workspace }}/${{ env.VOLUME_MOUNT }} \
+            --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \

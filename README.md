@@ -61,9 +61,8 @@ while keeping it in sync with the rest of the chain.
 See `kwargs={"wait_minutes": 30}` in the `github_events_stream` schedule in [**`.../tasks/schedules.py`**](celery_app/src/tasks/schedules.py).
 
 ```
-docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
-docker-compose \
-  -f docker-compose.yml \
+docker compose \
+  -f docker compose.yml \
   --profile prod_acquisition \
   up
 ```
@@ -73,15 +72,15 @@ docker-compose \
 #### Data acquisition with monitoring
 You can just pass the monitoring configuration to include the pending containers
 with any profile or container command:
-```-f docker-compose.monitoring.yml```
+```-f docker compose.monitoring.yml```
 
 For Data acquisition, this will spin up both the Mongo-Express and Flower containers
 along the production containers.
 ```
-docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
-docker-compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+docker compose -f docker compose.yml -f docker compose.monitoring.yml --profile monitoring up
+docker compose \
+  -f docker compose.yml \
+  -f docker compose.monitoring.yml \
   --profile prod_acquisition \
   up
 ```
@@ -92,8 +91,8 @@ docker-compose \
 Just to have the FastAPI container up
 ```
 docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+  -f docker compose.yml \
+  -f docker compose.monitoring.yml \
   --profile prod_analytics \
   up
 ```
@@ -104,8 +103,8 @@ docker compose \
 Both production containers as well as both monitoring containers.
 ```
 docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+  -f docker compose.yml \
+  -f docker compose.monitoring.yml \
   --profile prod_full \
   up
 ```
@@ -130,12 +129,12 @@ The `nginx` configuration files are:
 `conf/nginx/monitor_docker.conf`
 <br>
 
-Finally run the `docker-compose` command with the `live_prod` profile
+Finally run the `docker compose` command with the `live_prod` profile
 to spin up all that to the world:
 ```
 docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+  -f docker compose.yml \
+  -f docker compose.monitoring.yml \
   --profile prod_full --profile live_prod \
   up
 ```
