@@ -25,7 +25,7 @@ def test_spark_session():
         assert row_count == 3
 
         # Stop the Spark session
-        spark_session.stop()
+        # spark_session.stop()
 
     except Exception as e:
         pytest.fail(f"Spark session test failed: {e}")
