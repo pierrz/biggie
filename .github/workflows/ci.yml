@@ -186,16 +186,9 @@ jobs:
             --network=${{ env.NETWORK }} \
             --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
             ghcr.io/pierrz/biggie_celery_img:latest \
-            sleep 10m
-      
-      - name: Test Celery image
-        run: |
-          docker exec -it ci_biggie_celery-test ping -c 4 ci_biggie_spark-master
-          docker exec -it ci_biggie_celery-test ping -c 4 ci_biggie_spark-worker-1
-          docker exec -it ci_biggie_celery-test \
-          sh -c "poetry install --only dev && \
-          python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
-          mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
+            sh -c "poetry install --only dev && \
+            python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
+            mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
 
       - name: Upload merged coverage report
         uses: actions/upload-artifact@v4.4.0
