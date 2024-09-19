@@ -188,14 +188,14 @@ jobs:
             ghcr.io/pierrz/biggie_celery_img:latest \
             sleep 10m
       
-       - name: Test Celery image
+      - name: Test Celery image
         run: |
-            docker exec -it biggie_celery-test ping -c 4 spark-master
-            docker exec -it biggie_celery-test ping -c 4 biggie_spark-worker-1
-            docker exec -it biggie_celery-test \
-            sh -c "poetry install --only dev && \
-            python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
-            mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
+          docker exec -it biggie_celery-test ping -c 4 spark-master
+          docker exec -it biggie_celery-test ping -c 4 biggie_spark-worker-1
+          docker exec -it biggie_celery-test \
+          sh -c "poetry install --only dev && \
+          python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
+          mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
 
       - name: Upload merged coverage report
         uses: actions/upload-artifact@v4.4.0
