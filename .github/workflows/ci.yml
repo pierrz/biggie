@@ -93,7 +93,7 @@ jobs:
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       TOKEN_GITHUB_API: ${{ secrets.TOKEN_GITHUB_API }}
       DATA_DIR: ${{ secrets.DATA_DIR }}
-      NETWORK: test_network
+      NETWORK: ci_network
 
     steps:
 
@@ -205,6 +205,35 @@ jobs:
           path: |
             ${{ github.workspace }}/data/celery_coverage_html_report
             ${{ github.workspace }}/data/api_coverage_html_report
+
+      - name: Delete Docker elements in self-hosted runner
+        if: always()
+        run: |
+          # Get volume names associated with the containers
+          echo "Retrieving created volumes ..."
+          VOLUME_NAMES=$(docker container inspect \
+            ci_biggie_api-test ci_biggie_celery-test \
+            ci_biggie_postgres ci_biggie_mongo \
+            ci_biggie_spark-master ci_biggie_spark-worker-1 ci_biggie_spark-worker-2 \
+            -f '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}' | tr ' ' '\n' | sort -u | tr '\n' ' ') || true
+          echo "$VOLUME_NAMES"
+
+          # Remove containers
+          echo "Removing created containers ..."
+          docker container rm -f \
+            ci_biggie_api-test ci_biggie_celery-test \
+            ci_biggie_postgres ci_biggie_mongo \
+            ci_biggie_spark-master ci_biggie_spark-worker-1 ci_biggie_spark-worker-2 || true
+
+          # Remove volumes
+          echo "Removing created volumes ..."
+          if [ ! -z "$VOLUME_NAMES" ]; then
+            docker volume rm $VOLUME_NAMES || true
+          fi
+
+          # Remove network
+          echo "Removing created network ..."
+          docker network rm ${{ env.NETWORK }} || true
 
       # TODO: fix py-cov-action/python-coverage-comment-action errors (permissions, absolute/relative files)
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
