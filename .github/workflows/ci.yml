@@ -110,7 +110,7 @@ jobs:
       - name: Create network & Mongo container
         run: |
           docker network create -d bridge ${{ env.NETWORK }}
-          docker run -d --name biggie_mongo \
+          docker run -d --name ci_biggie_mongo \
             --env MONGO_INITDB_ROOT_USERNAME=${{ env.MONGO_INITDB_ROOT_USERNAME }} \
             --env MONGO_INITDB_ROOT_PASSWORD=${{ env.MONGO_INITDB_ROOT_PASSWORD }} \
             --network=${{ env.NETWORK }} \
@@ -120,7 +120,7 @@ jobs:
       - name: Create Postgres container
         run: |
           docker build conf/postgres --tag biggie_postgres:latest
-          docker run -d --name biggie_postgres \
+          docker run -d --name ci_biggie_postgres \
             --env POSTGRES_DB=${{ env.POSTGRES_DB }} \
             --env POSTGRES_USER=${{ env.POSTGRES_USER }} \
             --env POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} \
@@ -133,17 +133,17 @@ jobs:
       - name: Create Spark containers (master and workers)
         run: |
           docker build conf/spark --tag biggie_spark:latest
-          docker run -d --name biggie_spark-master \
+          docker run -d --name ci_biggie_spark-master \
             --env SPARK_MODE=master \
             --publish 7077:7077 \
             --network=${{ env.NETWORK }} \
             biggie_spark:latest \
-          && docker run -d --name biggie_spark-worker-1 \
+          && docker run -d --name ci_biggie_spark-worker-1 \
             --env SPARK_MODE=worker \
             --env SPARK_MASTER_URL=spark://spark-master:7077 \
             --network=${{ env.NETWORK }} \
             biggie_spark:latest \
-          && docker run -d --name biggie_spark-worker-2 \
+          && docker run -d --name ci_biggie_spark-worker-2 \
             --env SPARK_MODE=worker \
             --env SPARK_MASTER_URL=spark://spark-master:7077 \
             --network=${{ env.NETWORK }} \
@@ -153,15 +153,15 @@ jobs:
         run: |
           docker ps
           docker network inspect ${{ env.NETWORK }} --format '{{range .Containers}}{{.Name}} {{end}}'
-          docker exec biggie_spark-worker-1 nc -zv spark-master 7077
+          docker exec ci_biggie_spark-worker-1 nc -zv spark-master 7077
           # docker network inspect ${{ env.NETWORK }}
-          docker exec -it biggie_spark-worker-1 ping -c 4 spark-master
-          docker exec -it biggie_spark-worker-2 ping -c 4 spark-master
-          docker exec -it spark-master ping -c 4 biggie_spark-worker-1
+          docker exec -it ci_biggie_spark-worker-1 ping -c 4 ci_biggie_spark-master
+          docker exec -it ci_biggie_spark-worker-2 ping -c 4 ci_biggie_spark-master
+          docker exec -it ci_biggie_spark-master ping -c 4 ci_biggie_spark-worker-1
 
       - name: Test API image
         run: |
-          docker run --name biggie_api-test \
+          docker run --name ci_biggie_api-test \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
             --env DB_NAME=${{ env.DB_NAME }} \
             --env DB_USER=${{ env.DB_USER }} \
@@ -175,7 +175,7 @@ jobs:
 
       - name: Create Celery container
         run: |
-          docker run --name biggie_celery-test \
+          docker run --name ci_biggie_celery-test \
             --env CELERY_BROKER_URL=${{ env.CELERY_BROKER_URL }} \
             --env CELERY_RESULT_BACKEND=${{ env.CELERY_RESULT_BACKEND }} \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
@@ -191,9 +191,9 @@ jobs:
       
       - name: Test Celery image
         run: |
-          docker exec -it biggie_celery-test ping -c 4 spark-master
-          docker exec -it biggie_celery-test ping -c 4 biggie_spark-worker-1
-          docker exec -it biggie_celery-test \
+          docker exec -it ci_biggie_celery-test ping -c 4 ci_biggie_spark-master
+          docker exec -it ci_biggie_celery-test ping -c 4 ci_biggie_spark-worker-1
+          docker exec -it ci_biggie_celery-test \
           sh -c "poetry install --only dev && \
           python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
           mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
