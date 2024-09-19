@@ -206,6 +206,28 @@ jobs:
             ${{ github.workspace }}/data/celery_coverage_html_report
             ${{ github.workspace }}/data/api_coverage_html_report
 
+      # # Get names of all containers starting with biggie_
+      # CONTAINER_NAMES=$(docker ps -a --format '{{.Names}}' | grep '^biggie_' || true)
+
+      # if [ ! -z "$CONTAINER_NAMES" ]; then
+      #   # Get volume names associated with the containers
+      #   VOLUME_NAMES=$(docker container inspect $CONTAINER_NAMES \
+      #     -f '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}' | tr ' ' '\n' | sort -u | tr '\n' ' ') || echo "Failed to inspect containers"
+
+      #   # Remove containers
+      #   echo "Removing containers: $CONTAINER_NAMES"
+      #   docker container rm -f $CONTAINER_NAMES || echo "Failed to remove some containers"
+
+      #   # Remove volumes
+      #   if [ ! -z "$VOLUME_NAMES" ]; then
+      #     echo "Removing volumes: $VOLUME_NAMES"
+      #     docker volume rm $VOLUME_NAMES || echo "Failed to remove some volumes"
+      #   else
+      #     echo "No volumes to remove"
+      #   fi
+      # else
+      #   echo "No biggie_* containers found"
+      # fi
       - name: Delete Docker elements in self-hosted runner
         if: always()
         run: |
@@ -220,6 +242,10 @@ jobs:
 
           # Remove containers
           echo "Removing created containers ..."
+          docker container stop \
+            ci_biggie_api-test ci_biggie_celery-test \
+            ci_biggie_postgres ci_biggie_mongo \
+            ci_biggie_spark-master ci_biggie_spark-worker-1 ci_biggie_spark-worker-2 || true
           docker container rm -f \
             ci_biggie_api-test ci_biggie_celery-test \
             ci_biggie_postgres ci_biggie_mongo \
