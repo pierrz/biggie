@@ -36,7 +36,7 @@ as in the `jobs > env` section in `.github/workflows/docker-ci.yml` (see **line 
 
 #### Test
 ```
-docker compose up api_test celery_test
+docker compose up api-test celery-test
 OR
 docker compose --profile test up
 ```
