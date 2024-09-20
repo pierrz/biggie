@@ -17,7 +17,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  RELEASE: 0.5.1                # /!\ increase this to avoid overwriting older image
+  RELEASE: 0.5.2                # /!\ increase this to avoid overwriting older image
 
 jobs:
 
@@ -133,7 +133,7 @@ jobs:
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
             biggie_postgres:latest
-      
+
       # /!\ The flag --network-alias spark-master is CRITICAL for the master /!\
       - name: Create Spark containers (master and workers)
         run: |
@@ -229,7 +229,7 @@ jobs:
           echo "Removing created network ..."
           docker network rm ${{ env.NETWORK }} || true
 
-      
+
       # TODO: fix py-cov-action/python-coverage-comment-action errors (permissions, absolute/relative files)
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # Error: Cannot read .coverage files because files are absolute. You need to configure coverage to write relative paths by adding the following option to your coverage configuration file:
