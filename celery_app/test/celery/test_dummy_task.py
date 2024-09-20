@@ -1,3 +1,7 @@
+"""
+Test that Celery and RabbitMQ are up and running.
+"""
+
 from src.tasks.dummy_task import dummy_task
 
 
@@ -6,7 +10,7 @@ def test_celery():
     """
     Just to check that Celery is up and running.
     """
-    input = 3
-    task = dummy_task.s(input)
+    input_value = 3
+    task = dummy_task.s(input_value)
     result = task()
-    assert result == input**2
+    assert result == input_value**2

@@ -34,11 +34,9 @@ as in the `jobs > env` section in `.github/workflows/docker-ci.yml` (see **line 
 
 <br>
 
-#### Build
-The `docker-compose.main` file is structured to make the `test` containers build the image
-used by the `prod` image. Hence the need to run one of the following commands on the very first run:
+#### Test
 ```
-docker compose up api_test celery_test
+docker compose up api-test celery-test
 OR
 docker compose --profile test up
 ```
@@ -63,9 +61,8 @@ while keeping it in sync with the rest of the chain.
 See `kwargs={"wait_minutes": 30}` in the `github_events_stream` schedule in [**`.../tasks/schedules.py`**](celery_app/src/tasks/schedules.py).
 
 ```
-docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
-docker-compose \
-  -f docker-compose.yml \
+docker compose \
+  -f docker compose.yml \
   --profile prod_acquisition \
   up
 ```
@@ -73,13 +70,17 @@ docker-compose \
 <br>
 
 #### Data acquisition with monitoring
-Spin up the Mongo-Express container to access the Mongo-Express and Flower UI
-along the Celery production container.
+You can just pass the monitoring configuration to include the pending containers
+with any profile or container command:
+```-f docker compose.monitoring.yml```
+
+For Data acquisition, this will spin up both the Mongo-Express and Flower containers
+along the production containers.
 ```
-docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
-docker-compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+docker compose -f docker compose.yml -f docker compose.monitoring.yml --profile monitoring up
+docker compose \
+  -f docker compose.yml \
+  -f docker compose.monitoring.yml \
   --profile prod_acquisition \
   up
 ```
@@ -90,8 +91,8 @@ docker-compose \
 Just to have the FastAPI container up
 ```
 docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+  -f docker compose.yml \
+  -f docker compose.monitoring.yml \
   --profile prod_analytics \
   up
 ```
@@ -102,8 +103,8 @@ docker compose \
 Both production containers as well as both monitoring containers.
 ```
 docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+  -f docker compose.yml \
+  -f docker compose.monitoring.yml \
   --profile prod_full \
   up
 ```
@@ -128,12 +129,12 @@ The `nginx` configuration files are:
 `conf/nginx/monitor_docker.conf`
 <br>
 
-Finally run the `docker-compose` command with the `live_prod` profile
+Finally run the `docker compose` command with the `live_prod` profile
 to spin up all that to the world:
 ```
 docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+  -f docker compose.yml \
+  -f docker compose.monitoring.yml \
   --profile prod_full --profile live_prod \
   up
 ```
@@ -176,3 +177,7 @@ To change the code of the core containers, you need to `cd` to the related direc
 and either:
 - run `poetry update` to simply install the required dependencies
 - run the previous command to create a dedicated virtualenv
+
+### Contribute
+You can always propose a PR, just don't forget to update the release version
+that you can find in `ci.yml` and all `pyproject.toml` files.

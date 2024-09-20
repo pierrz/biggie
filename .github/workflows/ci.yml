@@ -1,3 +1,7 @@
+# CI setup, building the main images and running the tests against them
+#  - Can be self-hosted for debugging purposes
+#  - TODO: fix the Github action about PR comments from coverage report (very end of this file)
+
 name: CI Pipeline
 
 on:
@@ -13,7 +17,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  RELEASE: 0.4.7    # /!\ increase this to avoid overwriting older image
+  RELEASE: 0.5.1                # /!\ increase this to avoid overwriting older image
 
 jobs:
 
@@ -21,6 +25,7 @@ jobs:
 
     name: API - build/push image
     runs-on: ubuntu-latest
+    # runs-on: self-hosted
     permissions:
       contents: read
       packages: write
@@ -45,6 +50,7 @@ jobs:
 
     name: Celery - build/push image
     runs-on: ubuntu-latest
+    # runs-on: self-hosted
     permissions:
       contents: read
       packages: write
@@ -70,6 +76,7 @@ jobs:
     name: Tests
     needs: [build-and-push-image-api, build-and-push-image-celery]
     runs-on: ubuntu-latest
+    # runs-on: self-hosted
     permissions:
       packages: write
       # specific to py-cov-action/python-coverage-comment-action (WIP)
@@ -89,8 +96,8 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       TOKEN_GITHUB_API: ${{ secrets.TOKEN_GITHUB_API }}
-      VOLUME_MOUNT: ${{ secrets.VOLUME_MOUNT }}
-      NETWORK: test_network
+      DATA_DIR: ${{ secrets.DATA_DIR }}
+      NETWORK: ci_network
 
     steps:
 
@@ -113,11 +120,11 @@ jobs:
             --network=${{ env.NETWORK }} \
             mongo:7.0.14
 
+      # cd /home/runner/work/biggie/biggie/conf/postgres
       - name: Create Postgres container
         run: |
-          cd /home/runner/work/biggie/biggie/conf/postgres \
-          && docker build . --tag biggie_postgres:latest \
-          && docker run -d --name biggie_postgres \
+          docker build conf/postgres --tag biggie_postgres:latest
+          docker run -d --name biggie_postgres \
             --env POSTGRES_DB=${{ env.POSTGRES_DB }} \
             --env POSTGRES_USER=${{ env.POSTGRES_USER }} \
             --env POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} \
@@ -126,24 +133,45 @@ jobs:
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
             biggie_postgres:latest
+      
+      # /!\ The flag --network-alias spark-master is CRITICAL for the master /!\
+      - name: Create Spark containers (master and workers)
+        run: |
+          docker build conf/spark --tag biggie_spark:latest
+          docker run -d --name biggie_spark-master \
+            --env SPARK_MODE=master \
+            --publish 7077:7077 \
+            --network=${{ env.NETWORK }} \
+            --network-alias spark-master \
+            biggie_spark:latest \
+          && docker run -d --name biggie_spark-worker-1 \
+            --env SPARK_MODE=worker \
+            --env SPARK_MASTER_URL=spark://spark-master:7077 \
+            --network=${{ env.NETWORK }} \
+            biggie_spark:latest \
+          && docker run -d --name biggie_spark-worker-2 \
+            --env SPARK_MODE=worker \
+            --env SPARK_MASTER_URL=spark://spark-master:7077 \
+            --network=${{ env.NETWORK }} \
+            biggie_spark:latest
 
       - name: Test API image
         run: |
-          docker run \
+          docker run --name biggie_api-test \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
             --env DB_NAME=${{ env.DB_NAME }} \
             --env DB_USER=${{ env.DB_USER }} \
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
-            --volume ${{ github.workspace }}/${{ env.VOLUME_MOUNT }} \
+            --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
             pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
             mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage"
 
-      - name: Test Celery image
+      - name: Create Celery container
         run: |
-          docker run \
+          docker run --name biggie_celery-test \
             --env CELERY_BROKER_URL=${{ env.CELERY_BROKER_URL }} \
             --env CELERY_RESULT_BACKEND=${{ env.CELERY_RESULT_BACKEND }} \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
@@ -153,7 +181,7 @@ jobs:
             --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }} \
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
-            --volume ${{ github.workspace }}/${{ env.VOLUME_MOUNT }} \
+            --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
             ghcr.io/pierrz/biggie_celery_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
@@ -167,6 +195,41 @@ jobs:
             ${{ github.workspace }}/data/celery_coverage_html_report
             ${{ github.workspace }}/data/api_coverage_html_report
 
+      # /!\ Enable this step when running the pipeline in the self-hosted runner /!\
+      - name: Delete Docker elements in self-hosted runner
+        if: runner.labels == 'self-hosted' && always()
+        run: |
+          # Get names of all containers starting with biggie_
+          echo "Getting containers name ..."
+          CONTAINER_NAMES=$(docker ps -a --format '{{.Names}}' | grep '^biggie_' || true)
+
+          if [ ! -z "$CONTAINER_NAMES" ]; then
+            # Get volume names associated with the containers
+            echo "Retrieving created volumes ..."
+            VOLUME_NAMES=$(docker container inspect $CONTAINER_NAMES \
+              -f '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}' | tr ' ' '\n' | sort -u | tr '\n' ' ') || echo "Failed to inspect containers"
+
+            # Remove containers
+            echo "Removing containers ..."
+            docker container stop -f $CONTAINER_NAMES || echo "Failed to remove some containers"
+            docker container rm -f $CONTAINER_NAMES || echo "Failed to remove some containers"
+
+            # Remove volumes
+            if [ ! -z "$VOLUME_NAMES" ]; then
+              echo "Removing volumes ..."
+              docker volume rm $VOLUME_NAMES || echo "Failed to remove some volumes"
+            else
+              echo "No volumes to remove"
+            fi
+          else
+            echo "No biggie_* containers found"
+          fi
+
+          # Remove network
+          echo "Removing created network ..."
+          docker network rm ${{ env.NETWORK }} || true
+
+      
       # TODO: fix py-cov-action/python-coverage-comment-action errors (permissions, absolute/relative files)
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # Error: Cannot read .coverage files because files are absolute. You need to configure coverage to write relative paths by adding the following option to your coverage configuration file:
