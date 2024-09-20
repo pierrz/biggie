@@ -20,8 +20,8 @@ jobs:
   build-and-push-image-api:
 
     name: API - build/push image
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    # runs-on: self-hosted
     permissions:
       contents: read
       packages: write
@@ -45,8 +45,8 @@ jobs:
   build-and-push-image-celery:
 
     name: Celery - build/push image
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    # runs-on: self-hosted
     permissions:
       contents: read
       packages: write
@@ -71,8 +71,8 @@ jobs:
 
     name: Tests
     needs: [build-and-push-image-api, build-and-push-image-celery]
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    # runs-on: self-hosted
     permissions:
       packages: write
       # specific to py-cov-action/python-coverage-comment-action (WIP)
@@ -110,7 +110,7 @@ jobs:
       - name: Create network & Mongo container
         run: |
           docker network create -d bridge ${{ env.NETWORK }}
-          docker run -d --name ci_biggie_mongo \
+          docker run -d --name biggie_mongo \
             --env MONGO_INITDB_ROOT_USERNAME=${{ env.MONGO_INITDB_ROOT_USERNAME }} \
             --env MONGO_INITDB_ROOT_PASSWORD=${{ env.MONGO_INITDB_ROOT_PASSWORD }} \
             --network=${{ env.NETWORK }} \
@@ -120,7 +120,7 @@ jobs:
       - name: Create Postgres container
         run: |
           docker build conf/postgres --tag biggie_postgres:latest
-          docker run -d --name ci_biggie_postgres \
+          docker run -d --name biggie_postgres \
             --env POSTGRES_DB=${{ env.POSTGRES_DB }} \
             --env POSTGRES_USER=${{ env.POSTGRES_USER }} \
             --env POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} \
@@ -133,18 +133,18 @@ jobs:
       - name: Create Spark containers (master and workers)
         run: |
           docker build conf/spark --tag biggie_spark:latest
-          docker run -d --name ci_biggie_spark-master \
+          docker run -d --name biggie_spark-master \
             --env SPARK_MODE=master \
             --publish 7077:7077 \
             --network=${{ env.NETWORK }} \
             --network-alias spark-master \
             biggie_spark:latest \
-          && docker run -d --name ci_biggie_spark-worker-1 \
+          && docker run -d --name biggie_spark-worker-1 \
             --env SPARK_MODE=worker \
             --env SPARK_MASTER_URL=spark://spark-master:7077 \
             --network=${{ env.NETWORK }} \
             biggie_spark:latest \
-          && docker run -d --name ci_biggie_spark-worker-2 \
+          && docker run -d --name biggie_spark-worker-2 \
             --env SPARK_MODE=worker \
             --env SPARK_MASTER_URL=spark://spark-master:7077 \
             --network=${{ env.NETWORK }} \
@@ -153,15 +153,15 @@ jobs:
       - name: Spark containers checks
         run: |
           docker network inspect ${{ env.NETWORK }} --format '{{range .Containers}}{{.Name}} {{end}}'
-          # docker exec ci_biggie_spark-worker-1 nc -zv spark-master 7077
+          # docker exec biggie_spark-worker-1 nc -zv spark-master 7077
           # docker network inspect ${{ env.NETWORK }}
-          # docker exec ci_biggie_spark-worker-1 ping -c 4 ci_biggie_spark-master
-          # docker exec ci_biggie_spark-worker-2 ping -c 4 ci_biggie_spark-master
-          # docker exec ci_biggie_spark-master ping -c 4 ci_biggie_spark-worker-1
+          # docker exec biggie_spark-worker-1 ping -c 4 biggie_spark-master
+          # docker exec biggie_spark-worker-2 ping -c 4 biggie_spark-master
+          # docker exec biggie_spark-master ping -c 4 biggie_spark-worker-1
 
       - name: Test API image
         run: |
-          docker run --name ci_biggie_api-test \
+          docker run --name biggie_api-test \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
             --env DB_NAME=${{ env.DB_NAME }} \
             --env DB_USER=${{ env.DB_USER }} \
@@ -175,7 +175,7 @@ jobs:
 
       - name: Create Celery container
         run: |
-          docker run --name ci_biggie_celery-test \
+          docker run --name biggie_celery-test \
             --env CELERY_BROKER_URL=${{ env.CELERY_BROKER_URL }} \
             --env CELERY_RESULT_BACKEND=${{ env.CELERY_RESULT_BACKEND }} \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
@@ -227,22 +227,22 @@ jobs:
           # Get volume names associated with the containers
           echo "Retrieving created volumes ..."
           VOLUME_NAMES=$(docker container inspect \
-            ci_biggie_api-test ci_biggie_celery-test \
-            ci_biggie_postgres ci_biggie_mongo \
-            ci_biggie_spark-master ci_biggie_spark-worker-1 ci_biggie_spark-worker-2 \
+            biggie_api-test biggie_celery-test \
+            biggie_postgres biggie_mongo \
+            biggie_spark-master biggie_spark-worker-1 biggie_spark-worker-2 \
             -f '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}' | tr ' ' '\n' | sort -u | tr '\n' ' ') || true
           echo "$VOLUME_NAMES"
 
           # Remove containers
           echo "Removing created containers ..."
           docker container stop \
-            ci_biggie_api-test ci_biggie_celery-test \
-            ci_biggie_postgres ci_biggie_mongo \
-            ci_biggie_spark-master ci_biggie_spark-worker-1 ci_biggie_spark-worker-2 || true
+            biggie_api-test biggie_celery-test \
+            biggie_postgres biggie_mongo \
+            biggie_spark-master biggie_spark-worker-1 biggie_spark-worker-2 || true
           docker container rm -f \
-            ci_biggie_api-test ci_biggie_celery-test \
-            ci_biggie_postgres ci_biggie_mongo \
-            ci_biggie_spark-master ci_biggie_spark-worker-1 ci_biggie_spark-worker-2 || true
+            biggie_api-test biggie_celery-test \
+            biggie_postgres biggie_mongo \
+            biggie_spark-master biggie_spark-worker-1 biggie_spark-worker-2 || true
 
           # Remove volumes
           echo "Removing created volumes ..."
