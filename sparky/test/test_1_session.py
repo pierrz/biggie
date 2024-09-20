@@ -1,6 +1,7 @@
-from pyspark.sql import SparkSession
 import pytest
-from src.sparky.session import spark_session
+
+from sparky.src.session import spark_session
+
 
 def test_spark_session():
     """

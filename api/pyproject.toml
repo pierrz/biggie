@@ -2,7 +2,7 @@
 name = "biggie"
 version = "0.5.2"
 package-mode = false
-description = "Biggie. FastAPI containers (test & prod)"
+description = "Biggie. API containers (test & prod). Based on FastAPI"
 authors = ["Pierre-Edouard Barrault"]
 
 [build-system]

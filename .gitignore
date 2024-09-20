@@ -140,9 +140,8 @@ dev
 pyrightconfig.json
 .vscode/
 
-# secrets
-conf/pgadmin/servers.json
-conf/nginx/certificate.conf
-conf/nginx/app_docker.conf
-conf/nginx/monitor_docker.conf
-conf/nginx/monitor_docker.conf
+# secrets and configs
+db/postgres/pgadmin_conf/servers.json
+nginx/conf/certificate.conf
+nginx/conf/app_docker.conf
+nginx/conf/monitor_docker.conf

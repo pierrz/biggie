@@ -2,7 +2,7 @@
 name = "biggie"
 version = "0.5.2"
 package-mode = false
-description = "Biggie. Celery containers (test & prod)"
+description = "Biggie. Orchestrator containers (test & prod). Based on Celery"
 authors = ["Pierre-Edouard Barrault"]
 
 [build-system]
@@ -35,7 +35,7 @@ pytest-asyncio = "==0.24.0"
 pytest-cov = "==5.0.0"
 
 [tool.pytest.ini_options]
-pythonpath = [ "/opt/celery_app", ]
+pythonpath = [ "/opt/orchestrator", ]
 asyncio_mode = "strict"
 asyncio_default_fixture_loop_scope = "function"       # function, class, module, package, session
 filterwarnings = [

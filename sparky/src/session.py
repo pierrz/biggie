@@ -24,15 +24,11 @@ spark_config = {
     # "spark.executor.extraJavaOptions": "-Dlog4j.configuration=file:///opt/bitnami/spark/logs/log4j.properties -Dlog4j.debug",
 }
 
-spark_session_base = (
-    SparkSession.builder.appName("Biggie/Spark IO")
-    .master("spark://spark-master:7077")
+spark_session_base = SparkSession.builder.appName("Biggie/Spark IO").master(
+    "spark://spark-master:7077"
 )
 
-spark_session = init_spark_session(
-    session=spark_session_base,
-    config=spark_config
-)
+spark_session = init_spark_session(session=spark_session_base, config=spark_config)
 
 
 # DISABLED (not working): absolute path to jars
