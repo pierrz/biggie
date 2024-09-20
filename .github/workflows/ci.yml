@@ -114,7 +114,7 @@ jobs:
       - name: Create network & Mongo container
         run: |
           docker network create -d bridge ${{ env.NETWORK }}
-          docker build mongo --tag biggie_mongo:latest
+          docker build db/mongo --tag biggie_mongo:latest
           docker run -d --name biggie_mongo \
             --env MONGO_INITDB_ROOT_USERNAME=${{ env.MONGO_INITDB_ROOT_USERNAME }} \
             --env MONGO_INITDB_ROOT_PASSWORD=${{ env.MONGO_INITDB_ROOT_PASSWORD }} \
@@ -124,7 +124,7 @@ jobs:
       # cd /home/runner/work/biggie/biggie/conf/postgres
       - name: Create Postgres container
         run: |
-          docker build postgres --tag biggie_postgres:latest
+          docker build db/postgres --tag biggie_postgres:latest
           docker run -d --name biggie_postgres \
             --env POSTGRES_DB=${{ env.POSTGRES_DB }} \
             --env POSTGRES_USER=${{ env.POSTGRES_USER }} \
