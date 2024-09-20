@@ -121,7 +121,6 @@ jobs:
             --network=${{ env.NETWORK }} \
             mongo:7.0.14
 
-      # cd /home/runner/work/biggie/biggie/conf/postgres
       - name: Create Postgres container
         run: |
           docker build db/postgres --tag biggie_postgres:latest
@@ -196,7 +195,7 @@ jobs:
             ${{ github.workspace }}/data/orchestrator_coverage_html_report
             ${{ github.workspace }}/data/api_coverage_html_report
 
-      # /!\ Enable this step when running the pipeline in the self-hosted runner /!\
+      # /!\ Step triggered only when the pipeline is running in the self-hosted runner /!\
       - name: Delete Docker elements in self-hosted runner
         if: runner.labels == 'self-hosted' && always()
         run: |
