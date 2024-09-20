@@ -137,6 +137,7 @@ jobs:
             --env SPARK_MODE=master \
             --publish 7077:7077 \
             --network=${{ env.NETWORK }} \
+            --network-alias spark-master \
             biggie_spark:latest \
           && docker run -d --name ci_biggie_spark-worker-1 \
             --env SPARK_MODE=worker \
