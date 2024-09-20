@@ -46,9 +46,9 @@ jobs:
           tag: ${{ env.RELEASE }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  build-and-push-image-celery:
+  build-and-push-image-orchestrator:
 
-    name: Celery - build/push image
+    name: Orchestrator - build/push image
     runs-on: ubuntu-latest
     # runs-on: self-hosted
     permissions:
@@ -62,19 +62,19 @@ jobs:
       - name: Run 'build-push' local action
         uses: ./.github/actions/build-push
         with:
-          name: Celery
-          src: celery_app
+          name: Orchestrator
+          src: orchestrator
           registry: ${{ env.REGISTRY }}
           actor: ${{ github.actor }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          image: pierrz/biggie_celery_img
+          image: pierrz/biggie_orchestrator_img
           tag: ${{ env.RELEASE }}
           labels: ${{ steps.meta.outputs.labels }}
 
   test:
 
     name: Tests
-    needs: [build-and-push-image-api, build-and-push-image-celery]
+    needs: [build-and-push-image-api, build-and-push-image-orchestrator]
     runs-on: ubuntu-latest
     # runs-on: self-hosted
     permissions:
@@ -169,9 +169,9 @@ jobs:
             pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
             mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage"
 
-      - name: Create Celery container
+      - name: Create Orchestrator container
         run: |
-          docker run --name biggie_celery-test \
+          docker run --name biggie_orchestrator-test \
             --env CELERY_BROKER_URL=${{ env.CELERY_BROKER_URL }} \
             --env CELERY_RESULT_BACKEND=${{ env.CELERY_RESULT_BACKEND }} \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
@@ -182,17 +182,17 @@ jobs:
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
             --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
-            ghcr.io/pierrz/biggie_celery_img:latest \
+            ghcr.io/pierrz/biggie_orchestrator_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
-            mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
+            mkdir /opt/data/orchestrator_coverage && cp .coverage /opt/data/orchestrator_coverage/.coverage"
 
       - name: Upload merged coverage report
         uses: actions/upload-artifact@v4.4.0
         with:
           name: html-coverage-report
           path: |
-            ${{ github.workspace }}/data/celery_coverage_html_report
+            ${{ github.workspace }}/data/orchestrator_coverage_html_report
             ${{ github.workspace }}/data/api_coverage_html_report
 
       # /!\ Enable this step when running the pipeline in the self-hosted runner /!\
@@ -244,7 +244,7 @@ jobs:
       #     ls -al ${{ github.workspace }}/data
       #     ls -al data
       #     pip install coverage
-      #     coverage combine --keep ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
+      #     coverage combine --keep ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.orchestrator
       #     coverage html -d ${{ github.workspace }}/data
       #     cp ${{ github.workspace }}/data/.coverage ${{ github.workspace }}/data/merged_coverage/.coverage
 
@@ -252,7 +252,7 @@ jobs:
       #   uses: py-cov-action/python-coverage-comment-action@v3.28
       #   with:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     COVERAGE_PATH: data/celery_coverage
+      #     COVERAGE_PATH: data/orchestrator_coverage
       #     MINIMUM_GREEN: 80
       #     MINIMUM_ORANGE: 50
       #     COMMENT_TEMPLATE: |
@@ -263,7 +263,7 @@ jobs:
       #   uses: actions/upload-artifact@v4
       #   if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
       #   with:
-      #     name: python-coverage-comment-action-celery
+      #     name: python-coverage-comment-action-orchestrator
       #     path: python-coverage-comment-action.txt
 
       # - name: Comment coverage
