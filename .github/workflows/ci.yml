@@ -1,3 +1,7 @@
+# CI setup, building the main images and running the tests against them
+#  - Can be self-hosted for debugging purposes
+#  - TODO: fix the Github action about PR comments from coverage report (very end of this file)
+
 name: CI Pipeline
 
 on:
@@ -13,7 +17,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  RELEASE: 0.5.1    # /!\ increase this to avoid overwriting older image
+  RELEASE: 0.5.1                # /!\ increase this to avoid overwriting older image
 
 jobs:
 
@@ -199,61 +203,41 @@ jobs:
             ${{ github.workspace }}/data/celery_coverage_html_report
             ${{ github.workspace }}/data/api_coverage_html_report
 
-      # # Get names of all containers starting with biggie_
-      # CONTAINER_NAMES=$(docker ps -a --format '{{.Names}}' | grep '^biggie_' || true)
-
-      # if [ ! -z "$CONTAINER_NAMES" ]; then
-      #   # Get volume names associated with the containers
-      #   VOLUME_NAMES=$(docker container inspect $CONTAINER_NAMES \
-      #     -f '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}' | tr ' ' '\n' | sort -u | tr '\n' ' ') || echo "Failed to inspect containers"
-
-      #   # Remove containers
-      #   echo "Removing containers: $CONTAINER_NAMES"
-      #   docker container rm -f $CONTAINER_NAMES || echo "Failed to remove some containers"
-
-      #   # Remove volumes
-      #   if [ ! -z "$VOLUME_NAMES" ]; then
-      #     echo "Removing volumes: $VOLUME_NAMES"
-      #     docker volume rm $VOLUME_NAMES || echo "Failed to remove some volumes"
-      #   else
-      #     echo "No volumes to remove"
-      #   fi
-      # else
-      #   echo "No biggie_* containers found"
-      # fi
+      # /!\ Enable this step when running the pipeline in the self-hosted runner /!\
       - name: Delete Docker elements in self-hosted runner
-        if: always()
+        if: runner.labels == 'self-hosted' && always()
         run: |
-          # Get volume names associated with the containers
-          echo "Retrieving created volumes ..."
-          VOLUME_NAMES=$(docker container inspect \
-            biggie_api-test biggie_celery-test \
-            biggie_postgres biggie_mongo \
-            biggie_spark-master biggie_spark-worker-1 biggie_spark-worker-2 \
-            -f '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}' | tr ' ' '\n' | sort -u | tr '\n' ' ') || true
-          echo "$VOLUME_NAMES"
+          # Get names of all containers starting with biggie_
+          echo "Getting containers name ..."
+          CONTAINER_NAMES=$(docker ps -a --format '{{.Names}}' | grep '^biggie_' || true)
 
-          # Remove containers
-          echo "Removing created containers ..."
-          docker container stop \
-            biggie_api-test biggie_celery-test \
-            biggie_postgres biggie_mongo \
-            biggie_spark-master biggie_spark-worker-1 biggie_spark-worker-2 || true
-          docker container rm -f \
-            biggie_api-test biggie_celery-test \
-            biggie_postgres biggie_mongo \
-            biggie_spark-master biggie_spark-worker-1 biggie_spark-worker-2 || true
+          if [ ! -z "$CONTAINER_NAMES" ]; then
+            # Get volume names associated with the containers
+            echo "Retrieving created volumes ..."
+            VOLUME_NAMES=$(docker container inspect $CONTAINER_NAMES \
+              -f '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}' | tr ' ' '\n' | sort -u | tr '\n' ' ') || echo "Failed to inspect containers"
 
-          # Remove volumes
-          echo "Removing created volumes ..."
-          if [ ! -z "$VOLUME_NAMES" ]; then
-            docker volume rm $VOLUME_NAMES || true
+            # Remove containers
+            echo "Removing containers ..."
+            docker container stop -f $CONTAINER_NAMES || echo "Failed to remove some containers"
+            docker container rm -f $CONTAINER_NAMES || echo "Failed to remove some containers"
+
+            # Remove volumes
+            if [ ! -z "$VOLUME_NAMES" ]; then
+              echo "Removing volumes ..."
+              docker volume rm $VOLUME_NAMES || echo "Failed to remove some volumes"
+            else
+              echo "No volumes to remove"
+            fi
+          else
+            echo "No biggie_* containers found"
           fi
 
           # Remove network
           echo "Removing created network ..."
           docker network rm ${{ env.NETWORK }} || true
 
+      
       # TODO: fix py-cov-action/python-coverage-comment-action errors (permissions, absolute/relative files)
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # Error: Cannot read .coverage files because files are absolute. You need to configure coverage to write relative paths by adding the following option to your coverage configuration file:
