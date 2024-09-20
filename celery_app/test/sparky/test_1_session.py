@@ -7,11 +7,6 @@ def test_spark_session():
     Test to check if a Spark session can be created and basic DataFrame operations work.
     """
     try:
-        # # Initialize Spark session
-        # spark = SparkSession.builder \
-        #     .appName("Test Spark Session") \
-        #     .master("local[*]") \
-        #     .getOrCreate()
 
         # Simple DataFrame operation to test the connection
         data = [("Alice", 34), ("Bob", 45), ("Charlie", 29)]
