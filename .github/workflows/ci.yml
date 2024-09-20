@@ -187,13 +187,13 @@ jobs:
             python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
             mkdir /opt/data/orchestrator_coverage && cp .coverage /opt/data/orchestrator_coverage/.coverage"
 
-      - name: Upload merged coverage report
+      - name: Upload coverage reports
         uses: actions/upload-artifact@v4.4.0
         with:
           name: html-coverage-report
           path: |
-            ${{ github.workspace }}/data/orchestrator_coverage_html_report
-            ${{ github.workspace }}/data/api_coverage_html_report
+            ${{ github.workspace }}/${{ env.DATA_DIR }}/orchestrator_coverage_html_report
+            ${{ github.workspace }}/${{ env.DATA_DIR }}/api_coverage_html_report
 
       # /!\ Step triggered only when the pipeline is running in the self-hosted runner /!\
       - name: Delete Docker elements in self-hosted runner
