@@ -14,7 +14,7 @@ from src import logger
 from src.db.postgres_db import Base, host_db, pg_engine
 
 from .connectors import ReaderBase
-from .runner import spark_postgres
+from .session import spark_session
 
 pg_params = {
     "driver": "org.postgresql.Driver",
@@ -60,7 +60,7 @@ class PostgresReader(PostgresBase, ReaderBase):
         if table is not None:
             self.table = table
         pg_params["dbtable"] = self.table
-        db_data = spark_postgres.read.format("jdbc").options(**pg_params).load()
+        db_data = spark_session.read.format("jdbc").options(**pg_params).load()
         logger.success(" ... data fetched from Postgres")
 
         if check_columns is None:

@@ -1,5 +1,5 @@
 # TODO:
-#  - mount Mongo and Postgres logs
+#  - mount Spark, Mongo and Postgres logs
 #  - simplify Postgres container (mount init script, no dockerfile)
 #  - implement Mongo conf for authentication
 #  - debug setup
@@ -12,28 +12,19 @@ x-biggie-common:
     DB_USER: "${DB_USER}"
     DB_PASSWORD: "${DB_PASSWORD}"
 
-x-biggie-celery-prod:
-  &biggie-celery-prod
+x-biggie-celery:
+  &biggie-celery
   environment:
-    &biggie-celery-prod-env
+    &biggie-celery-env
     <<: *biggie-common-env
     TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
     # PYTHON_ENABLE_DEBUGGER: 1   # debug mode
   volumes:
-    - ./logs/celery_app:/opt/celery_app/logs
-    - "${VOLUME_MOUNT}"
-    - ./data/github_events/diagrams:/opt/data/github_events/diagrams  # necessary for the cleaning task
-
-x-biggie-celery-test:
-  &biggie-celery-test
-  environment:
-    <<: *biggie-celery-prod-env
-    TEST_MODE: "True"
-  volumes:
-    - ./logs/celery_app:/opt/celery_app/logs
-    - "${VOLUME_MOUNT}"
+    - ${LOGS_DIR}/celery:/opt/celery_app/logs
+    - ${DATA_DIR}:/opt/data
+    - ./data/github_events/diagrams:/opt/data/github_events/diagrams  # required for the cleaning task
 
 volumes:
   biggie_vmongo:
@@ -71,7 +62,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
     volumes:
       - biggie_vmongo:/data/db
-      - ./logs/mongodb:/var/log/mongodb
+      - ${LOGS_DIR}/mongodb:/var/log/mongodb
       # TODO: implement authentication for api container calls
       # - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
 
@@ -90,40 +81,40 @@ services:
       DB_PASSWORD: "${DB_PASSWORD}"
     volumes:
       - biggie_vpostgres:/var/lib/postgresql/data
-      - ./logs/postgres:/var/log/postgresql #/postgresql-16.4-main.log
+      - ${LOGS_DIR}/postgres:/var/log/postgresql #/postgresql-16.4-main.log
       # todo: implement that to remove the dockerfile
       # - ./conf/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
 
-  api_test:
-    container_name: biggie_api_test
-    image: biggie_api_img
+  api-test:
+    container_name: biggie_api-test
     build:
       context: .
       dockerfile: api/Dockerfile
+      args:
+        - TEST_MODE="True"
     environment:
       <<: *biggie-common-env
-      TEST_MODE: "True"
-    command: >
-      sh -c "poetry install --only dev && \
-             pytest -vv"
+    command: pytest -vv
     depends_on:
       - mongo
       - postgres
     profiles:
       - test
     volumes:
-      - ./logs/api:/var/log/api/
+      - ${LOGS_DIR}/api:/var/log/api/
       # Dev speed up (no build)
       # - ./api:/opt/api
       # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
       # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
       # - ./commons:/opt/api/src/commons
 
-  api_prod:
-    container_name: biggie_api_prod
-    image: biggie_api_img
+  api-prod:
+    container_name: biggie_api-prod
+    build:
+      context: .
+      dockerfile: api/Dockerfile
     environment:
       <<: *biggie-common-env
     command: uvicorn main:app --host 0.0.0.0 --reload --log-level debug
@@ -136,40 +127,47 @@ services:
       - prod_full
       - prod_analytics
     volumes:
-      - ./logs/api:/var/log/api/
-      - ./data/github_events/diagrams:/opt/api/templates/github_events/diagrams
+      - ${LOGS_DIR}/api:/var/log/api/
+      - ${DATA_DIR}/github_events/diagrams:/opt/api/templates/github_events/diagrams
       # Dev speed up (no build)
       # - ./api:/opt/api
       # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
       # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
       # - ./commons:/opt/api/src/commons
 
-  celery_test:
-    container_name: biggie_celery_test
+  celery-test:
+    container_name: biggie_celery-test
     build:
       context: .
       dockerfile: celery_app/Dockerfile
-    image: biggie_celery_img
-    <<: *biggie-celery-test
+      args:
+        - TEST_MODE="True"
+    <<: *biggie-celery
     depends_on:
       - rabbitmq
       - mongo
       - postgres
-    command: >
-      sh -c "poetry install --only dev && \
-             python3.11 -m pytest -vv"
+      - spark-master
+      - spark-worker-1
+      - spark-worker-2
+    command: python3 -m pytest -vv
     profiles:
       - test
     restart: on-failure
 
-  celery_prod:
-    container_name: biggie_celery_prod
-    image: biggie_celery_img
-    <<: *biggie-celery-prod
+  celery-prod:
+    container_name: biggie_celery-prod
+    build:
+      context: .
+      dockerfile: celery_app/Dockerfile
+    <<: *biggie-celery
     depends_on:
       - rabbitmq
       - mongo
       - postgres
+      - spark-master
+      - spark-worker-1
+      - spark-worker-2
     command: sh run.sh
     profiles:
       - prod_full
@@ -187,7 +185,69 @@ services:
       - "15672:15672"
     volumes:
       - biggie_vrabbitmq:/var/lib/rabbitmq
-      - ./logs/rabbitmq:/var/log/rabbitmq
+      - ${LOGS_DIR}/rabbitmq:/var/log/rabbitmq
+    profiles:
+      - test
+      - prod_full
+      - prod_acquisition
+
+  spark-master:
+    container_name: biggie_spark-master
+    build:
+      context: conf/spark
+      dockerfile: Dockerfile
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "7077:7077"  # Spark master port
+      - "8080:8080"  # Web UI for Spark master
+    depends_on:
+      - mongo
+      - postgres
+    volumes:
+      - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
+    profiles:
+      - test
+      - prod_full
+      - prod_acquisition
+
+  spark-worker-1:
+    container_name: biggie_spark-worker-1
+    build:
+      context: conf/spark
+      dockerfile: Dockerfile
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+      - mongo
+      - postgres
+    ports:
+      - "8091:8091"  # Web UI for this worker
+    volumes:
+      - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
+    profiles:
+      - test
+      - prod_full
+      - prod_acquisition
+
+  spark-worker-2:
+    container_name: biggie_spark-worker-2
+    build:
+      context: conf/spark
+      dockerfile: Dockerfile
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+      - mongo
+      - postgres
+    ports:
+      - "8092:8092"  # Web UI for this worker
+    volumes:
+      - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
       - test
       - prod_full

@@ -16,7 +16,7 @@ from src import logger
 from src.commons import names as ns
 
 from .connectors import ReaderBase
-from .runner import spark_mongo
+from .session import spark_session
 
 mongo_params = {"database": pyspark_config.DB_NAME}
 
@@ -69,7 +69,9 @@ class MongoReader(ReaderBase):
             "collection": self.collection,
             **mongo_params,
         }
-        db_data = spark_mongo.read.format("mongodb").options(**mongo_read_params).load()
+        db_data = (
+            spark_session.read.format("mongodb").options(**mongo_read_params).load()
+        )
         self.preps_and_checks(db_data)
 
     def _name(self) -> Tuple[str]:
