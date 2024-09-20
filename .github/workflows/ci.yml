@@ -133,7 +133,8 @@ jobs:
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
             biggie_postgres:latest
-
+      
+      # /!\ The flag --network-alias spark-master is CRITICAL for the master /!\
       - name: Create Spark containers (master and workers)
         run: |
           docker build conf/spark --tag biggie_spark:latest
@@ -153,15 +154,6 @@ jobs:
             --env SPARK_MASTER_URL=spark://spark-master:7077 \
             --network=${{ env.NETWORK }} \
             biggie_spark:latest
-
-      - name: Spark containers checks
-        run: |
-          docker network inspect ${{ env.NETWORK }} --format '{{range .Containers}}{{.Name}} {{end}}'
-          # docker exec biggie_spark-worker-1 nc -zv spark-master 7077
-          # docker network inspect ${{ env.NETWORK }}
-          # docker exec biggie_spark-worker-1 ping -c 4 biggie_spark-master
-          # docker exec biggie_spark-worker-2 ping -c 4 biggie_spark-master
-          # docker exec biggie_spark-master ping -c 4 biggie_spark-worker-1
 
       - name: Test API image
         run: |
