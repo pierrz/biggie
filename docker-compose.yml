@@ -24,7 +24,7 @@ x-biggie-celery:
   volumes:
     - ${LOGS_DIR}/celery:/opt/celery_app/logs
     - ${DATA_DIR}:/opt/data
-    - ./data/github_events/diagrams:/opt/data/github_events/diagrams  # required for the cleaning task
+    - ${DATA_DIR}/github_events/diagrams:/opt/data/github_events/diagrams  # required for the cleaning task
 
 volumes:
   biggie_vmongo:
