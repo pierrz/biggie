@@ -163,7 +163,7 @@ jobs:
             --env DB_USER=${{ env.DB_USER }} \
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
-            --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
+            --volume ${{ env.DATA_DIR }}:/opt/data \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
             pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
@@ -181,7 +181,7 @@ jobs:
             --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }} \
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
-            --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
+            --volume ${{ env.DATA_DIR }}:/opt/data \
             ghcr.io/pierrz/biggie_orchestrator_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
@@ -192,8 +192,8 @@ jobs:
         with:
           name: html-coverage-report
           path: |
-            ${{ github.workspace }}/${{ env.DATA_DIR }}/orchestrator_coverage_html_report
-            ${{ github.workspace }}/${{ env.DATA_DIR }}/api_coverage_html_report
+            ${{ env.DATA_DIR }}/orchestrator_coverage_html_report
+            ${{ env.DATA_DIR }}/api_coverage_html_report
 
       # /!\ Step triggered only when the pipeline is running in the self-hosted runner /!\
       - name: Delete Docker elements in self-hosted runner
