@@ -1,6 +1,5 @@
 import pytest
-
-from sparky.src.session import spark_session
+from src.spark_jobs.session import spark_session
 
 
 def test_spark_session():

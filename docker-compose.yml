@@ -37,7 +37,8 @@ volumes:
 services:
 
   nginx:
-    image: nginx:1.27.1
+    # image: nginx:1.27.1
+    build: nginx
     container_name: biggie_nginx
     volumes:
       - ./conf/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
@@ -54,8 +55,8 @@ services:
       - live_prod
 
   mongo:
-    image: mongo:7.0.14
     container_name: biggie_mongo
+    build: db/mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
@@ -68,9 +69,9 @@ services:
 
   postgres:
     container_name: biggie_postgres
-    build:
-      context: conf/postgres
-      dockerfile: Dockerfile
+    build: db/postgres
+      # context: postgres
+      # dockerfile: Dockerfile
     restart: always
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
@@ -135,11 +136,11 @@ services:
       # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
       # - ./commons:/opt/api/src/commons
 
-  celery-test:
-    container_name: biggie_celery-test
+  orchestrator-test:
+    container_name: biggie_orchestrator-test
     build:
       context: .
-      dockerfile: celery_app/Dockerfile
+      dockerfile: orchestrator/Dockerfile
       args:
         - TEST_MODE="True"
     <<: *biggie-celery
@@ -155,11 +156,11 @@ services:
       - test
     restart: on-failure
 
-  celery-prod:
-    container_name: biggie_celery-prod
-    build:
-      context: .
-      dockerfile: celery_app/Dockerfile
+  orchestrator-prod:
+    container_name: biggie_orchestrator-prod
+    build: orchestrator
+      # context: .
+      # dockerfile: celery_app/Dockerfile
     <<: *biggie-celery
     depends_on:
       - rabbitmq
@@ -193,9 +194,9 @@ services:
 
   spark-master:
     container_name: biggie_spark-master
-    build:
-      context: conf/spark
-      dockerfile: Dockerfile
+    build: spark_cluster
+      # context: conf/spark
+      # dockerfile: Dockerfile
     environment:
       - SPARK_MODE=master
     ports:
@@ -213,9 +214,9 @@ services:
 
   spark-worker-1:
     container_name: biggie_spark-worker-1
-    build:
-      context: conf/spark
-      dockerfile: Dockerfile
+    build: spark_cluster
+      # context: conf/spark
+      # dockerfile: Dockerfile
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -234,9 +235,9 @@ services:
 
   spark-worker-2:
     container_name: biggie_spark-worker-2
-    build:
-      context: conf/spark
-      dockerfile: Dockerfile
+    build: spark_cluster
+      # context: conf/spark
+      # dockerfile: Dockerfile
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077

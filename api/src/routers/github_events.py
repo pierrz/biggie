@@ -16,7 +16,7 @@ from src.db.mongo.models import (
     EventTypeCount,
     EventTypeCountList,
 )
-from src.db.mongo_db import init_pymongo_client
+from src.db.mongo.mongo_db import init_pymongo_client
 from src.routers import templates
 from src.routers.data_lib import (
     dataframe_from_mongo_data,

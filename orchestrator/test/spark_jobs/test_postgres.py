@@ -2,11 +2,11 @@
 Tests focused on Postgres based features
 """
 
-from test.sparky.base_test import PostgresDFTest, PostgresTestReader
+from test.spark_jobs.base_test import PostgresDFTest, PostgresTestReader
 
 from pandas.testing import assert_frame_equal
 from sqlalchemy import Table
-from src.db.postgres_db import metadata, pg_engine
+from src.db.postgres.postgres_db import metadata, pg_engine
 
 
 class PostgresLoaderReaderTest(PostgresDFTest):

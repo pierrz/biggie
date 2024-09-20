@@ -25,8 +25,8 @@ RUN python3 -m pip install --upgrade pip \
     && pip install poetry
 
 # Copy only requirements to cache them in docker layer
-WORKDIR /opt/celery_app
-COPY ./celery_app/pyproject.toml ./celery_app/poetry.lock* ./
+WORKDIR /opt/orchestrator
+COPY ./orchestrator/pyproject.toml ./orchestrator/poetry.lock* ./
 
 # Project initialization (only main and security groups installed here)
 RUN poetry config virtualenvs.create false \
@@ -41,6 +41,6 @@ RUN if [ $(echo $TEST_MODE | tr -d '\"') = "True" ]; then \
     fi
 
 # Include project files
-COPY ./celery_app ./
+COPY ./orchestrator ./
 COPY ./db ./src/db
 COPY ./commons ./src/commons

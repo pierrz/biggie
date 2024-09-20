@@ -11,7 +11,7 @@ from typing import Iterable, Tuple
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as psf
 from src import logger
-from src.db.postgres_db import Base, host_db, pg_engine
+from src.db.postgres.postgres_db import Base, host_db, pg_engine
 
 from .connectors import ReaderBase
 from .session import spark_session
