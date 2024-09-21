@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from pydantic_settings import BaseSettings
+from src.commons import enums
 from src.commons import names as ns
 from src.tasks.schedules import github_events_stream
 
@@ -57,7 +58,7 @@ class HarvesterConfig(BaseSettings):
     """
 
     TOKEN_GITHUB_API: str
-    EVENTS: List[str] = list(ns.GithubEventTypes)
+    EVENTS: List[str] = list(enums.GithubEventTypes)
     PER_PAGE: int = 20
 
 

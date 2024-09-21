@@ -15,7 +15,7 @@ from pyspark.sql.types import StructType
 from src import logger
 
 # pylint: disable=E0611
-from src.commons.json_utils import load_json
+from src.commons.utils import load_json
 
 from .dataframe_maker import MongoDataframeMaker, PostgresDataframeMaker
 

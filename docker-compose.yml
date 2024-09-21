@@ -12,19 +12,19 @@ x-biggie-common:
     DB_USER: "${DB_USER}"
     DB_PASSWORD: "${DB_PASSWORD}"
 
-x-biggie-celery:
-  &biggie-celery
+x-biggie-orchestrator:
+  &biggie-orchestrator
   environment:
-    &biggie-celery-env
+    &biggie-orchestrator-env
     <<: *biggie-common-env
     TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
     # PYTHON_ENABLE_DEBUGGER: 1   # debug mode
   volumes:
-    - ${LOGS_DIR}/celery:/opt/celery_app/logs
+    - ${LOGS_DIR}/orchestrator:/opt/orchestrator/logs
     - ${DATA_DIR}:/opt/data
-    - ${DATA_DIR}/github_events/diagrams:/opt/data/github_events/diagrams  # required for the cleaning task
+    # - ${DATA_DIR}/github_events/diagrams:/opt/data/github_events/diagrams  # required for the cleaning task
 
 volumes:
   biggie_vmongo:
@@ -37,7 +37,6 @@ volumes:
 services:
 
   nginx:
-    # image: nginx:1.27.1
     build: nginx
     container_name: biggie_nginx
     volumes:
@@ -70,8 +69,6 @@ services:
   postgres:
     container_name: biggie_postgres
     build: db/postgres
-      # context: postgres
-      # dockerfile: Dockerfile
     restart: always
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
@@ -123,7 +120,7 @@ services:
       - mongo
       - postgres
     ports:
-      - "8000:8000"
+      - "8100:8100"
     profiles:
       - prod_full
       - prod_analytics
@@ -143,7 +140,7 @@ services:
       dockerfile: orchestrator/Dockerfile
       args:
         - TEST_MODE="True"
-    <<: *biggie-celery
+    <<: *biggie-orchestrator
     depends_on:
       - rabbitmq
       - mongo
@@ -158,10 +155,10 @@ services:
 
   orchestrator-prod:
     container_name: biggie_orchestrator-prod
-    build: orchestrator
-      # context: .
-      # dockerfile: celery_app/Dockerfile
-    <<: *biggie-celery
+    build:
+      context: .
+      dockerfile: orchestrator/Dockerfile
+    <<: *biggie-orchestrator
     depends_on:
       - rabbitmq
       - mongo
@@ -195,8 +192,6 @@ services:
   spark-master:
     container_name: biggie_spark-master
     build: spark_cluster
-      # context: conf/spark
-      # dockerfile: Dockerfile
     environment:
       - SPARK_MODE=master
     ports:
@@ -215,8 +210,6 @@ services:
   spark-worker-1:
     container_name: biggie_spark-worker-1
     build: spark_cluster
-      # context: conf/spark
-      # dockerfile: Dockerfile
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -236,8 +229,6 @@ services:
   spark-worker-2:
     container_name: biggie_spark-worker-2
     build: spark_cluster
-      # context: conf/spark
-      # dockerfile: Dockerfile
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077

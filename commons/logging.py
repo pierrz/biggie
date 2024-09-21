@@ -2,15 +2,43 @@
 Logging module, re-usable between components.
 """
 
+import logging
 import sys
 
 # alias to be sure to import the correct 'logger' object in the modules using logging
 from loguru import logger as loguru_logger
 
 
+class InterceptHandler(logging.Handler):
+    """
+    Custom InterceptHandler to redirect Celery logs to Loguru
+    """
+
+    def emit(self, record):
+        """
+        Convert Celery LogRecord to something Loguru can understand
+        """
+        loguru_level = record.levelname.lower()
+        level_map = {
+            "debug": "DEBUG",
+            "info": "INFO",
+            "warning": "WARNING",
+            "error": "ERROR",
+            "critical": "CRITICAL",
+        }
+        loguru_level = level_map.get(loguru_level, "INFO")  # default to INFO if unknown
+        loguru_logger.opt(depth=2, exception=record.exc_info).log(
+            loguru_level, record.getMessage()
+        )
+
+
 class LoggerManager:
 
     def __init__(self, log_filepath: str):
+
+        # Remove all handlers associated with the root logger object.
+        for handler in logging.root.handlers[:]:
+            logging.root.removeHandler(handler)
 
         # remove all default sinks
         loguru_logger.remove()
@@ -29,12 +57,16 @@ class LoggerManager:
         logging_parameters = {
             "format": logger_format,
             # "filter": self.log_tuning,
-            # "backtrace": False,
-            # "diagnose": False
+            "backtrace": False,
+            "diagnose": False,
         }
 
         loguru_logger.add(log_filepath, rotation="20MB", **logging_parameters)
         loguru_logger.add(sys.stderr, colorize=True, **logging_parameters)
+
+        logging.basicConfig(
+            handlers=[InterceptHandler()], level=logging.INFO, force=True
+        )
 
     # previous approach, discarded to avoid some erratic issues with tests
     # + unconsitent messages length due to icon width not identical

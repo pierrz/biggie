@@ -9,7 +9,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from config import data_directories, harvester_config
-from src.commons.json_utils import load_json  # pylint: disable=E0611
+from src.commons.utils import load_json  # pylint: disable=E0611
 from src.harvester.asyncio_operations import (
     download_github_events,
     download_passthrough,

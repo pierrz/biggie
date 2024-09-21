@@ -10,10 +10,11 @@ from typing import List
 import pandas as pd
 from config import data_directories
 from src import logger
+from src.commons import enums
 from src.commons import names as ns
-from src.sparky.jobs import ToMongoFromJson
-from src.sparky.mongo_connectors import EventReader
-from src.sparky.schemas import event_schema
+from src.spark_jobs.jobs import ToMongoFromJson
+from src.spark_jobs.mongo_connectors import EventReader
+from src.spark_jobs.schemas import event_schema
 from worker import celery
 
 
@@ -24,7 +25,7 @@ def github_event_data_preparation(flat_df):
 
     logger.info("=> Preparing dataframe ...")
     columns_to_drop = []
-    columns_to_rename = {"id": ns.CheckedColumns.event_id.value}
+    columns_to_rename = {"id": enums.CheckedColumns.event_id}
     for col in flat_df.columns.to_list():
         if col.startswith("payload") or col.startswith("org"):
             columns_to_drop.append(col)
@@ -37,7 +38,7 @@ def github_event_data_preparation(flat_df):
     flat_df.rename(columns=columns_to_rename, inplace=True)
     datetime_values = pd.to_datetime(flat_df[ns.created_at])
     flat_df[ns.created_at] = datetime_values
-    # flat_df[ns.CheckedColumns.event_id.value].astype("int64")     # not sure whether it is wise on the long-run
+    # flat_df[enums.CheckedColumns.event_id].astype("int64")     # not sure whether it is wise on the long-run
     logger.success(" ... dataframe finalised")
     columns = flat_df.columns.to_list()
     logger.info(f"=> {flat_df.shape[0]} rows and {len(columns)} columns")
@@ -60,7 +61,7 @@ def run_load_events(page_range: int) -> List[int]:
     ToMongoFromJson(
         input_dir_paths=[input_dir],
         collection=ns.events,
-        check_columns=list(ns.CheckedColumns),
+        check_columns=list(enums.CheckedColumns),
         output_dir_path=output_dir,
         reader_class=EventReader,
         custom_preps=github_event_data_preparation,

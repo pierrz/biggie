@@ -2,54 +2,38 @@
 Module spinning up the Celery worker
 """
 
+# from src import logger
+import logging
+
 from celery import Celery
 from celery.signals import after_setup_logger, after_setup_task_logger
 from config import celery_config
-from src import logger
+from src.commons.logging import InterceptHandler, LoggerManager
+
+logger = LoggerManager(log_filepath="/opt/orchestrator/logs/worker.log").get_logger()
+
+
+# Intercept Celery-specific logs
+celery_logger = logging.getLogger("celery")
+celery_logger.setLevel(logging.INFO)
+celery_logger.addHandler(InterceptHandler())
 
 celery = Celery(__name__)
 celery.config_from_object(celery_config)
 celery.autodiscover_tasks(force=True)
 
 
-class InterceptHandler:
-    """
-    Custom InterceptHandler to redirect Celery logs to Loguru
-    """
-
-    def emit(self, record):
-        """
-        Convert Celery LogRecord to something Loguru can understand
-        """
-        loguru_level = record.levelname.lower()
-        logger.opt(depth=2, exception=record.exc_info).log(
-            loguru_level, record.getMessage()
-        )
-
-
 @after_setup_logger.connect
-def setup_celery_logger(celery_logger, *args, **kwargs):
+def setup_celery_logger(logger, *args, **kwargs):
     """
-    Setup Celery root logger
+    No need to modify the logger since we're intercepting all logs via Loguru.
     """
-
-    # Remove existing handlers to avoid duplicate logging
-    for handler in list(celery_logger.handlers):
-        celery_logger.removeHandler(handler)
-
-    # Append Loguru intercept handler to Celery logger
-    celery_logger.addHandler(InterceptHandler())
+    pass
 
 
 @after_setup_task_logger.connect
-def setup_task_logger(task_logger, *args, **kwargs):
+def setup_task_logger(logger, *args, **kwargs):
     """
-    Setup task-specific logger
+    Same here, Loguru takes care of the task-specific logging.
     """
-
-    # Remove existing handlers to avoid duplicate logging
-    for handler in list(task_logger.handlers):
-        task_logger.removeHandler(handler)
-
-    # Append Loguru intercept handler to task logger
-    task_logger.addHandler(InterceptHandler())
+    pass

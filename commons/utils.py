@@ -4,8 +4,11 @@ Common utilities
 
 import io
 import json
+from typing import Iterable, Tuple
 
+import pandas as pd
 import requests
+from src import logger
 
 
 def get_url(url, mode: str = None):
@@ -30,10 +33,21 @@ def write_file(filepath, data, mode: str):
         try:
             if mode == "json":
                 json.dump(data, output_file, indent=4)
-                print(f"=> data saved at '{filepath}'")
+                logger.info(f"=> data saved at '{filepath}'")
             elif mode == "txt":
                 output_file.write(data.decode("utf-8"))
                 output_file.close()
         except Exception as e:
-            print(e)
-            print("HUM")
+            logger.error(e)
+
+
+def dataframe_info_log(pairs: Iterable[Tuple[str, pd.DataFrame]]):
+    """Celery logs with basic dataframe overview
+    :param pairs: list of pairs name/dataframe
+    """
+    for pair in pairs:
+        name, df = pair
+        logger.info(
+            "'{}' dataframe with {} columns and {} rows".format(name, *df.shape)
+        )
+        logger.info(df.head(5))
