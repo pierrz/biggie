@@ -16,7 +16,7 @@ from worker import celery
 
 
 @celery.task(name="github-events-data-acquisition")
-def run_github_events_da() -> Union[int, None]:
+def run_github_events_data_acquisition() -> Union[int, None]:
     """
     Starts the whole module
     """
