@@ -132,6 +132,7 @@ jobs:
             --env DB_USER=${{ env.DB_USER }} \
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
+            --volume ./db/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
             biggie_postgres:latest
 
       # /!\ The flag --network-alias spark-master is CRITICAL for the master /!\
