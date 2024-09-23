@@ -13,7 +13,7 @@ from src.routers import dummy_endpoint, github_events
 
 # DISABLED (current endpoints only rely on MongoDB)
 # from src.db import models
-# from src.db.postgres import pg_engine
+# from src.db.postgres.postgres_db import pg_engine
 # models.Base.metadata.create_all(bind=pg_engine)
 
 app = FastAPI(debug=True)

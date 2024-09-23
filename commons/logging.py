@@ -12,10 +12,14 @@ class LoggerManager:
 
     def __init__(self, log_filepath: str):
 
+        # Remove all handlers associated with the root logger object.
+        # for handler in logging.root.handlers[:]:
+        #     logging.root.removeHandler(handler)
+
         # remove all default sinks
         loguru_logger.remove()
-        # format with (close to) fixed prefix length
-        # tuned on the longest level label i.e. CRITICAL + icon
+
+        # format with fixed prefix length tuned on the longest level label i.e. CRITICAL
         logger_format = (
             "<light-blue>{time:%Y-%m-%d %H:%M:%S}</light-blue>"
             " | {level: <10}"
@@ -30,11 +34,16 @@ class LoggerManager:
             "format": logger_format,
             # "filter": self.log_tuning,
             # "backtrace": False,
-            # "diagnose": False
+            # "diagnose": False,
         }
 
         loguru_logger.add(log_filepath, rotation="20MB", **logging_parameters)
         loguru_logger.add(sys.stderr, colorize=True, **logging_parameters)
+
+        # Disabled as might just bring some erratic behavior
+        # logging.basicConfig(
+        #     handlers=[InterceptHandler()], level=logging.INFO, force=True
+        # )
 
     # previous approach, discarded to avoid some erratic issues with tests
     # + unconsitent messages length due to icon width not identical

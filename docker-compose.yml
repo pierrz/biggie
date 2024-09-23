@@ -1,6 +1,5 @@
 # TODO:
-#  - mount Spark, Mongo and Postgres logs
-#  - simplify Postgres container (mount init script, no dockerfile)
+#  - mount/retrieve Spark, Mongo and Postgres logs
 #  - implement Mongo conf for authentication
 #  - debug setup
 
@@ -12,19 +11,18 @@ x-biggie-common:
     DB_USER: "${DB_USER}"
     DB_PASSWORD: "${DB_PASSWORD}"
 
-x-biggie-celery:
-  &biggie-celery
+x-biggie-orchestrator:
+  &biggie-orchestrator
   environment:
-    &biggie-celery-env
+    &biggie-orchestrator-env
     <<: *biggie-common-env
     TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
     # PYTHON_ENABLE_DEBUGGER: 1   # debug mode
   volumes:
-    - ${LOGS_DIR}/celery:/opt/celery_app/logs
+    - ${LOGS_DIR}/orchestrator:/opt/orchestrator/logs
     - ${DATA_DIR}:/opt/data
-    - ./data/github_events/diagrams:/opt/data/github_events/diagrams  # required for the cleaning task
 
 volumes:
   biggie_vmongo:
@@ -37,7 +35,7 @@ volumes:
 services:
 
   nginx:
-    image: nginx:1.27.1
+    build: nginx
     container_name: biggie_nginx
     volumes:
       - ./conf/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
@@ -54,8 +52,8 @@ services:
       - live_prod
 
   mongo:
-    image: mongo:7.0.14
     container_name: biggie_mongo
+    build: db/mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
@@ -64,13 +62,11 @@ services:
       - biggie_vmongo:/data/db
       - ${LOGS_DIR}/mongodb:/var/log/mongodb
       # TODO: implement authentication for api container calls
-      # - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+      # - ./db/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
 
   postgres:
     container_name: biggie_postgres
-    build:
-      context: conf/postgres
-      dockerfile: Dockerfile
+    build: db/postgres
     restart: always
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
@@ -81,9 +77,8 @@ services:
       DB_PASSWORD: "${DB_PASSWORD}"
     volumes:
       - biggie_vpostgres:/var/lib/postgresql/data
-      - ${LOGS_DIR}/postgres:/var/log/postgresql #/postgresql-16.4-main.log
-      # todo: implement that to remove the dockerfile
-      # - ./conf/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./db/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ${LOGS_DIR}/postgresql:/var/log/postgresql #/postgresql-14.9-main.log
     ports:
       - "5432:5432"
 
@@ -122,7 +117,7 @@ services:
       - mongo
       - postgres
     ports:
-      - "8000:8000"
+      - "8100:8100"
     profiles:
       - prod_full
       - prod_analytics
@@ -135,14 +130,14 @@ services:
       # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
       # - ./commons:/opt/api/src/commons
 
-  celery-test:
-    container_name: biggie_celery-test
+  orchestrator-test:
+    container_name: biggie_orchestrator-test
     build:
       context: .
-      dockerfile: celery_app/Dockerfile
+      dockerfile: orchestrator/Dockerfile
       args:
         - TEST_MODE="True"
-    <<: *biggie-celery
+    <<: *biggie-orchestrator
     depends_on:
       - rabbitmq
       - mongo
@@ -155,12 +150,12 @@ services:
       - test
     restart: on-failure
 
-  celery-prod:
-    container_name: biggie_celery-prod
+  orchestrator-prod:
+    container_name: biggie_orchestrator-prod
     build:
       context: .
-      dockerfile: celery_app/Dockerfile
-    <<: *biggie-celery
+      dockerfile: orchestrator/Dockerfile
+    <<: *biggie-orchestrator
     depends_on:
       - rabbitmq
       - mongo
@@ -193,9 +188,7 @@ services:
 
   spark-master:
     container_name: biggie_spark-master
-    build:
-      context: conf/spark
-      dockerfile: Dockerfile
+    build: spark_cluster
     environment:
       - SPARK_MODE=master
     ports:
@@ -213,9 +206,7 @@ services:
 
   spark-worker-1:
     container_name: biggie_spark-worker-1
-    build:
-      context: conf/spark
-      dockerfile: Dockerfile
+    build: spark_cluster
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -234,9 +225,7 @@ services:
 
   spark-worker-2:
     container_name: biggie_spark-worker-2
-    build:
-      context: conf/spark
-      dockerfile: Dockerfile
+    build: spark_cluster
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
