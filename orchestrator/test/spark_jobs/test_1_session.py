@@ -1,5 +1,5 @@
 import pytest
-from src.spark_jobs.session import spark_session
+from src.spark_jobs.session import session_check
 
 
 def test_spark_session():
@@ -8,15 +8,8 @@ def test_spark_session():
     """
     try:
 
-        # Simple DataFrame operation to test the connection
-        data = [("Alice", 34), ("Bob", 45), ("Charlie", 29)]
-        columns = ["Name", "Age"]
-        df = spark_session.createDataFrame(data, columns)
-
-        # Perform a simple DataFrame action (count)
+        df = session_check()
         row_count = df.count()
-
-        # Assert that the DataFrame has the expected number of rows
         assert row_count == 3
 
         # Stop the Spark session

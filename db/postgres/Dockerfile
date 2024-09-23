@@ -1,7 +1,5 @@
 FROM postgres:14.9
 
-COPY ./docker-entrypoint-initdb.d/init-postgres.sh /docker-entrypoint-initdb.d/init-postgres.sh
-
 # TODO: implement v16.4
 # issues with creating tables (permission denied for schema public)
 # FROM postgres:16.4

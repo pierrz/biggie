@@ -2,14 +2,26 @@
 Spark session configuration
 """
 
+from typing import Dict
+
 from config import pyspark_config
 from pyspark.sql import SparkSession  # pylint: disable=E0611
 
 
-def init_spark_session(session, config):
+def init_spark_session(session: SparkSession, config: Dict):
+    """Spark session igniter, will be useful as test fixture"""
     for param, settings in config.items():
         session = session.config(param, settings)
     return session.getOrCreate()
+
+
+def session_check():
+    """Basic operation to check whether the session is active."""
+
+    data = [("Alice", 34), ("Bob", 45), ("Charlie", 29)]
+    columns = ["Name", "Age"]
+    df = spark_session.createDataFrame(data, columns)
+    return df
 
 
 # # /!\ jars.packages is required ONLY when fetching directly from maven

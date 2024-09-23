@@ -1,6 +1,5 @@
 # TODO:
-#  - mount Spark, Mongo and Postgres logs
-#  - simplify Postgres container (mount init script, no dockerfile)
+#  - mount/retrieve Spark, Mongo and Postgres logs
 #  - implement Mongo conf for authentication
 #  - debug setup
 
@@ -24,7 +23,6 @@ x-biggie-orchestrator:
   volumes:
     - ${LOGS_DIR}/orchestrator:/opt/orchestrator/logs
     - ${DATA_DIR}:/opt/data
-    # - ${DATA_DIR}/github_events/diagrams:/opt/data/github_events/diagrams  # required for the cleaning task
 
 volumes:
   biggie_vmongo:
@@ -64,7 +62,7 @@ services:
       - biggie_vmongo:/data/db
       - ${LOGS_DIR}/mongodb:/var/log/mongodb
       # TODO: implement authentication for api container calls
-      # - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+      # - ./db/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
 
   postgres:
     container_name: biggie_postgres
@@ -79,9 +77,7 @@ services:
       DB_PASSWORD: "${DB_PASSWORD}"
     volumes:
       - biggie_vpostgres:/var/lib/postgresql/data
-      - ${LOGS_DIR}/postgres:/var/log/postgresql #/postgresql-16.4-main.log
-      # todo: implement that to remove the dockerfile
-      # - ./conf/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ${LOGS_DIR}/postgresql:/var/log/postgresql #/postgresql-14.9-main.log
     ports:
       - "5432:5432"
 

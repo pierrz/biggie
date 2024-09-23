@@ -1,33 +1,20 @@
 """
 Loads required data from JSON files into MongoDB
-TODO: ensure all messages actually do not go through the celery built-in logger
 """
 
-# import logging
 import os
 from pathlib import Path
 from typing import List
 
 import pandas as pd
-
-# from celery.utils.log import get_task_logger
 from config import data_directories
-from src import logger  # as logger_instance, tune_logger
+from src import logger
 from src.commons import enums
 from src.commons import names as ns
-
-# from src.commons.logging import InterceptHandler
 from src.spark_jobs.jobs import ToMongoFromJson
 from src.spark_jobs.mongo_connectors import EventReader
 from src.spark_jobs.schemas import event_schema
 from worker import celery
-
-# # logger = tune_logger("celery.task")
-# logger.addHandler(InterceptHandler())
-
-# logger = logging.getLogger("celery.task")
-# logger.setLevel(logging.INFO)
-# logger.addHandler(InterceptHandler())
 
 
 def github_event_data_preparation(flat_df):
