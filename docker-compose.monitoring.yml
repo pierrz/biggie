@@ -10,7 +10,7 @@ services:
     ports:
       - "49555:5555"
     depends_on:
-      - celery-prod
+      - orchestrator-prod
     profiles:
       - prod_full
       - prod_acquisition
@@ -43,7 +43,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
       PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
     volumes:
-      - ./conf/pgadmin/servers.json:/pgadmin4/servers.json
+      - ./db/postgres/pgadmin_conf/servers.json:/pgadmin4/servers.json
     depends_on:
       - postgres
     profiles:

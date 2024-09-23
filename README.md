@@ -4,7 +4,8 @@ Biggie is a tool to quickly get data from (external) APIs into either a Mongo or
 and have it exposed/searchable via a dedicated new API.
 
 It is a Docker compose setup including
-- a "worker" container based on Celery (including Beat), Spark and asyncio
+- an orchestrator container based on Celery (including Beat) and asyncio
+- A Spark cluster made of a master and 2 workers containers
 - an API endpoints container based on FastAPI
 - 2 containers for Mongo and Postgres databases.
 - 2 containers for Flower and PGAdmin for monitoring purpose.
@@ -36,7 +37,7 @@ as in the `jobs > env` section in `.github/workflows/docker-ci.yml` (see **line 
 
 #### Test
 ```
-docker compose up api-test celery-test
+docker compose up api-test orchestrator-test
 OR
 docker compose --profile test up
 ```
@@ -46,9 +47,9 @@ docker compose --profile test up
 ### Run
 #### Data acquisition
 ```
-docker compose up celery_prod
+docker compose up orchestrator-prod
 ```
-This command will spin up the Celery container and:
+This command will spin up the Orchestrator container and:
 
   - download all required data and save them as files locally
   - read these files and load Postgres with relevant data
@@ -58,11 +59,11 @@ These tasks are **scheduled every minute** with a crontab setting,
 and a custom parameter is implemented to separately schedule the cleaning step
 while keeping it in sync with the rest of the chain.
 
-See `kwargs={"wait_minutes": 30}` in the `github_events_stream` schedule in [**`.../tasks/schedules.py`**](celery_app/src/tasks/schedules.py).
+See `kwargs={"wait_minutes": 30}` in the `github_events_stream` schedule in [**`.../tasks/schedules.py`**](orchestrator/src/tasks/schedules.py).
 
 ```
 docker compose \
-  -f docker compose.yml \
+  -f docker-compose.yml \
   --profile prod_acquisition \
   up
 ```
@@ -72,15 +73,15 @@ docker compose \
 #### Data acquisition with monitoring
 You can just pass the monitoring configuration to include the pending containers
 with any profile or container command:
-```-f docker compose.monitoring.yml```
+```-f docker-compose.monitoring.yml```
 
 For Data acquisition, this will spin up both the Mongo-Express and Flower containers
 along the production containers.
 ```
-docker compose -f docker compose.yml -f docker compose.monitoring.yml --profile monitoring up
+docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
 docker compose \
-  -f docker compose.yml \
-  -f docker compose.monitoring.yml \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
   --profile prod_acquisition \
   up
 ```
@@ -91,8 +92,8 @@ docker compose \
 Just to have the FastAPI container up
 ```
 docker compose \
-  -f docker compose.yml \
-  -f docker compose.monitoring.yml \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
   --profile prod_analytics \
   up
 ```
@@ -103,8 +104,8 @@ docker compose \
 Both production containers as well as both monitoring containers.
 ```
 docker compose \
-  -f docker compose.yml \
-  -f docker compose.monitoring.yml \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
   --profile prod_full \
   up
 ```
@@ -133,8 +134,8 @@ Finally run the `docker compose` command with the `live_prod` profile
 to spin up all that to the world:
 ```
 docker compose \
-  -f docker compose.yml \
-  -f docker compose.monitoring.yml \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
   --profile prod_full --profile live_prod \
   up
 ```

@@ -17,7 +17,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  RELEASE: 0.5.1                # /!\ increase this to avoid overwriting older image
+  RELEASE: 0.5.2                # /!\ increase this to avoid overwriting older image
 
 jobs:
 
@@ -46,9 +46,9 @@ jobs:
           tag: ${{ env.RELEASE }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  build-and-push-image-celery:
+  build-and-push-image-orchestrator:
 
-    name: Celery - build/push image
+    name: Orchestrator - build/push image
     runs-on: ubuntu-latest
     # runs-on: self-hosted
     permissions:
@@ -62,19 +62,19 @@ jobs:
       - name: Run 'build-push' local action
         uses: ./.github/actions/build-push
         with:
-          name: Celery
-          src: celery_app
+          name: Orchestrator
+          src: orchestrator
           registry: ${{ env.REGISTRY }}
           actor: ${{ github.actor }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          image: pierrz/biggie_celery_img
+          image: pierrz/biggie_orchestrator_img
           tag: ${{ env.RELEASE }}
           labels: ${{ steps.meta.outputs.labels }}
 
   test:
 
     name: Tests
-    needs: [build-and-push-image-api, build-and-push-image-celery]
+    needs: [build-and-push-image-api, build-and-push-image-orchestrator]
     runs-on: ubuntu-latest
     # runs-on: self-hosted
     permissions:
@@ -114,16 +114,16 @@ jobs:
       - name: Create network & Mongo container
         run: |
           docker network create -d bridge ${{ env.NETWORK }}
+          docker build db/mongo --tag biggie_mongo:latest
           docker run -d --name biggie_mongo \
             --env MONGO_INITDB_ROOT_USERNAME=${{ env.MONGO_INITDB_ROOT_USERNAME }} \
             --env MONGO_INITDB_ROOT_PASSWORD=${{ env.MONGO_INITDB_ROOT_PASSWORD }} \
             --network=${{ env.NETWORK }} \
             mongo:7.0.14
 
-      # cd /home/runner/work/biggie/biggie/conf/postgres
       - name: Create Postgres container
         run: |
-          docker build conf/postgres --tag biggie_postgres:latest
+          docker build db/postgres --tag biggie_postgres:latest
           docker run -d --name biggie_postgres \
             --env POSTGRES_DB=${{ env.POSTGRES_DB }} \
             --env POSTGRES_USER=${{ env.POSTGRES_USER }} \
@@ -132,12 +132,13 @@ jobs:
             --env DB_USER=${{ env.DB_USER }} \
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
+            --volume ./db/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
             biggie_postgres:latest
-      
+
       # /!\ The flag --network-alias spark-master is CRITICAL for the master /!\
       - name: Create Spark containers (master and workers)
         run: |
-          docker build conf/spark --tag biggie_spark:latest
+          docker build spark_cluster --tag biggie_spark:latest
           docker run -d --name biggie_spark-master \
             --env SPARK_MODE=master \
             --publish 7077:7077 \
@@ -163,15 +164,15 @@ jobs:
             --env DB_USER=${{ env.DB_USER }} \
             --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
             --network=${{ env.NETWORK }} \
-            --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
+            --volume ${{ env.DATA_DIR }}:/opt/data \
             ghcr.io/pierrz/biggie_api_img:latest \
             sh -c "poetry install --only dev && \
             pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
             mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage"
 
-      - name: Create Celery container
+      - name: Create Orchestrator container
         run: |
-          docker run --name biggie_celery-test \
+          docker run --name biggie_orchestrator-test \
             --env CELERY_BROKER_URL=${{ env.CELERY_BROKER_URL }} \
             --env CELERY_RESULT_BACKEND=${{ env.CELERY_RESULT_BACKEND }} \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
@@ -181,21 +182,21 @@ jobs:
             --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }} \
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
-            --volume ${{ github.workspace }}/${{ env.DATA_DIR }}:/opt/data \
-            ghcr.io/pierrz/biggie_celery_img:latest \
+            --volume ${{ env.DATA_DIR }}:/opt/data \
+            ghcr.io/pierrz/biggie_orchestrator_img:latest \
             sh -c "poetry install --only dev && \
             python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
-            mkdir /opt/data/celery_coverage && cp .coverage /opt/data/celery_coverage/.coverage"
+            mkdir /opt/data/orchestrator_coverage && cp .coverage /opt/data/orchestrator_coverage/.coverage"
 
-      - name: Upload merged coverage report
+      - name: Upload coverage reports
         uses: actions/upload-artifact@v4.4.0
         with:
           name: html-coverage-report
           path: |
-            ${{ github.workspace }}/data/celery_coverage_html_report
-            ${{ github.workspace }}/data/api_coverage_html_report
+            ${{ env.DATA_DIR }}/orchestrator_coverage_html_report
+            ${{ env.DATA_DIR }}/api_coverage_html_report
 
-      # /!\ Enable this step when running the pipeline in the self-hosted runner /!\
+      # /!\ Step triggered only when the pipeline is running in the self-hosted runner /!\
       - name: Delete Docker elements in self-hosted runner
         if: runner.labels == 'self-hosted' && always()
         run: |
@@ -229,7 +230,7 @@ jobs:
           echo "Removing created network ..."
           docker network rm ${{ env.NETWORK }} || true
 
-      
+
       # TODO: fix py-cov-action/python-coverage-comment-action errors (permissions, absolute/relative files)
       # Cf. https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#merging-multiple-coverage-reports
       # Error: Cannot read .coverage files because files are absolute. You need to configure coverage to write relative paths by adding the following option to your coverage configuration file:
@@ -244,7 +245,7 @@ jobs:
       #     ls -al ${{ github.workspace }}/data
       #     ls -al data
       #     pip install coverage
-      #     coverage combine --keep ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.celery
+      #     coverage combine --keep ${{ github.workspace }}/data/.coverage.api ${{ github.workspace }}/data/.coverage.orchestrator
       #     coverage html -d ${{ github.workspace }}/data
       #     cp ${{ github.workspace }}/data/.coverage ${{ github.workspace }}/data/merged_coverage/.coverage
 
@@ -252,7 +253,7 @@ jobs:
       #   uses: py-cov-action/python-coverage-comment-action@v3.28
       #   with:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     COVERAGE_PATH: data/celery_coverage
+      #     COVERAGE_PATH: data/orchestrator_coverage
       #     MINIMUM_GREEN: 80
       #     MINIMUM_ORANGE: 50
       #     COMMENT_TEMPLATE: |
@@ -263,7 +264,7 @@ jobs:
       #   uses: actions/upload-artifact@v4
       #   if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
       #   with:
-      #     name: python-coverage-comment-action-celery
+      #     name: python-coverage-comment-action-orchestrator
       #     path: python-coverage-comment-action.txt
 
       # - name: Comment coverage
