@@ -13,8 +13,10 @@ from typing import Dict, Iterable, List, Tuple, Union
 import aiohttp
 import pandas as pd
 from config import data_directories, harvester_config
+
+# from src.harvester import logger
+from src import logger
 from src.commons import names as ns
-from src.harvester import logger
 from src.harvester.errors import APILimitError, EmptyResults, GenericError
 
 

@@ -2,20 +2,20 @@
 Test that Celery can handle task which rely on Spark jobs.
 """
 
-import pytest
+from src import logger
+from src.tasks.dummy_spark_task import dummy_spark_task
 
-# from src.tasks.github_events_load import ToMongoFromJson
 
-
-@pytest.mark.skip(reason="Not implemented yet")
 def test_spark_job():
     """
     Just to check that Celery is up and running.
     """
-    # input = 3
-    # task = dummy_task.s(input)
-    # result = task()
-    # assert result == input**2
+
+    logger.info("Initiating dummy Spark task test ...")
+    task = dummy_spark_task.s()
+    result = task()
+    assert len(result) == 3
+    logger.successful("Dummy Spark task test successful.")
 
 
 # import unittest

@@ -7,6 +7,8 @@ Logging module based on common logger
 from src.commons.logging import LoggerManager  # , InterceptHandler
 
 logger = LoggerManager(log_filepath="/opt/orchestrator/logs/worker.log").get_logger()
+beat_logger = LoggerManager(log_filepath="/opt/orchestrator/logs/beat.log").get_logger()
+
 
 # class CeleryInterceptHandler(InterceptHandlerBase):
 #     logger_object = logger

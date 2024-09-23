@@ -33,33 +33,6 @@ class InterceptHandler(logging.Handler):
         )
 
 
-# def logger_settings(logger_instance):
-
-#     # remove all default sinks
-#     # logger_instance.remove()
-#     # format with (close to) fixed prefix length
-#     # tuned on the longest level label i.e. CRITICAL + icon
-#     logger_format = (
-#         "<light-blue>{time:%Y-%m-%d %H:%M:%S}</light-blue>"
-#         " | {level: <10}"
-#         " | <level>{message}</level>"
-#     )
-#     # use the following to show either the source file/line or function
-#     # " | {name}.{file}:{line}" \
-#     # " | {function}" \
-
-#     # some parameters disabled as not used anymore, though kept for tests/debugging
-#     logging_parameters = {
-#         "format": logger_format,
-#         # "filter": self.log_tuning,
-#         "backtrace": False,
-#         "diagnose": False,
-#     }
-
-#     logger_instance.add(log_filepath, rotation="20MB", **logging_parameters)
-#     logger_instance.add(sys.stderr, colorize=True, **logging_parameters)
-
-
 class LoggerManager:
 
     def __init__(self, log_filepath: str):
@@ -115,3 +88,30 @@ class LoggerManager:
     @staticmethod
     def get_logger():
         return loguru_logger
+
+
+# def logger_settings(logger_instance):
+
+#     # remove all default sinks
+#     # logger_instance.remove()
+#     # format with (close to) fixed prefix length
+#     # tuned on the longest level label i.e. CRITICAL + icon
+#     logger_format = (
+#         "<light-blue>{time:%Y-%m-%d %H:%M:%S}</light-blue>"
+#         " | {level: <10}"
+#         " | <level>{message}</level>"
+#     )
+#     # use the following to show either the source file/line or function
+#     # " | {name}.{file}:{line}" \
+#     # " | {function}" \
+
+#     # some parameters disabled as not used anymore, though kept for tests/debugging
+#     logging_parameters = {
+#         "format": logger_format,
+#         # "filter": self.log_tuning,
+#         "backtrace": False,
+#         "diagnose": False,
+#     }
+
+#     logger_instance.add(log_filepath, rotation="20MB", **logging_parameters)
+#     logger_instance.add(sys.stderr, colorize=True, **logging_parameters)
