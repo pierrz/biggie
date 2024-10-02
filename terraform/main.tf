@@ -27,10 +27,10 @@ data "scaleway_account_ssh_key" "ssh_key_1" {
   name       = local.ssh_key_names[1]
   project_id = var.scaleway_project_id
 }
-data "scaleway_account_ssh_key" "ssh_key_2" {
-  name       = local.ssh_key_names[2]
-  project_id = var.scaleway_project_id
-}
+# data "scaleway_account_ssh_key" "ssh_key_2" {
+#   name       = local.ssh_key_names[2]
+#   project_id = var.scaleway_project_id
+# }
 
 resource "scaleway_baremetal_server" "main" {
   name  = var.scaleway_server_name
@@ -41,7 +41,7 @@ resource "scaleway_baremetal_server" "main" {
   ssh_key_ids = [
     data.scaleway_account_ssh_key.ssh_key_0.id,
     data.scaleway_account_ssh_key.ssh_key_1.id,
-    data.scaleway_account_ssh_key.ssh_key_2.id
+    # data.scaleway_account_ssh_key.ssh_key_2.id
   ]
   # ssh_key_ids = [for key in data.scaleway_account_ssh_key.existing_keys : key.id]
   # ssh_key_ids = []
