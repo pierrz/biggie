@@ -21,6 +21,7 @@ resource "scaleway_baremetal_server" "main" {
   tags  = ["muzai.io", "biggie", "teleport", "production"]
   zone  = var.scaleway_zone
   os    = var.scaleway_server_os_id
+  ssh_key_ids = []
   # ssh_key_ids = [var.scaleway_ssh_key_id]
 
   # Private network configuration (if applicable)
