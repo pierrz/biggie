@@ -15,22 +15,34 @@ provider "scaleway" {
   region          = substr(var.scaleway_zone, 0, 6)
 }
 
-data "scaleway_account_ssh_key" "existing_keys" {
-  name       = "*"
+data "scaleway_account_ssh_key" "ssh_key_0" {
+  name       = split(var.scaleway_ssh_key_names, ",")[0]
   project_id = var.scaleway_project_id
-  # values = ["*"]  # Replace "*" with the desired substring or pattern
+}
+data "scaleway_account_ssh_key" "ssh_key_1" {
+  name       = split(var.scaleway_ssh_key_names, ",")[1]
+  project_id = var.scaleway_project_id
+}
+data "scaleway_account_ssh_key" "ssh_key_2" {
+  name       = split(var.scaleway_ssh_key_names, ",")[2]
+  project_id = var.scaleway_project_id
 }
 # data scaleway_account_project "by_id" {
 #   project_id = var.scaleway_project_id
 # }
 
 resource "scaleway_baremetal_server" "main" {
-  name        = var.scaleway_server_name
-  offer       = "EM-A115X-SSD"
-  tags        = ["muzai.io", "biggie", "teleport", "production"]
-  zone        = var.scaleway_zone
-  os          = var.scaleway_server_os_id
-  ssh_key_ids = [for key in data.scaleway_account_ssh_key.existing_keys : key.id]
+  name  = var.scaleway_server_name
+  offer = "EM-A115X-SSD"
+  tags  = ["muzai.io", "biggie", "teleport", "production"]
+  zone  = var.scaleway_zone
+  os    = var.scaleway_server_os_id
+  ssh_key_ids = [
+    scaleway_account_ssh_key.ssh_key_0.id,
+    scaleway_account_ssh_key.ssh_key_1.id,
+    scaleway_account_ssh_key.ssh_key_2.id
+  ]
+  # ssh_key_ids = [for key in data.scaleway_account_ssh_key.existing_keys : key.id]
   # ssh_key_ids = []
   # ssh_key_ids = [var.scaleway_ssh_key_id]
 
