@@ -62,7 +62,7 @@ resource "scaleway_baremetal_server" "main" {
     # password = var.scaleway_server_password
     host = var.scaleway_server_public_ip
     # host        = scaleway_baremetal_server.main.public_ip
-    private_key = file(concat(var.github_workspace, "/tmp/id_key"))
+    private_key = file(concat(var.github_workspace, "/id_key"))
   }
 
   # Dummy Provisioner
@@ -99,7 +99,7 @@ resource "null_resource" "server_configuration" {
     type        = "ssh"
     user        = scaleway_baremetal_server.main.user
     host        = scaleway_baremetal_server.main.ipv4[0].address
-    private_key = file(concat(var.github_workspace, "/tmp/id_key"))
+    private_key = file(concat(var.github_workspace, "/id_key"))
   }
 
   provisioner "remote-exec" {
