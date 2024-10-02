@@ -81,6 +81,7 @@ jobs:
         TF_VAR_scaleway_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
         TF_VAR_scaleway_server_name: ${{ secrets.SCALEWAY_SERVER_NAME }}
         TF_VAR_scaleway_server_id: ${{ secrets.SCALEWAY_SERVER_ID }}
+        TF_VAR_scaleway_server_public_ip: ${{ secrets.SCALEWAY_SERVER_PUBLIC_IP }}
         TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
         TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
         TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}
@@ -102,6 +103,7 @@ jobs:
         TF_VAR_scaleway_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
         TF_VAR_scaleway_server_name: ${{ secrets.SCALEWAY_SERVER_NAME }}
         TF_VAR_scaleway_server_id: ${{ secrets.SCALEWAY_SERVER_ID }}
+        TF_VAR_scaleway_server_public_ip: ${{ secrets.SCALEWAY_SERVER_PUBLIC_IP }}
         TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
         TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
         TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}
@@ -136,6 +138,7 @@ jobs:
         TF_VAR_scaleway_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
         TF_VAR_scaleway_server_name: ${{ secrets.SCALEWAY_SERVER_NAME }}
         TF_VAR_scaleway_server_id: ${{ secrets.SCALEWAY_SERVER_ID }}
+        TF_VAR_scaleway_server_public_ip: ${{ secrets.SCALEWAY_SERVER_PUBLIC_IP }}
         TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
         TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
         TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}

@@ -43,6 +43,11 @@ variable "scaleway_server_name" {
   type        = string
 }
 
+variable "scaleway_server_public_ip" {
+  description = "The Scaleway server name"
+  type        = string
+}
+
 variable "scaleway_ssh_key_id" {
   description = "The ssh key ID from the Scaleway server"
   type        = string
