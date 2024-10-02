@@ -16,11 +16,11 @@ provider "scaleway" {
 }
 
 resource "scaleway_baremetal_server" "main" {
-  name  = var.scaleway_server_name
-  offer = "EM-A115X-SSD"
-  tags  = ["muzai.io", "biggie", "teleport", "production"]
-  zone  = var.scaleway_zone
-  os    = var.scaleway_server_os_id
+  name        = var.scaleway_server_name
+  offer       = "EM-A115X-SSD"
+  tags        = ["muzai.io", "biggie", "teleport", "production"]
+  zone        = var.scaleway_zone
+  os          = var.scaleway_server_os_id
   ssh_key_ids = []
   # ssh_key_ids = [var.scaleway_ssh_key_id]
 
