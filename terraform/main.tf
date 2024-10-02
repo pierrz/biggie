@@ -16,8 +16,13 @@ provider "scaleway" {
 }
 
 data "scaleway_account_ssh_key" "existing_keys" {
-  # Optionally filter by name or other attributes
+  name       = "*"
+  project_id = var.scaleway_project_id
+  # values = ["*"]  # Replace "*" with the desired substring or pattern
 }
+# data scaleway_account_project "by_id" {
+#   project_id = var.scaleway_project_id
+# }
 
 resource "scaleway_baremetal_server" "main" {
   name        = var.scaleway_server_name
