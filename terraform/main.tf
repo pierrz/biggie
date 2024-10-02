@@ -38,9 +38,9 @@ resource "scaleway_baremetal_server" "main" {
   zone  = var.scaleway_zone
   os    = var.scaleway_server_os_id
   ssh_key_ids = [
-    scaleway_account_ssh_key.ssh_key_0.id,
-    scaleway_account_ssh_key.ssh_key_1.id,
-    scaleway_account_ssh_key.ssh_key_2.id
+    data.scaleway_account_ssh_key.ssh_key_0.id,
+    data.scaleway_account_ssh_key.ssh_key_1.id,
+    data.scaleway_account_ssh_key.ssh_key_2.id
   ]
   # ssh_key_ids = [for key in data.scaleway_account_ssh_key.existing_keys : key.id]
   # ssh_key_ids = []
