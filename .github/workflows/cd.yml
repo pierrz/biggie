@@ -117,13 +117,29 @@ jobs:
           -var="scaleway_access_key=${{ secrets.SCALEWAY_ACCESS_KEY }}" \
           -var="scaleway_secret_key=${{ secrets.SCALEWAY_SECRET_KEY }}" \
           -var="scaleway_project_id=${{ secrets.SCALEWAY_PROJECT_ID }}" \
-          scaleway_baremetal_server.main ${{ secrets.SCALEWAY_SERVER_ID }}
+          scaleway_baremetal_server.main ${{ secrets.SCALEWAY_ZONE }}/${{ secrets.SCALEWAY_SERVER_ID }}
       continue-on-error: true
       working-directory: ./terraform
 
     - name: Terraform Plan
       run: terraform plan -no-color
       continue-on-error: true
+      env:
+        SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+        SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
+        TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+        TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
+        TF_VAR_scaleway_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
+        TF_VAR_scaleway_server_name: ${{ secrets.SCALEWAY_SERVER_NAME }}
+        TF_VAR_scaleway_server_id: ${{ secrets.SCALEWAY_SERVER_ID }}
+        TF_VAR_scaleway_server_public_ip: ${{ secrets.SCALEWAY_SERVER_PUBLIC_IP }}
+        TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
+        TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
+        TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}
+        TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
+        TF_LOG: DEBUG
       working-directory: ./terraform
 
     - name: Apply Terraform configuration
