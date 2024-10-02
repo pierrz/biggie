@@ -70,14 +70,18 @@ jobs:
       working-directory: ./terraform
 
     - name: Terraform Import
-      env:
-        SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
-        SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
-        SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
-        TELEPORT_PROXY: ${{ secrets.TELEPORT_PROXY }}
+      # env:
+      #   SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+      #   SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
+      #   SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
+      #   TELEPORT_PROXY: ${{ secrets.TELEPORT_PROXY }}
         # TELEPORT_AUTH_SERVER: ${{ secrets.TELEPORT_AUTH_SERVER }}
       run: |
-        terraform import scaleway_baremetal_server.main ${{ secrets.SCALEWAY_SERVER_ID }}
+        terraform import \
+          -var="scaleway_access_key=${{ secrets.SCALEWAY_ACCESS_KEY }}" \
+          -var="scaleway_secret_key=${{ secrets.SCALEWAY_SECRET_KEY }}" \
+          -var="scaleway_project_id=${{ secrets.SCALEWAY_PROJECT_ID }}" \
+          scaleway_baremetal_server.main ${{ secrets.SCALEWAY_SERVER_ID }}
       continue-on-error: true
       working-directory: ./terraform
 
