@@ -1,51 +1,88 @@
-name: CD Pipeline
+name: Deploy to Scaleway
 
 on:
-  workflow_run:
-    workflows: ["CI Pipeline"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   deploy:
+    permissions:
+      # The "id-token: write" permission is required or Machine ID will not be
+      # able to authenticate with the cluster.
+      id-token: write
+      contents: read
+    # false
+    if: true
+    # name: github-actions-cd-terraform-example
     runs-on: ubuntu-latest
-    if: false
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.7
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3.3.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout repository
+      uses: actions/checkout@v4.1.7
 
-      - name: Deploy to Server
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-        # run: |
-        #   echo "$SSH_PRIVATE_KEY" > private_key
-        #   chmod 600 private_key
-        #   scp -i private_key docker-compose.yml $SERVER_USER@$SERVER_HOST:/path/to/deployment/
-        #   ssh -i private_key $SERVER_USER@$SERVER_HOST << 'EOF'
-        #     cd /path/to/deployment/
-        #     docker-compose pull
-        #     docker-compose up -d
-        #   EOF
-        #   rm private_key
-        run: |
-          echo "$SSH_PRIVATE_KEY" > private_key
-          chmod 600 private_key
-          tar czf repo.tar.gz .
-          scp -i private_key repo.tar.gz $SERVER_USER@$SERVER_HOST:/path/to/deployment/
-          ssh -i private_key $SERVER_USER@$SERVER_HOST << 'EOF'
-            cd /path/to/deployment/
-            tar xzf repo.tar.gz
-            docker-compose pull
-            docker-compose up -d
-          EOF
-          rm private_key
+    - name: Fetch Teleport binaries
+      uses: teleport-actions/setup@v1
+      with:
+        version: 16.4.2
+
+    # server access example
+    - name: Fetch credentials using Machine ID
+      id: auth
+      uses: teleport-actions/auth@v2
+      with:
+        proxy: labs.fullofstack.eu:443
+        token: github-actions-cd-terraform
+        # Enable the submission of anonymous usage telemetry. This
+        # helps us shape the future development of `tbot`. You can disable this
+        # by omitting this.
+        anonymous-telemetry: 1
+
+    - name: List nodes (tsh)
+      # Enters a command from the cluster, in this case "tsh ls" using Machine
+      # ID credentials to list remote SSH nodes.
+      run: tsh ls
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Initialize Terraform
+      run: terraform init
+
+    - name: Apply Terraform configuration
+      env:
+        TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+        TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
+        TF_VAR_server_password: ${{ secrets.SERVER_PASSWORD }}
+      run: terraform apply -auto-approve
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Checkout repository
+#       uses: actions/checkout@v2
+
+#     - name: Set up Terraform
+#       uses: hashicorp/setup-terraform@v1
+
+#     - name: Initialize Terraform
+#       run: terraform init
+
+#     - name: Apply Terraform configuration
+#       env:
+#         TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+#         TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
+#         TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
+#         TF_VAR_server_password: ${{ secrets.SERVER_PASSWORD }}
+#       run: terraform apply -auto-approve
