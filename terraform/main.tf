@@ -68,10 +68,10 @@ resource "scaleway_baremetal_server" "main" {
   # }
 
   connection {
-    type     = "ssh"
-    user     = var.scaleway_server_user
+    type = "ssh"
+    user = var.scaleway_server_user
     # password = var.scaleway_server_password
-    host     = var.scaleway_server_public_ip
+    host = var.scaleway_server_public_ip
     # host        = scaleway_baremetal_server.main.public_ip
     private_key = file("/tmp/id_key")
   }
