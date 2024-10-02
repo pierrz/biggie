@@ -15,16 +15,19 @@ provider "scaleway" {
   region          = substr(var.scaleway_zone, 0, 6)
 }
 
+locals {
+  ssh_key_names = split(",", var.scaleway_ssh_key_names)
+}
 data "scaleway_account_ssh_key" "ssh_key_0" {
-  name       = split(var.scaleway_ssh_key_names, ",")[0]
+  name       = local.ssh_key_names[0]
   project_id = var.scaleway_project_id
 }
 data "scaleway_account_ssh_key" "ssh_key_1" {
-  name       = split(var.scaleway_ssh_key_names, ",")[1]
+  name       = local.ssh_key_names[1]
   project_id = var.scaleway_project_id
 }
 data "scaleway_account_ssh_key" "ssh_key_2" {
-  name       = split(var.scaleway_ssh_key_names, ",")[2]
+  name       = local.ssh_key_names[2]
   project_id = var.scaleway_project_id
 }
 # data scaleway_account_project "by_id" {
