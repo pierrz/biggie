@@ -27,15 +27,10 @@ jobs:
     # if: true
     runs-on: ubuntu-latest
 
-    # env:
-    #   SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
-    #   SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
-    #   SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
-
     env:
-        SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
-        SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
-        SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
+        # SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+        # SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        # SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
         TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
         TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
         TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
@@ -82,7 +77,9 @@ jobs:
       uses: hashicorp/setup-terraform@v3.1.2
 
     - name: Create SSH private key file
-      run: echo "${{ secrets.SCALEWAY_SSH_PRIVATE_KEY }}" > /tmp/id_key
+      run: |
+        echo "${{ secrets.SCALEWAY_SSH_PRIVATE_KEY }}" > ./tmp/id_key
+        cat ./tmp/id_key
 
     - name: Initialize Terraform
       uses: ./.github/actions/terraform
