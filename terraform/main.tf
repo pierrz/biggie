@@ -56,41 +56,6 @@ resource "scaleway_baremetal_server" "main" {
     prevent_destroy = true
   }
 
-  # user_data = {
-  #   cloud-init = <<-EOF
-  #     #cloud-config
-  #     package_update: true
-  #     package_upgrade: true
-  #     packages:
-  #       - nginx
-  #       - nodejs
-  #       - npm
-  #     write_files:
-  #       - path: /etc/nginx/sites-available/default
-  #         content: |
-  #           server {
-  #             listen 80 default_server;
-  #             server_name _;
-  #             location / {
-  #               proxy_pass http://localhost:3000;
-  #               proxy_http_version 1.1;
-  #               proxy_set_header Upgrade $http_upgrade;
-  #               proxy_set_header Connection 'upgrade';
-  #               proxy_set_header Host $host;
-  #               proxy_cache_bypass $http_upgrade;
-  #             }
-  #           }
-  #     runcmd:
-  #       - systemctl restart nginx
-  #       - npm install -g pm2
-  #       - git clone https://github.com/your-repo/your-nodejs-app.git /opt/app
-  #       - cd /opt/app && npm install
-  #       - pm2 start /opt/app/index.js
-  #       - pm2 startup systemd
-  #       - pm2 save
-  #   EOF
-  # }
-
   connection {
     type = "ssh"
     user = var.scaleway_server_user
@@ -101,12 +66,12 @@ resource "scaleway_baremetal_server" "main" {
   }
 
   # Dummy Provisioner
-  provisioner "remote-exec" {
-    inline = [
-      "mkdir -p /tmp/terraform_cd_test",
-      "echo 'Hello' > /tmp/terraform_cd_test/hello.txt"
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "mkdir -p /tmp/terraform_cd_test",
+  #     "echo 'Hello' > /tmp/terraform_cd_test/hello.txt"
+  #   ]
+  # }
 
   # Provisioner for Spark
   # provisioner "remote-exec" {
@@ -125,6 +90,26 @@ resource "scaleway_baremetal_server" "main" {
 #   zone      = var.scaleway_zone
 # }
 
+resource "null_resource" "server_configuration" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  connection {
+    type        = "ssh"
+    user        = scaleway_baremetal_server.main.user
+    host        = scaleway_baremetal_server.main.ipv4[0].address
+    private_key = file("/tmp/id_key")
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /tmp/terraform_cd_test",
+      "echo 'Hello' > /tmp/terraform_cd_test/hello.txt"
+    ]
+  }
+}
+
 # Outputs for easy access to server details
 output "server_id" {
   value = scaleway_baremetal_server.main.id
@@ -134,6 +119,6 @@ output "server_name" {
   value = scaleway_baremetal_server.main.name
 }
 
-output "public_ip" {
-  value = scaleway_baremetal_server.main.ips
-}
+# output "public_ip" {
+#   value = scaleway_baremetal_server.main.ips
+# }
