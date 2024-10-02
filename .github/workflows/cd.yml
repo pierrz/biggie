@@ -45,7 +45,7 @@ jobs:
         TF_VAR_scaleway_server_os_id: ${{ secrets.SCALEWAY_SERVER_OS_ID }}
         TF_VAR_scaleway_server_public_ip: ${{ secrets.SCALEWAY_SERVER_PUBLIC_IP }}
         TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
-        TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
+        # TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
         TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}
         TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
         TF_LOG: DEBUG
@@ -79,6 +79,9 @@ jobs:
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2
+
+    - name: Create SSH private key file
+      run: echo "${{ secrets.SCALEWAY_SSH_PRIVATE_KEY }}" > /tmp/id_key
 
     - name: Initialize Terraform
       uses: ./.github/actions/terraform
