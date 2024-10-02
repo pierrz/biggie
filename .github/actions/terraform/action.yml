@@ -10,6 +10,7 @@ runs:
   using: "composite"
   steps:
     - name: Run Terraform command
+      shell: bash
       run: terraform ${{ inputs.command }}
       working-directory: ./terraform
       # env:
