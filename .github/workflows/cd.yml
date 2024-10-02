@@ -70,11 +70,28 @@ jobs:
       run: terraform fmt -check
       working-directory: ./terraform
 
+    - name: Terraform Plan
+      run: |
+        terraform plan -var="scaleway_access_key=${{ secrets.SCALEWAY_ACCESS_KEY }}" \
+          -var="scaleway_secret_key=${{ secrets.SCALEWAY_SECRET_KEY }}" \
+          -var="scaleway_project_id=${{ secrets.SCALEWAY_PROJECT_ID }}"
+
     - name: Terraform Import
-      # env:
-      #   SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
-      #   SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
-      #   SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
+      env:
+        SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+        SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
+        TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+        TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
+        TF_VAR_scaleway_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
+        TF_VAR_scaleway_server_name: ${{ secrets.SCALEWAY_SERVER_NAME }}
+        TF_VAR_scaleway_server_id: ${{ secrets.SCALEWAY_SERVER_ID }}
+        TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
+        TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
+        TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}
+        TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
+        TF_LOG: DEBUG
       #   TELEPORT_PROXY: ${{ secrets.TELEPORT_PROXY }}
         # TELEPORT_AUTH_SERVER: ${{ secrets.TELEPORT_AUTH_SERVER }}
       # terraform import scaleway_baremetal_server.main ${{ secrets.SCALEWAY_SERVER_ID }}
@@ -100,6 +117,7 @@ jobs:
         TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
         TF_VAR_scaleway_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
         TF_VAR_scaleway_server_name: ${{ secrets.SCALEWAY_SERVER_NAME }}
+        TF_VAR_scaleway_server_id: ${{ secrets.SCALEWAY_SERVER_ID }}
         TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
         TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
         TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}
