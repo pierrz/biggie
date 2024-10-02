@@ -81,7 +81,8 @@ resource "scaleway_baremetal_server" "main" {
   # Dummy Provisioner
   provisioner "remote-exec" {
     inline = [
-      "echo 'Terraform CD Test' > /tmp/terraform_cd_test.txt"
+      "mkdir -p /tmp/terraform_cd_test",
+      "echo 'Hello' > /tmp/terraform_cd_test/hello.txt"
     ]
   }
 
