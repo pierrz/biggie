@@ -56,14 +56,14 @@ resource "scaleway_baremetal_server" "main" {
     prevent_destroy = true
   }
 
-  connection {
-    type = "ssh"
-    user = var.scaleway_server_user
-    # password = var.scaleway_server_password
-    host = var.scaleway_server_public_ip
-    # host        = scaleway_baremetal_server.main.public_ip
-    private_key = file("${var.github_workspace}/id_key")
-  }
+  # connection {
+  #   type = "ssh"
+  #   user = var.scaleway_server_user
+  #   # password = var.scaleway_server_password
+  #   host = var.scaleway_server_public_ip
+  #   # host        = scaleway_baremetal_server.main.public_ip
+  #   private_key = file("${var.github_workspace}/id_key")
+  # }
 
   # Dummy Provisioner
   # provisioner "remote-exec" {
@@ -96,8 +96,9 @@ resource "null_resource" "server_configuration" {
   }
 
   connection {
-    type        = "ssh"
-    user        = scaleway_baremetal_server.main.user
+    type = "ssh"
+    # user        = scaleway_baremetal_server.main.user
+    user        = var.scaleway_server_user
     host        = scaleway_baremetal_server.main.ipv4[0].address
     private_key = file("${var.github_workspace}/id_key")
   }
