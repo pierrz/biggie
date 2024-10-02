@@ -62,3 +62,8 @@ variable "scaleway_ssh_key_names" {
   description = "The ssh key names from the Scaleway server"
   type        = string
 }
+
+variable "github_workspace" {
+  description = "Root directory of the GitHub workspace"
+  type        = string
+}

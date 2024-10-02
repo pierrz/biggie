@@ -44,6 +44,7 @@ jobs:
         # TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
         # TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}
         TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
+        TF_VAR_github_workspace: ${{ github.workspace }}
         TF_LOG: DEBUG
 
     steps:
@@ -78,8 +79,8 @@ jobs:
 
     - name: Create SSH private key file
       run: |
-        echo "${{ secrets.SCALEWAY_SSH_PRIVATE_KEY }}" > ./tmp/id_key
-        cat ./tmp/id_key
+        echo "${{ secrets.SCALEWAY_SSH_PRIVATE_KEY }}" > ${{ github.workspace }}/tmp/id_key
+        cat ${{ github.workspace }}/tmp/id_key
 
     - name: Initialize Terraform
       uses: ./.github/actions/terraform
