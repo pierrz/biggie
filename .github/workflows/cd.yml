@@ -79,8 +79,8 @@ jobs:
 
     - name: Create SSH private key file
       run: |
-        echo "${{ secrets.SCALEWAY_SSH_PRIVATE_KEY }}" > ${{ github.workspace }}/tmp/id_key
-        cat ${{ github.workspace }}/tmp/id_key
+        echo "${{ secrets.SCALEWAY_SSH_PRIVATE_KEY }}" > ${{ github.workspace }}/id_key
+        cat ${{ github.workspace }}/id_key
 
     - name: Initialize Terraform
       uses: ./.github/actions/terraform
