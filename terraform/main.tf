@@ -20,7 +20,7 @@ resource "scaleway_baremetal_server" "main" {
   offer = "EM-A115X-SSD"
   tags  = ["dummy-test", "production"]
   zone  = var.scaleway_zone
-  os       = var.scaleway_server_os_id
+  os    = var.scaleway_server_os_id
 
   # SSH keys for access (replace with your public key)
   ssh_key_ids = [var.scaleway_ssh_key_id]
