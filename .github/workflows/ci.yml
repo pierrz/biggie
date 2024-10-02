@@ -25,6 +25,7 @@ env:
 jobs:
 
   build-and-push-image-api:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     name: API - build/push image
     runs-on: ubuntu-latest
@@ -50,6 +51,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   build-and-push-image-orchestrator:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     name: Orchestrator - build/push image
     runs-on: ubuntu-latest
