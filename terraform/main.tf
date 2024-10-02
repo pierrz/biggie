@@ -15,6 +15,7 @@ provider "scaleway" {
   region          = substr(var.scaleway_zone, 0, 6)
 }
 
+# SSH keys from project
 locals {
   ssh_key_names = split(",", var.scaleway_ssh_key_names)
 }
@@ -30,9 +31,6 @@ data "scaleway_account_ssh_key" "ssh_key_2" {
   name       = local.ssh_key_names[2]
   project_id = var.scaleway_project_id
 }
-# data scaleway_account_project "by_id" {
-#   project_id = var.scaleway_project_id
-# }
 
 resource "scaleway_baremetal_server" "main" {
   name  = var.scaleway_server_name
