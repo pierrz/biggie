@@ -71,10 +71,25 @@ jobs:
       working-directory: ./terraform
 
     - name: Terraform Plan
+      env:
+        SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+        SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
+        TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+        TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
+        TF_VAR_scaleway_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
+        TF_VAR_scaleway_server_name: ${{ secrets.SCALEWAY_SERVER_NAME }}
+        TF_VAR_scaleway_server_id: ${{ secrets.SCALEWAY_SERVER_ID }}
+        TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
+        TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
+        TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}
+        TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
       run: |
         terraform plan -var="scaleway_access_key=${{ secrets.SCALEWAY_ACCESS_KEY }}" \
           -var="scaleway_secret_key=${{ secrets.SCALEWAY_SECRET_KEY }}" \
           -var="scaleway_project_id=${{ secrets.SCALEWAY_PROJECT_ID }}"
+      working-directory: ./terraform
 
     - name: Terraform Import
       env:
@@ -112,6 +127,9 @@ jobs:
     - name: Apply Terraform configuration
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       env:
+        SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+        SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
         TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
         TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
         TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
