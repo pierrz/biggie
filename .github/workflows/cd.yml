@@ -1,4 +1,4 @@
-name: Deploy to Scaleway
+name: CD Pipeline
 
 on:
   push:
@@ -7,6 +7,10 @@ on:
   pull_request:
     branches:
       - main
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
 
 jobs:
   deploy:
@@ -51,6 +55,7 @@ jobs:
 
     - name: Initialize Terraform
       run: terraform init
+      working-directory: ./terraform
 
     - name: Apply Terraform configuration
       env:
@@ -59,6 +64,7 @@ jobs:
         TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
         TF_VAR_server_password: ${{ secrets.SERVER_PASSWORD }}
       run: terraform apply -auto-approve
+      working-directory: ./terraform
 
 # on:
 #   push:
