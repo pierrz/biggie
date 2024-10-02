@@ -18,12 +18,10 @@ provider "scaleway" {
 resource "scaleway_baremetal_server" "main" {
   name  = var.scaleway_server_name
   offer = "EM-A115X-SSD"
-  tags  = ["dummy-test", "production"]
+  tags  = ["muzai.io", "biggie", "teleport", "production"]
   zone  = var.scaleway_zone
   os    = var.scaleway_server_os_id
-
-  # SSH keys for access (replace with your public key)
-  ssh_key_ids = [var.scaleway_ssh_key_id]
+  # ssh_key_ids = [var.scaleway_ssh_key_id]
 
   # Private network configuration (if applicable)
   # private_network {
@@ -72,10 +70,10 @@ resource "scaleway_baremetal_server" "main" {
   connection {
     type     = "ssh"
     user     = var.scaleway_server_user
-    password = var.scaleway_server_password
+    # password = var.scaleway_server_password
     host     = var.scaleway_server_public_ip
     # host        = scaleway_baremetal_server.main.public_ip
-    # private_key = file("~/.ssh/your_private_key")
+    private_key = file("/tmp/id_key")
   }
 
   # Dummy Provisioner
@@ -98,10 +96,10 @@ resource "scaleway_baremetal_server" "main" {
 }
 
 # Optionally, manage associated resources like a flexible IP
-resource "scaleway_flexible_ip" "main_ip" {
-  server_id = scaleway_baremetal_server.main.id
-  zone      = var.scaleway_zone
-}
+# resource "scaleway_flexible_ip" "main_ip" {
+#   server_id = scaleway_baremetal_server.main.id
+#   zone      = var.scaleway_zone
+# }
 
 # Outputs for easy access to server details
 output "server_id" {
@@ -113,5 +111,5 @@ output "server_name" {
 }
 
 output "public_ip" {
-  value = scaleway_flexible_ip.main_ip.ip_address
+  value = scaleway_baremetal_server.main.ips
 }

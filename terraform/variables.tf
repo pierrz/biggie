@@ -28,10 +28,10 @@ variable "scaleway_server_user" {
   type        = string
 }
 
-variable "scaleway_server_password" {
-  description = "The password for the user connecting to the server"
-  type        = string
-}
+# variable "scaleway_server_password" {
+#   description = "The password for the user connecting to the server"
+#   type        = string
+# }
 
 variable "scaleway_server_id" {
   description = "The Scaleway server ID"
