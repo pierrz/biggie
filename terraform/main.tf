@@ -15,13 +15,18 @@ provider "scaleway" {
   region          = substr(var.scaleway_zone, 0, 6)
 }
 
+data "scaleway_account_ssh_key" "existing_keys" {
+  # Optionally filter by name or other attributes
+}
+
 resource "scaleway_baremetal_server" "main" {
   name        = var.scaleway_server_name
   offer       = "EM-A115X-SSD"
   tags        = ["muzai.io", "biggie", "teleport", "production"]
   zone        = var.scaleway_zone
   os          = var.scaleway_server_os_id
-  ssh_key_ids = []
+  ssh_key_ids = [for key in data.scaleway_account_ssh_key.existing_keys : key.id]
+  # ssh_key_ids = []
   # ssh_key_ids = [var.scaleway_ssh_key_id]
 
   # Private network configuration (if applicable)
