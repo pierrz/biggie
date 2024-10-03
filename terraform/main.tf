@@ -95,20 +95,32 @@ resource "null_resource" "server_configuration" {
     always_run = "${timestamp()}"
   }
 
-  connection {
-    type = "ssh"
-    # user        = scaleway_baremetal_server.main.user
-    user        = var.scaleway_server_user
-    host        = scaleway_baremetal_server.main.ipv4[0].address
-    private_key = file("${var.github_workspace}/id_key")
+  # connection {
+  #   type = "ssh"
+  #   # user        = scaleway_baremetal_server.main.user
+  #   user        = var.scaleway_server_user
+  #   host        = scaleway_baremetal_server.main.ipv4[0].address
+  #   private_key = file("${var.github_workspace}/id_key")
+  # }
+
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "mkdir -p /tmp/terraform_cd_test",
+  #     "echo 'Hello' > /tmp/terraform_cd_test/hello.txt"
+  #   ]
+  # }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      tsh ssh ${var.scaleway_server_user}@${scaleway_baremetal_server.name} \
+        '
+        mkdir -p /tmp/terraform_cd_test
+        echo "Hello" > /tmp/terraform_cd_test/hello-tsh.txt
+        echo "Configuration completed successfully"
+        '
+    EOT
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "mkdir -p /tmp/terraform_cd_test",
-      "echo 'Hello' > /tmp/terraform_cd_test/hello.txt"
-    ]
-  }
 }
 
 # Outputs for easy access to server details
