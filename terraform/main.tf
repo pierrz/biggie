@@ -110,11 +110,12 @@ resource "null_resource" "server_configuration" {
   #   ]
   # }
 
+  # tsh login --proxy=${var.teleport_proxy} --auth=bot --token=${var.teleport_bot}
   provisioner "local-exec" {
     command = <<-EOT
     set -e
       tsh login --proxy=${var.teleport_proxy} --auth=bot --token=${var.teleport_bot}
-      tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name}
+      tsh ssh -i ${var.github_workspace}/token.pem ${var.scaleway_server_user}@${var.scaleway_server_name}
         '
         mkdir -p /tmp/terraform_cd_test
         echo "Hello" > /tmp/terraform_cd_test/hello-tsh.txt

@@ -75,6 +75,7 @@ jobs:
       run: |
         tsh status --verbose
         tsh ls
+        tctl auth sign --ttl=1h --user=bot-${{ secrets.TELEPORT_BOT }} --out=token.pem
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2
