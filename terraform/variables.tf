@@ -67,3 +67,13 @@ variable "github_workspace" {
   description = "Root directory of the GitHub workspace"
   type        = string
 }
+
+variable "teleport_proxy" {
+  description = "Teleport proxy URL"
+  type        = string
+}
+
+variable "teleport_bot" {
+  description = "Teleport bot"
+  type        = string
+}

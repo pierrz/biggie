@@ -45,6 +45,8 @@ jobs:
         # TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}
         TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
         TF_VAR_github_workspace: ${{ github.workspace }}
+        TF_VAR_teleport_proxy: ${{ secrets.TELEPORT_PROXY }}
+        TF_VAR_teleport_bot: ${{ secrets.TELEPORT_BOT }}
         TF_LOG: DEBUG
 
     steps:
