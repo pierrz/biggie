@@ -30,7 +30,7 @@ jobs:
       uses: teleport-actions/auth@v2
       with:
         proxy: labs.fullofstack.eu:443
-        token: github-actions-terraform
+        token: bot-github-actions-terraform
         # Enable the submission of anonymous usage telemetry. This
         # helps us shape the future development of `tbot`. You can disable this
         # by omitting this.
