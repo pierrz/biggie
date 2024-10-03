@@ -35,6 +35,8 @@ jobs:
         # helps us shape the future development of `tbot`. You can disable this
         # by omitting this.
         anonymous-telemetry: 1
+      env:
+        TELEPORT_DEBUG: 1
     - name: List nodes (tsh)
       # Enters a command from the cluster, in this case "tsh ls" using Machine
       # ID credentials to list remote SSH nodes.

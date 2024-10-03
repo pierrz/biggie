@@ -70,6 +70,8 @@ jobs:
         # helps us shape the future development of `tbot`. You can disable this
         # by omitting this.
         anonymous-telemetry: 1
+      env:
+        TELEPORT_DEBUG: 1
 
     - name: Check Teleport connection
       run: |
