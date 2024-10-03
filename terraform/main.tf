@@ -112,7 +112,7 @@ resource "null_resource" "server_configuration" {
 
   provisioner "local-exec" {
     command = <<-EOT
-      tsh ssh ${var.scaleway_server_user}@${scaleway_baremetal_server.name} \
+      tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
         '
         mkdir -p /tmp/terraform_cd_test
         echo "Hello" > /tmp/terraform_cd_test/hello-tsh.txt
