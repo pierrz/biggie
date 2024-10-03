@@ -71,7 +71,7 @@ jobs:
 
     - name: Check Teleport connection
       run: |
-        tsh status
+        tsh status --verbose
         tsh ls
 
     - name: Set up Terraform
