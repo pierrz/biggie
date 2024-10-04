@@ -36,7 +36,7 @@ jobs:
         TF_VAR_scaleway_server_os_id: ${{ secrets.SCALEWAY_SERVER_OS_ID }}
         TF_VAR_scaleway_server_public_ip: ${{ secrets.SCALEWAY_SERVER_PUBLIC_IP }}
         TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
-        # TF_VAR_scaleway_ssh_key_names: ${{ secrets.SCALEWAY_SSH_KEY_NAMES }}
+        TF_VAR_scaleway_ssh_key_names: ${{ secrets.SCALEWAY_SSH_KEY_NAMES }}
         TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
         TF_VAR_github_workspace: ${{ github.workspace }}
         TF_VAR_teleport_proxy: ${{ secrets.TELEPORT_PROXY }}
