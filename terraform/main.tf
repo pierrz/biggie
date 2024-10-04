@@ -98,6 +98,10 @@ resource "null_resource" "server_configuration" {
   #     ]
   # }
 
+  # Provisioner for Celery
+  # Provisioner for FastAPI
+
+
 }
 
 # Outputs for easy access to server details
