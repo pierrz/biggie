@@ -65,39 +65,39 @@ resource "null_resource" "server_configuration" {
     always_run = "${timestamp()}"
   }
 
-  connection {
-    type        = "ssh"
-    user        = var.scaleway_server_user
-    host        = scaleway_baremetal_server.main.ipv4[0].address
-    private_key = file("${var.github_workspace}/id_key")
-  }
+  # connection {
+  #   type        = "ssh"
+  #   user        = var.scaleway_server_user
+  #   host        = scaleway_baremetal_server.main.ipv4[0].address
+  #   private_key = file("${var.github_workspace}/id_key")
+  # }
 
-  provisioner "remote-exec" {
-    inline = [
-      "mkdir -p /tmp/terraform_cd_test",
-      "echo 'Hello' > /tmp/terraform_cd_test/hello-ssh.txt"
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "mkdir -p /tmp/terraform_cd_test",
+  #     "echo 'Hello' > /tmp/terraform_cd_test/hello-ssh.txt"
+  #   ]
+  # }
 
   # tsh login --proxy=${var.teleport_proxy} --auth=bot --token=${var.teleport_bot}
-  # provisioner "local-exec" {
-  #   command = <<-EOT
-  #   set -e
-  #     tsh login --proxy=${var.teleport_proxy} --auth=bot --token=${var.teleport_bot}
-  #     tsh ssh -i ${var.github_workspace}/token.pem ${var.scaleway_server_user}@${var.scaleway_server_name}
-  #       '
-  #       mkdir -p /tmp/terraform_cd_test
-  #       echo "Hello" > /tmp/terraform_cd_test/hello-tsh.txt
-  #       echo "Configuration completed successfully"
-  #       '
-  #     tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
-  #       '
-  #       mkdir -p /tmp/terraform_cd_test
-  #       echo "Hello" > /tmp/terraform_cd_test/hello-tsh.txt
-  #       echo "Configuration completed successfully"
-  #       '
-  #   EOT
-  # }
+  # tsh login --proxy=${var.teleport_proxy} --auth=bot --token=${var.teleport_bot}
+  # tsh ssh -i ${var.github_workspace}/token.pem ${var.scaleway_server_user}@${var.scaleway_server_name}
+  #   '
+  #   mkdir -p /tmp/terraform_cd_test
+  #   echo "Hello" > /tmp/terraform_cd_test/hello-tsh.txt
+  #   echo "Configuration completed successfully"
+  #   '
+  provisioner "local-exec" {
+    command = <<-EOT
+    set -e
+      tsh ssh -i ${var.github_workspace}/opt/machine-id/identity ${var.scaleway_server_user}@${var.scaleway_server_name} \
+        '
+        mkdir -p /tmp/terraform_cd_test
+        echo "Hello" > /tmp/terraform_cd_test/hello-tsh.txt
+        echo "Configuration completed successfully"
+        '
+    EOT
+  }
 
   # Provisioner for Spark
   # provisioner "remote-exec" {
