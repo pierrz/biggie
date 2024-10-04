@@ -39,7 +39,7 @@ networks:
     ipam:
       config:
         # range starts at 172.22 to avoid conflicts with the bridge network (172.17)
-        - subnet: 172.22.0.0/16
+        - subnet: ${DOCKER_SUBNET_BASE}.0/16
 
 services:
 
@@ -74,7 +74,7 @@ services:
       # - ./db/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.101
+        ipv4_address: ${DOCKER_SUBNET_BASE}.101
 
   postgres:
     container_name: biggie_postgres
@@ -95,7 +95,7 @@ services:
       - "5432:5432"
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.102
+        ipv4_address: ${DOCKER_SUBNET_BASE}.102
 
   api-test:
     container_name: biggie_api-test
@@ -121,7 +121,7 @@ services:
       # - ./commons:/opt/api/src/commons
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.121
+        ipv4_address: ${DOCKER_SUBNET_BASE}.121
 
   api-prod:
     container_name: biggie_api-prod
@@ -130,7 +130,7 @@ services:
       dockerfile: api/Dockerfile
     environment:
       <<: *biggie-common-env
-    command: uvicorn main:app --host 0.0.0.0 --reload --log-level debug
+    command: uvicorn main:app --host 0.0.0.0 --reload --log-level info
     depends_on:
       - mongo
       - postgres
@@ -149,7 +149,7 @@ services:
       # - ./commons:/opt/api/src/commons
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.122
+        ipv4_address: ${DOCKER_SUBNET_BASE}.122
 
   orchestrator-test:
     container_name: biggie_orchestrator-test
@@ -172,7 +172,7 @@ services:
     restart: on-failure
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.131
+        ipv4_address: ${DOCKER_SUBNET_BASE}.131
 
   orchestrator-prod:
     container_name: biggie_orchestrator-prod
@@ -196,7 +196,7 @@ services:
     #   - "5678:5678"  # Expose debugging port
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.132
+        ipv4_address: ${DOCKER_SUBNET_BASE}.132
 
   rabbitmq:
     container_name: biggie_rabbitmq
@@ -214,7 +214,7 @@ services:
       - prod_acquisition
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.133
+        ipv4_address: ${DOCKER_SUBNET_BASE}.133
 
   spark-master:
     container_name: biggie_spark-master
@@ -235,7 +235,7 @@ services:
       - prod_acquisition
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.141
+        ipv4_address: ${DOCKER_SUBNET_BASE}.141
 
   spark-worker-1:
     container_name: biggie_spark-worker-1
@@ -257,7 +257,7 @@ services:
       - prod_acquisition
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.142
+        ipv4_address: ${DOCKER_SUBNET_BASE}.142
 
   spark-worker-2:
     container_name: biggie_spark-worker-2
@@ -279,4 +279,4 @@ services:
       - prod_acquisition
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.143
+        ipv4_address: ${DOCKER_SUBNET_BASE}.143

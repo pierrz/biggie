@@ -54,28 +54,12 @@ resource "scaleway_baremetal_server" "main" {
 
 }
 
-# Other available resources: scaleway_flexible_ip
-
 resource "null_resource" "server_configuration" {
   triggers = {
     always_run = "${timestamp()}"
   }
 
-  # Connection and command over SSH
-  # connection {
-  #   type        = "ssh"
-  #   user        = var.scaleway_server_user
-  #   host        = scaleway_baremetal_server.main.ipv4[0].address
-  #   private_key = file("${var.github_workspace}/id_key")
-  # }
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "mkdir -p /tmp/terraform_cd_test",
-  #     "echo 'Hello' > /tmp/terraform_cd_test/hello-ssh.txt"
-  #   ]
-  # }
-
-  # Command over TSH
+  # Dummy command over TSH
   provisioner "local-exec" {
     command = <<-EOT
     set -e
@@ -88,19 +72,50 @@ resource "null_resource" "server_configuration" {
     EOT
   }
 
-  # Provisioner for Spark
-  # provisioner "remote-exec" {
-  #     inline = [
-  #         "sudo apt-get update",
-  #         "sudo apt-get install -y openjdk-8-jdk",  # Spark
-  #         "wget https://archive.apache.org/dist/spark/spark-3.0.0/spark-3.0.0-bin-hadoop2.7.tgz",
-  #         "tar xvf spark-3.0.0-bin-hadoop2.7.tgz",
-  #     ]
-  # }
+  # Provisioners for the whole Compose setup
+  provisioner "file_api_directory" {
+    source      = var.github_workspace
+    destination = "/opt/biggie"
+    type        = "directory"
+  }
+  provisioner "local-exec" {
+    command = <<-EOT
+      set -e
+      tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name}
+      '
+        sudo tee /opt/biggie/.env > /dev/null <<EOF
+          # main secrets
+          CELERY_BROKER_URL=${var.celery_broker_url}
+          CELERY_RESULT_BACKEND=${var.celery_result_backend}
+          DB_NAME=${var.db_name}
+          POSTGRES_DB=${var.postgres_db}
+          POSTGRES_USER=${var.postgres_user}
+          POSTGRES_PASSWORD=${var.postgres_password}
+          DB_USER=${var.db_user}
+          DB_PASSWORD=${var.db_password}
+          MONGODB_URI=${var.mongodb_uri}
+          MONGO_INITDB_ROOT_USERNAME=${var.mongo_initdb_root_username}
+          MONGO_INITDB_ROOT_PASSWORD=${var.mongo_initdb_root_password}
+          TOKEN_GITHUB_API=${var.token_github_api}
+          DATA_DIR=${var.data_dir}
+          LOGS_DIR=${var.logs_dir}
+          DOCKER_SUBNET_BASE=${var.docker_subnet_base}
 
-  # Provisioner for Celery
-  # Provisioner for FastAPI
+          # monitoring
+          PGADMIN_DEFAULT_EMAIL=${var.pgadmin_default_email}
+          PGADMIN_DEFAULT_PASSWORD=${var.pgadmin_default_password}
+          ME_CONFIG_MONGODB_ADMINUSERNAME=${var.me_config_mongodb_adminusername}
+          ME_CONFIG_MONGODB_ADMINPASSWORD=${var.me_config_mongodb_adminpassword}
+          ME_CONFIG_BASICAUTH_USERNAME=${var.me_config_basicauth_username}
+          ME_CONFIG_BASICAUTH_PASSWORD=${var.me_config_basicauth_password}
+        EOF
 
+        sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/biggie
+        cd /opt/biggie
+        docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile prod_full -d
+      '
+    EOT
+  }
 
 }
 
