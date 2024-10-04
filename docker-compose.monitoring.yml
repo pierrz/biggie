@@ -16,7 +16,7 @@ services:
       - prod_acquisition
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.151
+        ipv4_address: ${DOCKER_SUBNET_BASE}.151
 
   mongo-express:
     image: mongo-express:1.0.2-20
@@ -39,7 +39,7 @@ services:
       - prod_acquisition
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.152
+        ipv4_address: ${DOCKER_SUBNET_BASE}.152
 
   pgadmin:
     container_name: biggie_pgadmin
@@ -60,4 +60,4 @@ services:
       - "5050:80"
     networks:
       biggie-network:
-        ipv4_address: 172.22.0.153
+        ipv4_address: ${DOCKER_SUBNET_BASE}.153
