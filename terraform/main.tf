@@ -90,7 +90,7 @@ resource "null_resource" "server_configuration" {
   provisioner "local-exec" {
     command = <<-EOT
     set -e
-      tsh ssh -i ${var.github_workspace}/opt/machine-id/identity ${var.scaleway_server_user}@${var.scaleway_server_name} \
+      tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
         '
         mkdir -p /tmp/terraform_cd_test
         echo "Hello" > /tmp/terraform_cd_test/hello-tsh.txt
