@@ -23,14 +23,10 @@ jobs:
       # able to authenticate with the cluster.
       id-token: write
       contents: read
-    # false
-    # if: true
+
     runs-on: ubuntu-latest
 
     env:
-        # SCW_ACCESS_KEY: ${{ secrets.SCALEWAY_ACCESS_KEY }}
-        # SCW_SECRET_KEY: ${{ secrets.SCALEWAY_SECRET_KEY }}
-        # SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCALEWAY_PROJECT_ID }}
         TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
         TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
         TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
@@ -41,8 +37,6 @@ jobs:
         TF_VAR_scaleway_server_public_ip: ${{ secrets.SCALEWAY_SERVER_PUBLIC_IP }}
         TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
         TF_VAR_scaleway_ssh_key_names: ${{ secrets.SCALEWAY_SSH_KEY_NAMES }}
-        # TF_VAR_scaleway_server_password: ${{ secrets.SCALEWAY_SERVER_PASSWORD }}
-        # TF_VAR_scaleway_ssh_key_id: ${{ secrets.SCALEWAY_SSH_KEY_ID }}
         TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
         TF_VAR_github_workspace: ${{ github.workspace }}
         TF_VAR_teleport_proxy: ${{ secrets.TELEPORT_PROXY }}
@@ -52,20 +46,20 @@ jobs:
     steps:
 
     - name: Checkout repository
-      # uses: actions/checkout@v4.1.7
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4.1.7
+      # uses: actions/checkout@v3
 
     - name: Fetch Teleport binaries
-      # uses: teleport-actions/setup@v1.0.6
-      uses: teleport-actions/setup@v1
+      uses: teleport-actions/setup@v1.0.6
+      # uses: teleport-actions/setup@v1
       with:
         version: 16.4.2
 
     # server access example
     - name: Fetch credentials using Machine ID
       id: auth
-      # uses: teleport-actions/auth@v2.0.3
-      uses: teleport-actions/auth@v2
+      uses: teleport-actions/auth@v2.0.3
+      # uses: teleport-actions/auth@v2
       with:
         proxy: ${{ secrets.TELEPORT_PROXY }}
         token: ${{ secrets.TELEPORT_BOT }}
