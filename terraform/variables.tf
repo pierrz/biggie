@@ -182,7 +182,7 @@ variable "me_config_mongodb_enable_admin" {
 variable "me_config_mongodb_url" {
   description = "MongoDB URI for Mongo Express"
   type        = string
-  default     = var.mongodb_uri
+  # default     = var.mongodb_uri
 }
 
 # Common variables
