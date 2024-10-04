@@ -56,39 +56,9 @@ resource "scaleway_baremetal_server" "main" {
     prevent_destroy = true
   }
 
-  # connection {
-  #   type = "ssh"
-  #   user = var.scaleway_server_user
-  #   # password = var.scaleway_server_password
-  #   host = var.scaleway_server_public_ip
-  #   # host        = scaleway_baremetal_server.main.public_ip
-  #   private_key = file("${var.github_workspace}/id_key")
-  # }
-
-  # Dummy Provisioner
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "mkdir -p /tmp/terraform_cd_test",
-  #     "echo 'Hello' > /tmp/terraform_cd_test/hello.txt"
-  #   ]
-  # }
-
-  # Provisioner for Spark
-  # provisioner "remote-exec" {
-  #     inline = [
-  #         "sudo apt-get update",
-  #         "sudo apt-get install -y openjdk-8-jdk",  # Spark
-  #         "wget https://archive.apache.org/dist/spark/spark-3.0.0/spark-3.0.0-bin-hadoop2.7.tgz",
-  #         "tar xvf spark-3.0.0-bin-hadoop2.7.tgz",
-  #     ]
-  # }
 }
 
-# Optionally, manage associated resources like a flexible IP
-# resource "scaleway_flexible_ip" "main_ip" {
-#   server_id = scaleway_baremetal_server.main.id
-#   zone      = var.scaleway_zone
-# }
+# Other available resources: scaleway_flexible_ip
 
 resource "null_resource" "server_configuration" {
   triggers = {
@@ -96,8 +66,7 @@ resource "null_resource" "server_configuration" {
   }
 
   connection {
-    type = "ssh"
-    # user        = scaleway_baremetal_server.main.user
+    type        = "ssh"
     user        = var.scaleway_server_user
     host        = scaleway_baremetal_server.main.ipv4[0].address
     private_key = file("${var.github_workspace}/id_key")
@@ -130,6 +99,16 @@ resource "null_resource" "server_configuration" {
   #   EOT
   # }
 
+  # Provisioner for Spark
+  # provisioner "remote-exec" {
+  #     inline = [
+  #         "sudo apt-get update",
+  #         "sudo apt-get install -y openjdk-8-jdk",  # Spark
+  #         "wget https://archive.apache.org/dist/spark/spark-3.0.0/spark-3.0.0-bin-hadoop2.7.tgz",
+  #         "tar xvf spark-3.0.0-bin-hadoop2.7.tgz",
+  #     ]
+  # }
+
 }
 
 # Outputs for easy access to server details
@@ -140,7 +119,3 @@ output "server_id" {
 output "server_name" {
   value = scaleway_baremetal_server.main.name
 }
-
-# output "public_ip" {
-#   value = scaleway_baremetal_server.main.ips
-# }

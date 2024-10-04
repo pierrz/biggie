@@ -69,6 +69,7 @@ jobs:
       with:
         proxy: ${{ secrets.TELEPORT_PROXY }}
         token: ${{ secrets.TELEPORT_BOT }}
+        certificate-ttl: 1h
         # Enable the submission of anonymous usage telemetry. This
         # helps us shape the future development of `tbot`. You can disable this
         # by omitting this.
@@ -80,7 +81,7 @@ jobs:
       run: |
         tsh status --verbose
         tsh ls
-        tctl auth sign --ttl=1h --user=bot-${{ secrets.TELEPORT_BOT }} --out=token.pem
+      # tctl auth sign --ttl=1h --user=bot-${{ secrets.TELEPORT_BOT }} --out=token.pem
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2
