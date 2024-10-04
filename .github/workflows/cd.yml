@@ -52,17 +52,20 @@ jobs:
     steps:
 
     - name: Checkout repository
-      uses: actions/checkout@v4.1.7
+      # uses: actions/checkout@v4.1.7
+      uses: actions/checkout@v3
 
     - name: Fetch Teleport binaries
-      uses: teleport-actions/setup@v1.0.6
+      # uses: teleport-actions/setup@v1.0.6
+      uses: teleport-actions/setup@v1
       with:
         version: 16.4.2
 
     # server access example
     - name: Fetch credentials using Machine ID
       id: auth
-      uses: teleport-actions/auth@v2.0.3
+      # uses: teleport-actions/auth@v2.0.3
+      uses: teleport-actions/auth@v2
       with:
         proxy: ${{ secrets.TELEPORT_PROXY }}
         token: ${{ secrets.TELEPORT_BOT }}
