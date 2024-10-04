@@ -73,9 +73,15 @@ resource "null_resource" "server_configuration" {
   }
 
   # Provisioners for the whole Compose setup
-  provisioner "file" {
-    source      = var.github_workspace
-    destination = "/opt/biggie"
+  # provisioner "file" {
+  #   source      = var.github_workspace
+  #   destination = "/opt/biggie"
+  # }
+  provisioner "local-exec" {
+    command = <<-EOT
+    set -e
+      tsh scp -r ${var.github_workspace} ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
+    EOT
   }
   provisioner "local-exec" {
     command = <<-EOT
