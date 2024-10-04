@@ -81,6 +81,7 @@ jobs:
       run: |
         tsh status --verbose
         tsh ls
+        find ${{ github.workspace }} -type d -name machine-id
       # tctl auth sign --ttl=1h --user=bot-${{ secrets.TELEPORT_BOT }} --out=token.pem
 
     - name: Set up Terraform
