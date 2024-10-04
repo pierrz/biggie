@@ -73,10 +73,9 @@ resource "null_resource" "server_configuration" {
   }
 
   # Provisioners for the whole Compose setup
-  provisioner "file_api_directory" {
+  provisioner "file" {
     source      = var.github_workspace
     destination = "/opt/biggie"
-    type        = "directory"
   }
   provisioner "local-exec" {
     command = <<-EOT
