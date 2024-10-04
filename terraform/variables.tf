@@ -28,11 +28,6 @@ variable "scaleway_server_user" {
   type        = string
 }
 
-# variable "scaleway_server_password" {
-#   description = "The password for the user connecting to the server"
-#   type        = string
-# }
-
 variable "scaleway_server_id" {
   description = "The Scaleway server ID"
   type        = string
@@ -53,15 +48,10 @@ variable "scaleway_server_os_id" {
   type        = string
 }
 
-# variable "scaleway_ssh_key_id" {
-#   description = "The ssh key ID from the Scaleway server"
-#   type        = string
-# }
-
-# variable "scaleway_ssh_key_names" {
-#   description = "The ssh key names from the Scaleway server"
-#   type        = string
-# }
+variable "scaleway_ssh_key_names" {
+  description = "The ssh key names from the Scaleway server"
+  type        = string
+}
 
 variable "github_workspace" {
   description = "Root directory of the GitHub workspace"
