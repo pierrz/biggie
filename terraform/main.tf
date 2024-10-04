@@ -1,3 +1,8 @@
+# Terraform configuration to import current server
+# and install the latest changes from the repository
+
+# Documentation: https://registry.terraform.io/providers/scaleway/scaleway/latest/docs
+
 terraform {
   required_providers {
     scaleway = {
@@ -16,17 +21,17 @@ provider "scaleway" {
 }
 
 # SSH keys from project
-locals {
-  ssh_key_names = split(",", var.scaleway_ssh_key_names)
-}
-data "scaleway_account_ssh_key" "ssh_key_0" {
-  name       = local.ssh_key_names[0]
-  project_id = var.scaleway_project_id
-}
-data "scaleway_account_ssh_key" "ssh_key_1" {
-  name       = local.ssh_key_names[1]
-  project_id = var.scaleway_project_id
-}
+# locals {
+#   ssh_key_names = split(",", var.scaleway_ssh_key_names)
+# }
+# data "scaleway_account_ssh_key" "ssh_key_0" {
+#   name       = local.ssh_key_names[0]
+#   project_id = var.scaleway_project_id
+# }
+# data "scaleway_account_ssh_key" "ssh_key_1" {
+#   name       = local.ssh_key_names[1]
+#   project_id = var.scaleway_project_id
+# }
 # data "scaleway_account_ssh_key" "ssh_key_2" {
 #   name       = local.ssh_key_names[2]
 #   project_id = var.scaleway_project_id
@@ -38,16 +43,15 @@ resource "scaleway_baremetal_server" "main" {
   tags  = ["muzai.io", "biggie", "teleport", "production"]
   zone  = var.scaleway_zone
   os    = var.scaleway_server_os_id
-  ssh_key_ids = [
-    data.scaleway_account_ssh_key.ssh_key_0.id,
-    data.scaleway_account_ssh_key.ssh_key_1.id,
-    # data.scaleway_account_ssh_key.ssh_key_2.id
-  ]
+  # ssh_key_ids = [
+  #   data.scaleway_account_ssh_key.ssh_key_0.id,
+  #   data.scaleway_account_ssh_key.ssh_key_1.id,
+  #   # data.scaleway_account_ssh_key.ssh_key_2.id
+  # ]
   # ssh_key_ids = [for key in data.scaleway_account_ssh_key.existing_keys : key.id]
   # ssh_key_ids = []
   # ssh_key_ids = [var.scaleway_ssh_key_id]
 
-  # Private network configuration (if applicable)
   # private_network {
   #   id = "your-private-network-id"
   # }
@@ -65,6 +69,7 @@ resource "null_resource" "server_configuration" {
     always_run = "${timestamp()}"
   }
 
+  # Connection and command over SSH
   # connection {
   #   type        = "ssh"
   #   user        = var.scaleway_server_user
@@ -79,14 +84,6 @@ resource "null_resource" "server_configuration" {
   #   ]
   # }
 
-  # tsh login --proxy=${var.teleport_proxy} --auth=bot --token=${var.teleport_bot}
-  # tsh login --proxy=${var.teleport_proxy} --auth=bot --token=${var.teleport_bot}
-  # tsh ssh -i ${var.github_workspace}/token.pem ${var.scaleway_server_user}@${var.scaleway_server_name}
-  #   '
-  #   mkdir -p /tmp/terraform_cd_test
-  #   echo "Hello" > /tmp/terraform_cd_test/hello-tsh.txt
-  #   echo "Configuration completed successfully"
-  #   '
   provisioner "local-exec" {
     command = <<-EOT
     set -e
