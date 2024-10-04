@@ -48,6 +48,7 @@ variable "scaleway_server_os_id" {
   type        = string
 }
 
+# TODO: improve the key property management to avoid warnings
 variable "scaleway_ssh_key_names" {
   description = "The ssh key names from the Scaleway server"
   type        = string

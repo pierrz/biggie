@@ -21,6 +21,9 @@ provider "scaleway" {
 }
 
 # SSH keys from project
+# TODO: improve the key property management to avoid warnings
+# - why need to fetch these keys?
+# - better method?
 locals {
   ssh_key_names = split(",", var.scaleway_ssh_key_names)
 }
@@ -39,7 +42,7 @@ resource "scaleway_baremetal_server" "main" {
   tags  = ["muzai.io", "biggie", "teleport", "production"]
   zone  = var.scaleway_zone
   os    = var.scaleway_server_os_id
-  # TODO: improve the key property management to avoid warnings
+  # ssh_key_ids = []
   ssh_key_ids = [
     data.scaleway_account_ssh_key.ssh_key_0.id,
     data.scaleway_account_ssh_key.ssh_key_1.id
