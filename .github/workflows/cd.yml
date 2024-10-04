@@ -71,6 +71,7 @@ jobs:
         TF_VAR_me_config_mongodb_adminpassword: ${{ secrets.ME_CONFIG_MONGODB_ADMINPASSWORD }}
         TF_VAR_me_config_basicauth_username: ${{ secrets.ME_CONFIG_BASICAUTH_USERNAME }}
         TF_VAR_me_config_basicauth_password: ${{ secrets.ME_CONFIG_BASICAUTH_PASSWORD }}
+        TF_VAR_me_config_mongodb_url: ${{ secrets.MONGODB_URI }}
 
         # PGAdmin secrets
         TF_VAR_pgadmin_default_email: ${{ secrets.PGADMIN_DEFAULT_EMAIL }}
