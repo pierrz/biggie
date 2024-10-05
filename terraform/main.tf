@@ -64,11 +64,11 @@ resource "null_resource" "server_configuration" {
     command = <<-EOT
     set -e
       tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
-        '
+      '
         mkdir -p /tmp/terraform_cd_test
         echo "Hello" > /tmp/terraform_cd_test/hello-tsh.txt
         echo "Configuration completed successfully"
-        '
+      '
     EOT
   }
 
@@ -86,7 +86,7 @@ resource "null_resource" "server_configuration" {
   provisioner "local-exec" {
     command = <<-EOT
       set -e
-      tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name}
+      tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
       '
         rm -rf /opt/biggie/*
         ssh-add /home/terraform-cd/.ssh/id_ed25519_github.pub
