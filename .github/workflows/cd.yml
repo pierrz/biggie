@@ -82,8 +82,9 @@ jobs:
         TF_VAR_data_dir: ${{ secrets.DATA_DIR }}
         TF_VAR_docker_subnet_base: ${{ secrets.DOCKER_SUBNET_BASE }}
         TF_VAR_github_workspace: ${{ github.workspace }}
-        TF_VAR_github_repo_name: ${{ github.repository }}
-        TF_VAR_github_repo_branch: ${{ github.ref_name }}
+        TF_VAR_github_repo_ssh_uri: git@github.com:${{ github.repository }}.git:${{ github.ref_name }}
+        # TF_VAR_github_repo_name:
+        # TF_VAR_github_repo_branch: ${{ github.ref_name }}
         # TF_LOG: DEBUG
         # TELEPORT_DEBUG: 1
 
@@ -111,6 +112,8 @@ jobs:
       run: |
         tsh status --verbose
         tsh ls
+        echo "${{ github.repository }}"
+        echo "${{ github.ref_name }}"
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2
