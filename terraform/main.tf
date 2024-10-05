@@ -77,17 +77,20 @@ resource "null_resource" "server_configuration" {
   #   source      = var.github_workspace
   #   destination = "/opt/biggie"
   # }
-  provisioner "local-exec" {
-    command = <<-EOT
-    set -e
-      tsh scp -r ${var.github_workspace} ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
-    EOT
-  }
+  # provisioner "local-exec" {
+  #   command = <<-EOT
+  #   set -e
+  #     tsh scp -r ${var.github_workspace} ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
+  #   EOT
+  # }
   provisioner "local-exec" {
     command = <<-EOT
       set -e
       tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name}
       '
+        ssh-add /home/terraform-cd/.ssh/id_ed25519_github.pub
+        git clone git@github.com:${var.github_repo_name}.git:${var.github_repo_branch} /opt/biggie
+
         sudo tee /opt/biggie/.env > /dev/null <<EOF
           # main secrets
           CELERY_BROKER_URL=${var.celery_broker_url}
@@ -115,7 +118,6 @@ resource "null_resource" "server_configuration" {
           ME_CONFIG_BASICAUTH_PASSWORD=${var.me_config_basicauth_password}
         EOF
 
-        sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/biggie
         cd /opt/biggie
         docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile prod_full -d
       '

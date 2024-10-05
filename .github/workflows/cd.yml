@@ -80,8 +80,10 @@ jobs:
         # COMMONS
         TF_VAR_logs_dir: ${{ secrets.LOGS_DIR }}
         TF_VAR_data_dir: ${{ secrets.DATA_DIR }}
-        TF_VAR_github_workspace: ${{ github.workspace }}
         TF_VAR_docker_subnet_base: ${{ secrets.DOCKER_SUBNET_BASE }}
+        TF_VAR_github_workspace: ${{ github.workspace }}
+        TF_VAR_github_repo_name: ${{ github.repository }}
+        TF_VAR_github_repo_branch: ${{ github.ref_name }}
         # TF_LOG: DEBUG
         # TELEPORT_DEBUG: 1
 
