@@ -82,6 +82,7 @@ resource "null_resource" "server_configuration" {
     set -e
       tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name}
       '
+        sudo mkdir -p /opt/biggie
         sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/biggie
       '
       tsh scp -r ${var.github_workspace} ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
