@@ -220,3 +220,8 @@ variable "github_repo_branch" {
   description = "Branch currently in use with the GitHub repository"
   type        = string
 }
+
+variable "github_is_pr" {
+  description = "GitHub event type boolean"
+  type        = bool
+}

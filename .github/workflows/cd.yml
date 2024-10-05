@@ -85,6 +85,7 @@ jobs:
         # TF_VAR_github_repo_ssh_uri: git@github.com:${{ github.repository }}.git:${{ github.ref_name }}
         TF_VAR_github_repo_name: ${{ github.repository }}
         TF_VAR_github_repo_branch: ${{ github.ref_name }}
+        TF_VAR_github_is_pr: ${{ github.event_name == 'pull_request' }}
         # TF_LOG: DEBUG
         # TELEPORT_DEBUG: 1
 
@@ -114,6 +115,7 @@ jobs:
         tsh ls
         echo "${{ github.repository }}"
         echo "${{ github.ref_name }}"
+        echo "PR branch: ${{ github.head_ref }}"
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2

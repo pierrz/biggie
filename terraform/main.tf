@@ -93,7 +93,18 @@ resource "null_resource" "server_configuration" {
         eval "$(ssh-agent -s)"
         ssh-add /home/terraform-cd/.ssh/id_ed25519_github
         echo "Cloning repository ${var.github_repo_name} on branch ${var.github_repo_branch} ..."
-        git clone --branch ${var.github_repo_branch} --single-branch git@github.com:${var.github_repo_name}.git /opt/biggie
+
+        if [[ "${var.github_is_pr}" == "true" ]]; then
+          # Fetch the PR and checkout
+          PULL_NUMBER=${substr(var.github_repo_branch, 6, length(var.github_repo_branch) - 6)}
+          echo "Pull #$PULL_NUMBER"
+          git clone git@github.com:${var.github_repo_name}.git /opt/biggie
+          git fetch origin pull/$PULL_NUMBER/head:pr-$PULL_NUMBER
+          git checkout pr-$PULL_NUMBER
+        else
+          # Checkout the regular branch
+          git clone --branch ${var.github_repo_branch} --single-branch git@github.com:${var.github_repo_name}.git /opt/biggie
+        fi
 
         tee /opt/biggie/.env > /dev/null <<EOF
           # main secrets
