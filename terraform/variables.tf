@@ -206,11 +206,6 @@ variable "github_workspace" {
   type        = string
 }
 
-# variable "github_repo_ssh_uri" {
-#   description = "The GitHub repository SSH URI"
-#   type        = string
-# }
-
 variable "github_repo_name" {
   description = "Name of the GitHub repository"
   type        = string
@@ -219,9 +214,4 @@ variable "github_repo_name" {
 variable "github_repo_branch" {
   description = "Branch currently in use with the GitHub repository"
   type        = string
-}
-
-variable "github_is_pr" {
-  description = "GitHub event type boolean"
-  type        = bool
 }

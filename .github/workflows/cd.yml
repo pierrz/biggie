@@ -83,8 +83,6 @@ jobs:
         TF_VAR_docker_subnet_base: ${{ secrets.DOCKER_SUBNET_BASE }}
         TF_VAR_github_workspace: ${{ github.workspace }}
         TF_VAR_github_repo_name: ${{ github.repository }}
-        # TF_VAR_github_repo_branch: "" # ${{ github.ref_name }}
-        TF_VAR_github_is_pr: ${{ github.event_name == 'pull_request' }}
         # TF_LOG: DEBUG
         # TELEPORT_DEBUG: 1
 
@@ -92,12 +90,10 @@ jobs:
 
     - name: Set Secrets for Push
       if: github.event_name == 'push'
-      # run: ${{ env.TF_VAR_github_repo_branch }}=${{ github.ref_name }}
       run: echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
 
     - name: Set Secrets for Pull Request
       if: github.event_name == 'pull_request'
-      # run: ${{ env.TF_VAR_github_repo_branch }}=${{ github.head_ref }}
       run: echo "TF_VAR_github_repo_branch=${{ github.head_ref }}" >> $GITHUB_ENV
 
     - name: Checkout repository
