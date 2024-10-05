@@ -88,6 +88,7 @@ resource "null_resource" "server_configuration" {
       set -e
       tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
       '
+        rm -rf /opt/biggie/.*
         rm -rf /opt/biggie/*
         eval "$(ssh-agent -s)"
         ssh-add /home/terraform-cd/.ssh/id_ed25519_github
