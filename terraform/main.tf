@@ -89,6 +89,7 @@ resource "null_resource" "server_configuration" {
       tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
       '
         rm -rf /opt/biggie/*
+        eval "$(ssh-agent -s)"
         ssh-add /home/terraform-cd/.ssh/id_ed25519_github.pub
         git clone git@github.com:${var.github_repo_name}.git:${var.github_repo_branch} /opt/biggie
 
