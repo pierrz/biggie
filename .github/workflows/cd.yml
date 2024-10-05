@@ -82,14 +82,23 @@ jobs:
         TF_VAR_data_dir: ${{ secrets.DATA_DIR }}
         TF_VAR_docker_subnet_base: ${{ secrets.DOCKER_SUBNET_BASE }}
         TF_VAR_github_workspace: ${{ github.workspace }}
-        # TF_VAR_github_repo_ssh_uri: git@github.com:${{ github.repository }}.git:${{ github.ref_name }}
         TF_VAR_github_repo_name: ${{ github.repository }}
-        TF_VAR_github_repo_branch: ${{ github.ref_name }}
+        # TF_VAR_github_repo_branch: "" # ${{ github.ref_name }}
         TF_VAR_github_is_pr: ${{ github.event_name == 'pull_request' }}
         # TF_LOG: DEBUG
         # TELEPORT_DEBUG: 1
 
     steps:
+
+    - name: Set Secrets for Push
+      if: github.event_name == 'push'
+      # run: ${{ env.TF_VAR_github_repo_branch }}=${{ github.ref_name }}
+      run: echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
+
+    - name: Set Secrets for Pull Request
+      if: github.event_name == 'pull_request'
+      # run: ${{ env.TF_VAR_github_repo_branch }}=${{ github.head_ref }}
+      run: echo "TF_VAR_github_repo_branch=${{ github.head_ref }}" >> $GITHUB_ENV
 
     - name: Checkout repository
       uses: actions/checkout@v4.1.7
@@ -116,6 +125,7 @@ jobs:
         echo "${{ github.repository }}"
         echo "${{ github.ref_name }}"
         echo "PR branch: ${{ github.head_ref }}"
+        echo "--> ${{ env.TF_VAR_github_repo_branch }}"
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2
