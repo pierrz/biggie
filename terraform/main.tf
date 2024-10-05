@@ -83,6 +83,18 @@ resource "null_resource" "server_configuration" {
   #     tsh scp -r ${var.github_workspace} ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
   #   EOT
   # }
+
+  # if [[ "${var.github_is_pr}" == "true" ]]; then
+  #   # Fetch the PR and checkout
+  #   PULL_NUMBER=${substr(var.github_repo_branch, 6, length(var.github_repo_branch) - 6)}
+  #   echo "Pull #$PULL_NUMBER"
+  #   git clone git@github.com:${var.github_repo_name}.git /opt/biggie
+  #   git fetch origin pull/$PULL_NUMBER/head:pr-$PULL_NUMBER
+  #   git checkout pr-$PULL_NUMBER
+  # else
+  #   # Checkout the regular branch
+  #   git clone --branch ${var.github_repo_branch} --single-branch git@github.com:${var.github_repo_name}.git /opt/biggie
+  # fi
   provisioner "local-exec" {
     command = <<-EOT
       set -e
@@ -94,47 +106,34 @@ resource "null_resource" "server_configuration" {
         ssh-add /home/terraform-cd/.ssh/id_ed25519_github
         echo "Cloning repository ${var.github_repo_name} on branch ${var.github_repo_branch} ..."
         git clone --branch ${var.github_repo_branch} --single-branch git@github.com:${var.github_repo_name}.git /opt/biggie
-
-        # if [[ "${var.github_is_pr}" == "true" ]]; then
-        #   # Fetch the PR and checkout
-        #   PULL_NUMBER=${substr(var.github_repo_branch, 6, length(var.github_repo_branch) - 6)}
-        #   echo "Pull #$PULL_NUMBER"
-        #   git clone git@github.com:${var.github_repo_name}.git /opt/biggie
-        #   git fetch origin pull/$PULL_NUMBER/head:pr-$PULL_NUMBER
-        #   git checkout pr-$PULL_NUMBER
-        # else
-        #   # Checkout the regular branch
-        #   git clone --branch ${var.github_repo_branch} --single-branch git@github.com:${var.github_repo_name}.git /opt/biggie
-        # fi
-
-        tee /opt/biggie/.env > /dev/null <<EOF
-          # main secrets
-          CELERY_BROKER_URL=${var.celery_broker_url}
-          CELERY_RESULT_BACKEND=${var.celery_result_backend}
-          DB_NAME=${var.db_name}
-          POSTGRES_DB=${var.postgres_db}
-          POSTGRES_USER=${var.postgres_user}
-          POSTGRES_PASSWORD=${var.postgres_password}
-          DB_USER=${var.db_user}
-          DB_PASSWORD=${var.db_password}
-          MONGODB_URI=${var.mongodb_uri}
-          MONGO_INITDB_ROOT_USERNAME=${var.mongo_initdb_root_username}
-          MONGO_INITDB_ROOT_PASSWORD=${var.mongo_initdb_root_password}
-          TOKEN_GITHUB_API=${var.token_github_api}
-          DATA_DIR=${var.data_dir}
-          LOGS_DIR=${var.logs_dir}
-          DOCKER_SUBNET_BASE=${var.docker_subnet_base}
-
-          # monitoring
-          PGADMIN_DEFAULT_EMAIL=${var.pgadmin_default_email}
-          PGADMIN_DEFAULT_PASSWORD=${var.pgadmin_default_password}
-          ME_CONFIG_MONGODB_ADMINUSERNAME=${var.me_config_mongodb_adminusername}
-          ME_CONFIG_MONGODB_ADMINPASSWORD=${var.me_config_mongodb_adminpassword}
-          ME_CONFIG_BASICAUTH_USERNAME=${var.me_config_basicauth_username}
-          ME_CONFIG_BASICAUTH_PASSWORD=${var.me_config_basicauth_password}
-        EOF
-
         cd /opt/biggie
+
+        echo "Creating .env file ..."
+        echo "# main secrets" >> .env
+        echo "CELERY_BROKER_URL=${var.celery_broker_url}" >> .env
+        echo "CELERY_RESULT_BACKEND=${var.celery_result_backend}" >> .env
+        echo "DB_NAME=${var.db_name}" >> .env
+        echo "POSTGRES_DB=${var.postgres_db}" >> .env
+        echo "POSTGRES_USER=${var.postgres_user}" >> .env
+        echo "POSTGRES_PASSWORD=${var.postgres_password}" >> .env
+        echo "DB_USER=${var.db_user}" >> .env
+        echo "DB_PASSWORD=${var.db_password}" >> .env
+        echo "MONGODB_URI=${var.mongodb_uri}" >> .env
+        echo "MONGO_INITDB_ROOT_USERNAME=${var.mongo_initdb_root_username}" >> .env
+        echo "MONGO_INITDB_ROOT_PASSWORD=${var.mongo_initdb_root_password}" >> .env
+        echo "TOKEN_GITHUB_API=${var.token_github_api}" >> .env
+        echo "DATA_DIR=${var.data_dir}" >> .env
+        echo "LOGS_DIR=${var.logs_dir}" >> .env
+        echo "DOCKER_SUBNET_BASE=${var.docker_subnet_base}" >> .env
+        echo "# monitoring" >> .env
+        echo "PGADMIN_DEFAULT_EMAIL=${var.pgadmin_default_email}" >> .env
+        echo "PGADMIN_DEFAULT_PASSWORD=${var.pgadmin_default_password}" >> .env
+        echo "ME_CONFIG_MONGODB_ADMINUSERNAME=${var.me_config_mongodb_adminusername}" >> .env
+        echo "ME_CONFIG_MONGODB_ADMINPASSWORD=${var.me_config_mongodb_adminpassword}" >> .env
+        echo "ME_CONFIG_BASICAUTH_USERNAME=${var.me_config_basicauth_username}" >> .env
+        echo "ME_CONFIG_BASICAUTH_PASSWORD=${var.me_config_basicauth_password}" >> .env
+
+        echo "Start Docker Compose setup ..."
         docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile prod_full -d
       '
     EOT
