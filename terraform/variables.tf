@@ -195,12 +195,23 @@ variable "data_dir" {
   type        = string
   description = "Data directory path"
 }
+
+variable "docker_subnet_base" {
+  description = "Docker subnet base"
+  type        = string
+}
+
 variable "github_workspace" {
   description = "Root directory of the GitHub workspace"
   type        = string
 }
-variable "docker_subnet_base" {
-  description = "Docker subnet base"
-  type        = string
 
+variable "github_repo_name" {
+  description = "Name of the GitHub repository"
+  type        = string
+}
+
+variable "github_repo_branch" {
+  description = "Branch currently in use with the GitHub repository"
+  type        = string
 }
