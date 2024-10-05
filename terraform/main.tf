@@ -92,9 +92,9 @@ resource "null_resource" "server_configuration" {
         rm -rf /opt/biggie/*
         eval "$(ssh-agent -s)"
         ssh-add /home/terraform-cd/.ssh/id_ed25519_github
-        git clone git@github.com:${var.github_repo_name}.git:${var.github_repo_branch} /opt/biggie
+        git clone ${var.github_repo_ssh_uri} /opt/biggie
 
-        sudo tee /opt/biggie/.env > /dev/null <<EOF
+        tee /opt/biggie/.env > /dev/null <<EOF
           # main secrets
           CELERY_BROKER_URL=${var.celery_broker_url}
           CELERY_RESULT_BACKEND=${var.celery_result_backend}
