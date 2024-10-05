@@ -86,12 +86,14 @@ resource "null_resource" "server_configuration" {
   provisioner "local-exec" {
     command = <<-EOT
       set -e
+      echo "GitHub Repo URI: ${var.github_repo_ssh_uri}"
       tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
       '
         rm -rf /opt/biggie/.*
         rm -rf /opt/biggie/*
         eval "$(ssh-agent -s)"
         ssh-add /home/terraform-cd/.ssh/id_ed25519_github
+        echo "Cloning repository: ${var.github_repo_ssh_uri}"
         git clone ${var.github_repo_ssh_uri} /opt/biggie
 
         tee /opt/biggie/.env > /dev/null <<EOF
