@@ -72,39 +72,18 @@ resource "null_resource" "server_configuration" {
     EOT
   }
 
-  # Provisioners for the whole Compose setup
-  # provisioner "file" {
-  #   source      = var.github_workspace
-  #   destination = "/opt/biggie"
-  # }
-  # provisioner "local-exec" {
-  #   command = <<-EOT
-  #   set -e
-  #     tsh scp -r ${var.github_workspace} ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
-  #   EOT
-  # }
-
-  # if [[ "${var.github_is_pr}" == "true" ]]; then
-  #   # Fetch the PR and checkout
-  #   PULL_NUMBER=${substr(var.github_repo_branch, 6, length(var.github_repo_branch) - 6)}
-  #   echo "Pull #$PULL_NUMBER"
-  #   git clone git@github.com:${var.github_repo_name}.git /opt/biggie
-  #   git fetch origin pull/$PULL_NUMBER/head:pr-$PULL_NUMBER
-  #   git checkout pr-$PULL_NUMBER
-  # else
-  #   # Checkout the regular branch
-  #   git clone --branch ${var.github_repo_branch} --single-branch git@github.com:${var.github_repo_name}.git /opt/biggie
-  # fi
   provisioner "local-exec" {
     command = <<-EOT
       set -e
       tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
       '
+        echo "Directory preps ..."
         rm -rf /opt/biggie/.*
         rm -rf /opt/biggie/*
+
+        echo "Cloning repository ${var.github_repo_name} on branch ${var.github_repo_branch} ..."
         eval "$(ssh-agent -s)"
         ssh-add /home/terraform-cd/.ssh/id_ed25519_github
-        echo "Cloning repository ${var.github_repo_name} on branch ${var.github_repo_branch} ..."
         git clone --branch ${var.github_repo_branch} --single-branch git@github.com:${var.github_repo_name}.git /opt/biggie
         cd /opt/biggie
 
@@ -133,8 +112,12 @@ resource "null_resource" "server_configuration" {
         echo "ME_CONFIG_BASICAUTH_USERNAME=${var.me_config_basicauth_username}" >> .env
         echo "ME_CONFIG_BASICAUTH_PASSWORD=${var.me_config_basicauth_password}" >> .env
 
-        echo "Start Docker Compose setup ..."
-        docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile prod_full -d
+        echo "Run compose setup ..."
+        docker compose \
+          -f docker-compose.yml \
+          -f docker-compose.monitoring.yml \
+          --profile prod_full \
+          up --detach
       '
     EOT
   }
