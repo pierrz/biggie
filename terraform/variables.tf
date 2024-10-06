@@ -130,17 +130,6 @@ variable "celery_result_backend" {
   description = "Celery result backend"
 }
 
-# Spark variables
-variable "spark_master" {
-  type        = string
-  description = "Spark master URL"
-}
-
-variable "spark_mode" {
-  type        = string
-  description = "Spark mode"
-}
-
 # PGAdmin variables
 variable "pgadmin_default_email" {
   description = "Default email for pgAdmin"
@@ -182,7 +171,6 @@ variable "me_config_mongodb_enable_admin" {
 variable "me_config_mongodb_url" {
   description = "MongoDB URI for Mongo Express"
   type        = string
-  # default     = var.mongodb_uri
 }
 
 # Common variables
@@ -198,6 +186,11 @@ variable "data_dir" {
 
 variable "docker_subnet_base" {
   description = "Docker subnet base"
+  type        = string
+}
+
+variable "compose_prefix" {
+  description = "Compose prefix used to name containers and volumes"
   type        = string
 }
 

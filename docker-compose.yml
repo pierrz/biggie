@@ -6,10 +6,14 @@
 x-biggie-common:
   environment:
     &biggie-common-env
-    MONGODB_URI: "${MONGODB_URI}"
+    # MONGODB_URI: "${MONGODB_URI}"
+    MONGO_USERNAME: "${MONGO_USERNAME}"
+    MONGO_PWD: "${MONGO_PWD}"
+    MONGODB_URI: "mongodb://${MONGO_USERNAME}:${MONGO_PWD}@${COMPOSE_PREFIX}biggie_mongo:27017/"
     DB_NAME: "${DB_NAME}"
     DB_USER: "${DB_USER}"
     DB_PASSWORD: "${DB_PASSWORD}"
+    COMPOSE_PREFIX: "${COMPOSE_PREFIX}"
 
 x-biggie-orchestrator:
   &biggie-orchestrator
@@ -26,11 +30,11 @@ x-biggie-orchestrator:
 
 volumes:
   biggie_vmongo:
-    name: biggie_vmongo
+    name: ${COMPOSE_PREFIX}biggie_vmongo
   biggie_vpostgres:
-    name: biggie_vpostgres
+    name: ${COMPOSE_PREFIX}biggie_vpostgres
   biggie_vrabbitmq:
-    name: biggie_vrabbitmq
+    name: ${COMPOSE_PREFIX}biggie_vrabbitmq
 
 networks:
   biggie-network:
@@ -38,30 +42,14 @@ networks:
     driver: bridge
     ipam:
       config:
-        # range starts at 172.22 to avoid conflicts with the bridge network (172.17)
+        # specific range to avoid conflicts with the bridge network (172.17)
         - subnet: ${DOCKER_SUBNET_BASE}.0/16
+        # - subnet: 172.24.0.0/16
 
 services:
 
-  # nginx:
-  #   build: nginx
-  #   container_name: biggie_nginx
-  #   volumes:
-  #     - ./conf/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
-  #     - ./conf/nginx/certificate.conf:/etc/nginx/certificate.conf:ro
-  #     - ./logs/nginx:/var/log/nginx
-  #     - ./conf/nginx/app_docker.conf:/etc/nginx/sites-enabled/app_docker.conf:ro
-  #     - /etc/letsencrypt:/etc/letsencrypt:ro  # certificate of the host machine
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   depends_on:
-  #     - api_prod
-  #   profiles:
-  #     - live_prod
-
   mongo:
-    container_name: biggie_mongo
+    container_name: ${COMPOSE_PREFIX}biggie_mongo
     build: db/mongo
     restart: always
     environment:
@@ -77,7 +65,7 @@ services:
         ipv4_address: ${DOCKER_SUBNET_BASE}.101
 
   postgres:
-    container_name: biggie_postgres
+    container_name: ${COMPOSE_PREFIX}biggie_postgres
     build: db/postgres
     restart: always
     environment:
@@ -98,7 +86,7 @@ services:
         ipv4_address: ${DOCKER_SUBNET_BASE}.102
 
   api-test:
-    container_name: biggie_api-test
+    container_name: ${COMPOSE_PREFIX}biggie_api-test
     build:
       context: .
       dockerfile: api/Dockerfile
@@ -124,7 +112,7 @@ services:
         ipv4_address: ${DOCKER_SUBNET_BASE}.121
 
   api-prod:
-    container_name: biggie_api-prod
+    container_name: ${COMPOSE_PREFIX}biggie_api-prod
     build:
       context: .
       dockerfile: api/Dockerfile
@@ -152,7 +140,7 @@ services:
         ipv4_address: ${DOCKER_SUBNET_BASE}.122
 
   orchestrator-test:
-    container_name: biggie_orchestrator-test
+    container_name: ${COMPOSE_PREFIX}biggie_orchestrator-test
     build:
       context: .
       dockerfile: orchestrator/Dockerfile
@@ -160,13 +148,13 @@ services:
         - TEST_MODE="True"
     <<: *biggie-orchestrator
     depends_on:
-      - rabbitmq
+      - biggie-rabbitmq
       - mongo
       - postgres
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: python3 -m pytest -vv
+    command: python3 -m pytest -vv test/spark_jobs/test_mongo.py
     profiles:
       - test
     restart: on-failure
@@ -175,13 +163,13 @@ services:
         ipv4_address: ${DOCKER_SUBNET_BASE}.131
 
   orchestrator-prod:
-    container_name: biggie_orchestrator-prod
+    container_name: ${COMPOSE_PREFIX}biggie_orchestrator-prod
     build:
       context: .
       dockerfile: orchestrator/Dockerfile
     <<: *biggie-orchestrator
     depends_on:
-      - rabbitmq
+      - biggie-rabbitmq
       - mongo
       - postgres
       - spark-master
@@ -198,13 +186,17 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.132
 
-  rabbitmq:
-    container_name: biggie_rabbitmq
-    image: rabbitmq:3.13.7-management
+  biggie-rabbitmq:
+    container_name: ${COMPOSE_PREFIX}biggie_rabbitmq
+    build:
+      context: .
+      dockerfile: rabbit-mq/Dockerfile
+      args:
+        - DEFAULT_PORT=${RABBITMQ_PORT}
     restart: on-failure
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+      - "1${RABBITMQ_PORT}:1${RABBITMQ_PORT}"
     volumes:
       - biggie_vrabbitmq:/var/lib/rabbitmq
       - ${LOGS_DIR}/rabbitmq:/var/log/rabbitmq
@@ -217,7 +209,7 @@ services:
         ipv4_address: ${DOCKER_SUBNET_BASE}.133
 
   spark-master:
-    container_name: biggie_spark-master
+    container_name: ${COMPOSE_PREFIX}biggie_spark-master
     build: spark_cluster
     environment:
       - SPARK_MODE=master
@@ -238,7 +230,7 @@ services:
         ipv4_address: ${DOCKER_SUBNET_BASE}.141
 
   spark-worker-1:
-    container_name: biggie_spark-worker-1
+    container_name: ${COMPOSE_PREFIX}biggie_spark-worker-1
     build: spark_cluster
     environment:
       - SPARK_MODE=worker
@@ -260,7 +252,7 @@ services:
         ipv4_address: ${DOCKER_SUBNET_BASE}.142
 
   spark-worker-2:
-    container_name: biggie_spark-worker-2
+    container_name: ${COMPOSE_PREFIX}biggie_spark-worker-2
     build: spark_cluster
     environment:
       - SPARK_MODE=worker

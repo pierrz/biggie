@@ -8,9 +8,7 @@ from sqlalchemy import MetaData, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-host_db = (
-    f"biggie_postgres:5432/{os.getenv('DB_NAME')}"  # with aggregated container name
-)
+host_db = f"{os.getenv('COMPOSE_PREFIX')}biggie_postgres:5432/{os.getenv('DB_NAME')}"
 connection_uri = (
     f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{host_db}"
 )
