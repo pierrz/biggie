@@ -104,6 +104,7 @@ resource "null_resource" "server_configuration" {
         echo "DATA_DIR=${var.data_dir}" >> .env
         echo "LOGS_DIR=${var.logs_dir}" >> .env
         echo "DOCKER_SUBNET_BASE=${var.docker_subnet_base}" >> .env
+        echo "COMPOSE_PREFIX=${var.compose_prefix}" >> .env
         echo "# monitoring" >> .env
         echo "PGADMIN_DEFAULT_EMAIL=${var.pgadmin_default_email}" >> .env
         echo "PGADMIN_DEFAULT_PASSWORD=${var.pgadmin_default_password}" >> .env
