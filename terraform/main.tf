@@ -88,30 +88,46 @@ resource "null_resource" "server_configuration" {
         cd /opt/biggie
 
         echo "Creating .env file ..."
-        echo "# main secrets" >> .env
-        echo "CELERY_BROKER_URL=${var.celery_broker_url}" >> .env
-        echo "CELERY_RESULT_BACKEND=${var.celery_result_backend}" >> .env
+        echo "# Docker routing" >> .env
+        echo "DOCKER_SUBNET_BASE=${var.docker_subnet_base}" >> .env
+        echo "COMPOSE_PREFIX=${var.compose_prefix}" >> .env
+        echo "SPARK_PORTS_RANGE=${var.spark_ports_range}" >> .env
+        echo "RABBITMQ_PORT=${var.rabbitmq_port}" >> .env
+        echo "DATA_DIR=${var.data_dir}" >> .env
+        echo "LOGS_DIR=${var.logs_dir}" >> .env
+        echo "" >> .env
+        echo "# DBs" >> .env
         echo "DB_NAME=${var.db_name}" >> .env
+        echo "# PostgresSQL" >> .env
         echo "POSTGRES_DB=${var.postgres_db}" >> .env
         echo "POSTGRES_USER=${var.postgres_user}" >> .env
         echo "POSTGRES_PASSWORD=${var.postgres_password}" >> .env
-        echo "DB_USER=${var.db_user}" >> .env
-        echo "DB_PASSWORD=${var.db_password}" >> .env
-        echo "MONGODB_URI=${var.mongodb_uri}" >> .env
+        echo "POSTGRES_APP_USER=${var.postgres_app_user}" >> .env
+        echo "POSTGRES_APP_PASSWORD=${var.postgres_app_password}" >> .env
+        echo "# MongoDB" >> .env
         echo "MONGO_INITDB_ROOT_USERNAME=${var.mongo_initdb_root_username}" >> .env
         echo "MONGO_INITDB_ROOT_PASSWORD=${var.mongo_initdb_root_password}" >> .env
+        echo "MONGO_USERNAME=${var.mongo_username}" >> .env
+        echo "MONGO_PASSWORD=${var.mongo_password}" >> .env
+        echo "" >> .env
+        echo "# Orchestrator" >> .env
+        echo "CELERY_BROKER_URL=${var.celery_broker_url}" >> .env
+        echo "CELERY_RESULT_BACKEND=${var.celery_result_backend}" >> .env
         echo "TOKEN_GITHUB_API=${var.token_github_api}" >> .env
-        echo "DATA_DIR=${var.data_dir}" >> .env
-        echo "LOGS_DIR=${var.logs_dir}" >> .env
-        echo "DOCKER_SUBNET_BASE=${var.docker_subnet_base}" >> .env
-        echo "COMPOSE_PREFIX=${var.compose_prefix}" >> .env
-        echo "# monitoring" >> .env
+        echo "" >> .env
+        echo "# Monitoring" >> .env
+        echo "# Flower" >> .env
+        echo "FLOWER_PORT=${var.flower_port}" >> .env
+        echo "# PGadmin" >> .env
         echo "PGADMIN_DEFAULT_EMAIL=${var.pgadmin_default_email}" >> .env
         echo "PGADMIN_DEFAULT_PASSWORD=${var.pgadmin_default_password}" >> .env
+        echo "PGADMIN_DEFAULT_PORT=${var.pgadmin_default_port}" >> .env
+        echo "# Mongo-Express" >> .env
         echo "ME_CONFIG_MONGODB_ADMINUSERNAME=${var.me_config_mongodb_adminusername}" >> .env
         echo "ME_CONFIG_MONGODB_ADMINPASSWORD=${var.me_config_mongodb_adminpassword}" >> .env
         echo "ME_CONFIG_BASICAUTH_USERNAME=${var.me_config_basicauth_username}" >> .env
         echo "ME_CONFIG_BASICAUTH_PASSWORD=${var.me_config_basicauth_password}" >> .env
+        echo "ME_CONFIG_PORT=${var.me_config_port}" >> .env
 
         echo "Run compose setup ..."
         docker compose \

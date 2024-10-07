@@ -27,61 +27,78 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+
+        ##############
+        # CD VARIABLES
+
+        # Debug
+        # TF_LOG: DEBUG
+        # TELEPORT_DEBUG: 1
+
         # Scaleway secrets
         TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
         TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
         TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
         TF_VAR_scaleway_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
+        TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
         TF_VAR_scaleway_server_name: ${{ secrets.SCALEWAY_SERVER_NAME }}
         TF_VAR_scaleway_server_id: ${{ secrets.SCALEWAY_SERVER_ID }}
         TF_VAR_scaleway_server_os_id: ${{ secrets.SCALEWAY_SERVER_OS_ID }}
         TF_VAR_scaleway_server_public_ip: ${{ secrets.SCALEWAY_SERVER_PUBLIC_IP }}
         TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
         TF_VAR_scaleway_ssh_key_names: ${{ secrets.SCALEWAY_SSH_KEY_NAMES }}
-        TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
 
         # Teleport secrets
         TF_VAR_teleport_proxy: ${{ secrets.TELEPORT_PROXY }}
         TF_VAR_teleport_bot: ${{ secrets.TELEPORT_BOT }}
 
-        # Mongo secrets
-        TF_VAR_mongo_initdb_root_username: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
-        TF_VAR_mongo_initdb_root_password: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-        TF_VAR_mongodb_uri: ${{ secrets.MONGODB_URI }}
+        # Github secrets
+        TF_VAR_github_workspace: ${{ github.workspace }}
+        TF_VAR_github_repo_name: ${{ github.repository }}
 
+        ##############
+        # SOFTWARE ENV
+
+        # Docker routing
+        TF_VAR_docker_subnet_base: ${{ secrets.DOCKER_SUBNET_BASE }}
+        TF_VAR_compose_prefix: ${{ secrets.COMPOSE_PREFIX }}
+        TF_VAR_spark_ports_range: ${{ secrets.SPARK_PORTS_RANGE }}
+        TF_VAR_rabbitmq_port: ${{ secrets.RABBITMQ_PORT }}
+        TF_VAR_logs_dir: ${{ secrets.LOGS_DIR }}
+        TF_VAR_data_dir: ${{ secrets.DATA_DIR }}
+
+        # DBs secrets
+        TF_VAR_db_name: ${{ secrets.DB_NAME }}
         # Postgres secrets
         TF_VAR_postgres_db: ${{ secrets.POSTGRES_DB }}
         TF_VAR_postgres_user: ${{ secrets.POSTGRES_USER }}
         TF_VAR_postgres_password: ${{ secrets.POSTGRES_PASSWORD }}
-        TF_VAR_db_name: ${{ secrets.DB_NAME }}
-        TF_VAR_db_user: ${{ secrets.DB_USER }}
-        TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+        TF_VAR_postgres_app_user: ${{ secrets.POSTGRES_APP_USER }}
+        TF_VAR_postgres_app_password: ${{ secrets.POSTGRES_APP_PASSWORD }}
+        # Mongo secrets
+        TF_VAR_mongo_initdb_root_username: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+        TF_VAR_mongo_initdb_root_password: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+        TF_VAR_mongo_username: ${{ secrets.MONGO_USERNAME }}
+        TF_VAR_mongo_password: ${{ secrets.MONGO_PASSWORD }}
 
         # Orchestrator secrets
-        TF_VAR_token_github_api: ${{ secrets.TOKEN_GITHUB_API }}
         TF_VAR_celery_broker_url: ${{ secrets.CELERY_BROKER_URL }}
         TF_VAR_celery_result_backend: ${{ secrets.CELERY_RESULT_BACKEND }}
+        TF_VAR_token_github_api: ${{ secrets.TOKEN_GITHUB_API }}
 
+        # Monitoring
+        # Flower secrets
+        TF_VAR_flower_port: ${{ secrets.FLOWER_PORT }}
+        # PGAdmin secrets
+        TF_VAR_pgadmin_default_email: ${{ secrets.PGADMIN_DEFAULT_EMAIL }}
+        TF_VAR_pgadmin_default_password: ${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
+        TF_VAR_pgadmin_default_port: ${{ secrets.PGADMIN_DEFAULT_PORT }}
         # Mongo-Express secrets
         TF_VAR_me_config_mongodb_adminusername: ${{ secrets.ME_CONFIG_MONGODB_ADMINUSERNAME }}
         TF_VAR_me_config_mongodb_adminpassword: ${{ secrets.ME_CONFIG_MONGODB_ADMINPASSWORD }}
         TF_VAR_me_config_basicauth_username: ${{ secrets.ME_CONFIG_BASICAUTH_USERNAME }}
         TF_VAR_me_config_basicauth_password: ${{ secrets.ME_CONFIG_BASICAUTH_PASSWORD }}
-        TF_VAR_me_config_mongodb_url: ${{ secrets.MONGODB_URI }}
-
-        # PGAdmin secrets
-        TF_VAR_pgadmin_default_email: ${{ secrets.PGADMIN_DEFAULT_EMAIL }}
-        TF_VAR_pgadmin_default_password: ${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
-
-        # COMMONS
-        TF_VAR_logs_dir: ${{ secrets.LOGS_DIR }}
-        TF_VAR_data_dir: ${{ secrets.DATA_DIR }}
-        TF_VAR_docker_subnet_base: ${{ secrets.DOCKER_SUBNET_BASE }}
-        TF_VAR_compose_prefix: ${{ secrets.COMPOSE_PREFIX }}
-        TF_VAR_github_workspace: ${{ github.workspace }}
-        TF_VAR_github_repo_name: ${{ github.repository }}
-        # TF_LOG: DEBUG
-        # TELEPORT_DEBUG: 1
+        TF_VAR_me_config_port: ${{ secrets.ME_CONFIG_PORT }}
 
     steps:
 
@@ -111,23 +128,23 @@ jobs:
         # Enable the submission of anonymous usage telemetry.
         anonymous-telemetry: 1
 
-    - name: Check Teleport connection
-      run: |
-        tsh status --verbose
-        tsh ls
-        echo "${{ github.repository }}"
-        echo "${{ github.ref_name }}"
-        echo "PR branch: ${{ github.head_ref }}"
-        echo "--> ${{ env.TF_VAR_github_repo_branch }}"
+    # - name: Check Teleport connection
+    #   run: |
+    #     tsh status --verbose
+    #     tsh ls
+    #     echo "${{ github.repository }}"
+    #     echo "${{ github.ref_name }}"
+    #     echo "PR branch: ${{ github.head_ref }}"
+    #     echo "--> ${{ env.TF_VAR_github_repo_branch }}"
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2
 
-    - name: Create SSH private key file
-      run: |
-        echo "${{ secrets.SCALEWAY_SSH_PRIVATE_KEY }}" > ${{ github.workspace }}/id_key
-        chmod 600 ${{ github.workspace }}/id_key
-        cat ${{ github.workspace }}/id_key
+    # - name: Create SSH private key file
+    #   run: |
+    #     echo "${{ secrets.SCALEWAY_SSH_PRIVATE_KEY }}" > ${{ github.workspace }}/id_key
+    #     chmod 600 ${{ github.workspace }}/id_key
+    #     cat ${{ github.workspace }}/id_key
 
     - name: Initialize Terraform
       uses: ./.github/actions/terraform

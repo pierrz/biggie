@@ -130,13 +130,12 @@ The `nginx` configuration files are:
 `conf/nginx/monitor_docker.conf`
 <br>
 
-Finally run the `docker compose` command with the `live_prod` profile
-to spin up all that to the world:
+Finally run the `docker compose` command to spin up the whole shewbang:
 ```
 docker compose \
   -f docker-compose.yml \
   -f docker-compose.monitoring.yml \
-  --profile prod_full --profile live_prod \
+  --profile prod_full \
   up
 ```
 
