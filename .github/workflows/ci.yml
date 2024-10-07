@@ -20,7 +20,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  RELEASE: 0.5.2                # /!\ increase this to avoid overwriting older image
+  RELEASE: 0.5.3                # /!\ increase this to avoid overwriting older image
 
 jobs:
 

@@ -1,5 +1,5 @@
 # TODO:
-#  - Spark and Postgres logs as files
+#  - Postgres, Mongo and Spark logs as files (permissions issues related to their volumes)
 #  - debug setup
 
 x-biggie-common:
@@ -71,9 +71,9 @@ services:
       <<: *mongo-env
     volumes:
       - biggie-vmongo:/data/db
-      - ${LOGS_DIR}/mongodb:/var/log/mongodb
       - ./db/mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
       - ./db/mongo/mongod.conf:/etc/mongod.conf:ro
+      # - ${LOGS_DIR}/mongodb:/var/log/mongodb
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.101
