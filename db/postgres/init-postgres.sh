@@ -2,22 +2,25 @@
 
 set -e
 
-echo "Initializing PostgreSQL database..."
+echo "Initializing PostgreSQL database from Compose ..."
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+
     -- Create a new user
-    CREATE USER "$DB_USER" WITH PASSWORD '$DB_PASSWORD';
+    CREATE USER "$POSTGRES_APP_USER" WITH PASSWORD '$POSTGRES_APP_PASSWORD';
 
     -- Create a new database
     CREATE DATABASE "$DB_NAME";
 
     -- Grant privileges on public
-    GRANT ALL PRIVILEGES ON DATABASE "$DB_NAME" TO "$DB_USER";
+    GRANT ALL PRIVILEGES ON DATABASE "$DB_NAME" TO "$POSTGRES_APP_USER";
 
     -- Check available databases
     SELECT datname FROM pg_database;
 
 EOSQL
+
+echo "PostgreSQL initialization completed."
 
 
 # TODO: to fix and use with Postgres 16.4

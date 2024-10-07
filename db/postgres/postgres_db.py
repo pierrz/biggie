@@ -2,18 +2,15 @@
 All postgres database related code
 """
 
-import os
-
+from config import main_config
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-host_db = f"{os.getenv('COMPOSE_PREFIX')}biggie_postgres:5432/{os.getenv('DB_NAME')}"
-connection_uri = (
-    f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{host_db}"
-)
+HOST_DB = f"{main_config.POSTGRESDB_HOST}/{main_config.DB_NAME}"
+POSTGRES_URI = f"postgresql://{main_config.POSTGRES_APP_USER}:{main_config.POSTGRES_APP_PASSWORD}@{HOST_DB}"
 
-pg_engine = create_engine(connection_uri)
+pg_engine = create_engine(POSTGRES_URI)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
 Base = declarative_base()
 metadata = MetaData()
