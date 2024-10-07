@@ -2,11 +2,10 @@
 Mongo objects module
 """
 
-import os
-
+from config import main_config
 from pymongo import MongoClient
 
 
 def init_pymongo_client():
-    mongo = MongoClient(os.getenv("MONGODB_URI"))
-    return mongo[os.getenv("DB_NAME")]
+    mongo = MongoClient(main_config.MONGODB_URI)
+    return mongo[main_config.DB_NAME]

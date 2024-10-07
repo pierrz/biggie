@@ -1,19 +1,35 @@
 # TODO:
-#  - mount/retrieve Spark, Mongo and Postgres logs
-#  - implement Mongo conf for authentication
+#  - Spark and Postgres logs as files
 #  - debug setup
 
 x-biggie-common:
   environment:
     &biggie-common-env
-    # MONGODB_URI: "${MONGODB_URI}"
-    MONGO_USERNAME: "${MONGO_USERNAME}"
-    MONGO_PWD: "${MONGO_PWD}"
-    MONGODB_URI: "mongodb://${MONGO_USERNAME}:${MONGO_PWD}@${COMPOSE_PREFIX}biggie_mongo:27017/"
-    DB_NAME: "${DB_NAME}"
-    DB_USER: "${DB_USER}"
-    DB_PASSWORD: "${DB_PASSWORD}"
     COMPOSE_PREFIX: "${COMPOSE_PREFIX}"
+    DB_NAME: "${DB_NAME}"
+    MONGODB_URI: "mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${COMPOSE_PREFIX}biggie_mongo:27017/"
+    POSTGRESDB_HOST: "${COMPOSE_PREFIX}biggie_postgres:5432"
+    POSTGRES_APP_USER: "${POSTGRES_APP_USER}"
+    POSTGRES_APP_PASSWORD: "${POSTGRES_APP_PASSWORD}"
+
+x-postgres:
+  environment:
+    &postgres-env
+    DB_NAME: "${DB_NAME}"
+    POSTGRES_DB: "${POSTGRES_DB}"
+    POSTGRES_USER: "${POSTGRES_USER}"
+    POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    POSTGRES_APP_USER: "${POSTGRES_APP_USER}"
+    POSTGRES_APP_PASSWORD: "${POSTGRES_APP_PASSWORD}"
+
+x-mongo:
+  environment:
+    &mongo-env
+    DB_NAME: "${DB_NAME}"
+    MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
+    MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
+    MONGO_USERNAME: "${MONGO_USERNAME}"
+    MONGO_PASSWORD: "${MONGO_PASSWORD}"
 
 x-biggie-orchestrator:
   &biggie-orchestrator
@@ -29,11 +45,11 @@ x-biggie-orchestrator:
     - ${DATA_DIR}:/opt/data
 
 volumes:
-  biggie_vmongo:
+  biggie-vmongo:
     name: ${COMPOSE_PREFIX}biggie_vmongo
-  biggie_vpostgres:
+  biggie-vpostgres:
     name: ${COMPOSE_PREFIX}biggie_vpostgres
-  biggie_vrabbitmq:
+  biggie-vrabbitmq:
     name: ${COMPOSE_PREFIX}biggie_vrabbitmq
 
 networks:
@@ -44,7 +60,6 @@ networks:
       config:
         # specific range to avoid conflicts with the bridge network (172.17)
         - subnet: ${DOCKER_SUBNET_BASE}.0/16
-        # - subnet: 172.24.0.0/16
 
 services:
 
@@ -53,13 +68,12 @@ services:
     build: db/mongo
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
-      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
+      <<: *mongo-env
     volumes:
-      - biggie_vmongo:/data/db
+      - biggie-vmongo:/data/db
       - ${LOGS_DIR}/mongodb:/var/log/mongodb
-      # TODO: implement authentication for api container calls
-      # - ./db/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+      - ./db/mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+      - ./db/mongo/mongod.conf:/etc/mongod.conf:ro
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.101
@@ -69,16 +83,11 @@ services:
     build: db/postgres
     restart: always
     environment:
-      POSTGRES_DB: "${POSTGRES_DB}"
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      DB_NAME: "${DB_NAME}"
-      DB_USER: "${DB_USER}"
-      DB_PASSWORD: "${DB_PASSWORD}"
+      <<: *postgres-env
     volumes:
-      - biggie_vpostgres:/var/lib/postgresql/data
-      - ./db/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-      - ${LOGS_DIR}/postgresql:/var/log/postgresql #/postgresql-14.9-main.log
+      - biggie-vpostgres:/var/lib/postgresql/data
+      - ./db/postgres/init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh:ro
+      # - ${LOGS_DIR}/postgresql:/var/log/postgres
     ports:
       - "5432:5432"
     networks:
@@ -154,7 +163,7 @@ services:
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: python3 -m pytest -vv test/spark_jobs/test_mongo.py
+    command: python3 -m pytest -vv  # test/spark_jobs/test_mongo.py   # test/spark_jobs/test_postgres.py
     profiles:
       - test
     restart: on-failure
@@ -198,7 +207,7 @@ services:
       - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
       - "1${RABBITMQ_PORT}:1${RABBITMQ_PORT}"
     volumes:
-      - biggie_vrabbitmq:/var/lib/rabbitmq
+      - biggie-vrabbitmq:/var/lib/rabbitmq
       - ${LOGS_DIR}/rabbitmq:/var/log/rabbitmq
     profiles:
       - test

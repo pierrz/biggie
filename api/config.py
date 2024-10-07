@@ -18,4 +18,4 @@ class Config(BaseSettings):
     LOCAL_DEV: bool = True
 
 
-app_config = Config()
+main_config = Config()

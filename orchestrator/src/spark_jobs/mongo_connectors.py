@@ -7,7 +7,7 @@ Mongo connectors
 from abc import ABC
 from typing import Iterable, Tuple
 
-from config import pyspark_config
+from config import main_config
 
 # pylint: disable=E0611
 from pyspark.sql import DataFrame
@@ -18,7 +18,7 @@ from src.commons import names as ns
 from .connectors import ReaderBase
 from .session import spark_session
 
-mongo_params = {"database": pyspark_config.DB_NAME}
+mongo_params = {"database": main_config.DB_NAME}
 
 
 class MongoCollection(ABC):
@@ -46,7 +46,7 @@ class MongoLoader(ABC):
         logger.info("=> Loading Mongo ...")
         mongo_write_params = {
             "collection": collection,
-            "uri": pyspark_config.MONGODB_URI,
+            "uri": main_config.MONGODB_URI,
             **mongo_params,
         }
         spark_df.write.format("mongodb").options(**mongo_write_params).mode(

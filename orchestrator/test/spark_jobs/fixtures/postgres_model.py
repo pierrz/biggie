@@ -3,7 +3,7 @@ from datetime import datetime
 from test.sparky.base_test import PostgresTestReader
 from typing import List
 
-# from config import pyspark_config
+# from config import main_config
 from pydantic import BaseModel
 from sqlalchemy import ARRAY, BigInteger, Column, DateTime, Float, String
 from src.db.postgres_db import Base
@@ -23,7 +23,7 @@ class TestModel(BaseModel):
 
 # class TableBase(ABC, Base):
 #     table: str
-#     __tablename__ = f"{pyspark_config.DB_USER}_schema.{table}"
+#     __tablename__ = f"{main_config.DB_USER}_schema.{table}"
 
 
 # class TestTable(TableBase):
