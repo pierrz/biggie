@@ -5,10 +5,18 @@
 name: CI Pipeline
 
 on:
-  workflow_run:
-    workflows: ["CodeQL Analysis"]
-    types: [completed]
-  # workflow_dispatch:      # manual trigger
+  # workflow_run:
+  #   workflows: ["CodeQL Analysis"]
+  #   types: [completed]
+  push:
+    branches:
+      - "main"
+      # - "features/**"
+  pull_request:
+    branches:
+      - "main"
+      # - "features/**"
+  workflow_dispatch:      # manual trigger
 
 env:
   REGISTRY: ghcr.io
