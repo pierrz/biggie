@@ -20,9 +20,9 @@ on:
     branches:
       - "main"
       # - "features/**"
-  schedule:
-    - cron: '30 20 * * 4'
-  # workflow_dispatch:      # manual trigger
+  # schedule:
+  #   - cron: '30 20 * * 4'
+  workflow_dispatch:      # manual trigger
 
 jobs:
   analyze:
