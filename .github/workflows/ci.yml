@@ -92,14 +92,14 @@ jobs:
       CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
       CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
       DB_NAME: ${{ secrets.DB_NAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_USER: ${{ secrets.DB_USER }}
-      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      MONGODB_URI: "mongodb://${{ secrets.MONGO_USERNAME }}:${{ secrets.MONGO_PASSWORD }}@biggie_mongo:27017/"
       MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
       MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_APP_USER: ${{ secrets.POSTGRES_APP_USER }}
+      POSTGRES_APP_PASSWORD: ${{ secrets.POSTGRES_APP_PASSWORD }}
       TOKEN_GITHUB_API: ${{ secrets.TOKEN_GITHUB_API }}
       DATA_DIR: ${{ secrets.DATA_DIR }}
       NETWORK: ci_network
@@ -134,8 +134,8 @@ jobs:
             --env POSTGRES_USER=${{ env.POSTGRES_USER }} \
             --env POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} \
             --env DB_NAME=${{ env.DB_NAME }} \
-            --env DB_USER=${{ env.DB_USER }} \
-            --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
+            --env DB_USER=${{ env.POSTGRES_APP_USER }} \
+            --env DB_PASSWORD=${{ env.POSTGRES_APP_PASSWORD }} \
             --network=${{ env.NETWORK }} \
             --volume ./db/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
             biggie_postgres:latest
@@ -166,8 +166,8 @@ jobs:
           docker run --name biggie_api-test \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
             --env DB_NAME=${{ env.DB_NAME }} \
-            --env DB_USER=${{ env.DB_USER }} \
-            --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
+            --env POSTGRES_APP_USER=${{ env.POSTGRES_APP_USER }} \
+            --env POSTGRES_APP_PASSWORD=${{ env.POSTGRES_APP_PASSWORD }} \
             --network=${{ env.NETWORK }} \
             --volume ${{ env.DATA_DIR }}:/opt/data \
             ghcr.io/pierrz/biggie_api_img:latest \
@@ -182,8 +182,8 @@ jobs:
             --env CELERY_RESULT_BACKEND=${{ env.CELERY_RESULT_BACKEND }} \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
             --env DB_NAME=${{ env.DB_NAME }} \
-            --env DB_USER=${{ env.DB_USER }} \
-            --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
+            --env POSTGRES_APP_USER=${{ env.POSTGRES_APP_USER }} \
+            --env POSTGRES_APP_PASSWORD=${{ env.POSTGRES_APP_PASSWORD }} \
             --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }} \
             --env TEST_MODE="True" \
             --network=${{ env.NETWORK }} \
