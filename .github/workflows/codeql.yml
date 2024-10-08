@@ -13,13 +13,9 @@ name: CodeQL
 
 on:
   push:
-    branches:
-      - "main"
-      # - "feature/**"
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - "main"
-      # - "feature/**"
+    branches: [ "main" ]
   schedule:
     - cron: '30 20 * * 4'
   workflow_dispatch:      # manual trigger
