@@ -110,7 +110,6 @@ jobs:
 
       - name: Create Mongo container
         run: |
-          docker network create -d bridge ${{ env.NETWORK }}
           docker build db/mongo --tag biggie_mongo:latest
           docker run -d --name biggie_mongo \
             --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} \
