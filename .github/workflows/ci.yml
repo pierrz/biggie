@@ -5,13 +5,6 @@
 name: CI Pipeline
 
 on:
-  push:
-    branches:
-      - main
-    #   - 'features/**'
-  pull_request:
-    branches:
-      - main
   workflow_run:
     workflows: ["CodeQL Analysis"]
     types:
@@ -25,7 +18,6 @@ env:
 jobs:
 
   build-and-push-image-api:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     name: API - build/push image
     runs-on: ubuntu-latest

@@ -76,7 +76,7 @@ resource "null_resource" "server_configuration" {
     command = <<-EOT
       set -e
       tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
-      """
+      '
         echo "Directory preps ..."
         rm -rf /opt/biggie/.*
         rm -rf /opt/biggie/*
@@ -136,7 +136,7 @@ resource "null_resource" "server_configuration" {
           -f docker-compose.monitoring.yml \
           --profile prod_full \
           up --detach
-      """
+      '
     EOT
   }
 
