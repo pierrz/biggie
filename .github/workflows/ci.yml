@@ -89,21 +89,10 @@ jobs:
       contents: write
 
     env:
-      # CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
-      # CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
-      # DB_NAME: ${{ secrets.DB_NAME }}
       MONGODB_URI: "mongodb://${{ secrets.MONGO_USERNAME }}:${{ secrets.MONGO_PASSWORD }}@biggie_mongo:27017/"
-      # MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-      # MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
-      # POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      # POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      # POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      # POSTGRES_APP_USER: ${{ secrets.POSTGRES_APP_USER }}
-      # POSTGRES_APP_PASSWORD: ${{ secrets.POSTGRES_APP_PASSWORD }}
-      # TOKEN_GITHUB_API: ${{ secrets.TOKEN_GITHUB_API }}
-      # DATA_DIR: ${{ secrets.DATA_DIR }}
       NETWORK: ci_network
-
+      POSTGRES_HOST: "biggie_postgres:5432"
+      SPARK_MASTER_URL: "spark://spark-master:7077"
     steps:
 
       - name: Checkout repository
@@ -117,6 +106,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create network & Mongo container
+        run: docker network create -d bridge ${{ env.NETWORK }}
+
+      - name: Create Mongo container
         run: |
           docker network create -d bridge ${{ env.NETWORK }}
           docker build db/mongo --tag biggie_mongo:latest
@@ -152,16 +144,16 @@ jobs:
             biggie_spark:latest \
           && docker run -d --name biggie_spark-worker-1 \
             --env SPARK_MODE=worker \
-            --env SPARK_MASTER_URL=spark://spark-master:7077 \
+            --env SPARK_MASTER_URL=${{ env.SPARK_MASTER_URL }} \
             --network=${{ env.NETWORK }} \
             biggie_spark:latest \
           && docker run -d --name biggie_spark-worker-2 \
             --env SPARK_MODE=worker \
-            --env SPARK_MASTER_URL=spark://spark-master:7077 \
+            --env SPARK_MASTER_URL=${{ env.SPARK_MASTER_URL }} \
             --network=${{ env.NETWORK }} \
             biggie_spark:latest
 
-      - name: Test API image
+      - name: API tests
         run: |
           docker run --name biggie_api-test \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
@@ -175,13 +167,14 @@ jobs:
             pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
             mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage"
 
-      - name: Create Orchestrator container
+      - name: Orchestrator tests
         run: |
           docker run --name biggie_orchestrator-test \
             --env CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }} \
             --env CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }} \
             --env MONGODB_URI=${{ env.MONGODB_URI }} \
             --env DB_NAME=${{ secrets.DB_NAME }} \
+            --env POSTGRESDB_HOST=${{ env.POSTGRES_HOST }} \
             --env POSTGRES_APP_USER=${{ secrets.POSTGRES_APP_USER }} \
             --env POSTGRES_APP_PASSWORD=${{ secrets.POSTGRES_APP_PASSWORD }} \
             --env TOKEN_GITHUB_API=${{ secrets.TOKEN_GITHUB_API }} \
