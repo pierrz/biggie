@@ -104,6 +104,7 @@ resource "null_resource" "server_configuration" {
         echo "POSTGRES_PASSWORD=${var.postgres_password}" >> .env
         echo "POSTGRES_APP_USER=${var.postgres_app_user}" >> .env
         echo "POSTGRES_APP_PASSWORD=${var.postgres_app_password}" >> .env
+        echo "POSTGRES_PORT=${var.postgres_port}" >> .env
         echo "# MongoDB" >> .env
         echo "MONGO_INITDB_ROOT_USERNAME=${var.mongo_initdb_root_username}" >> .env
         echo "MONGO_INITDB_ROOT_PASSWORD=${var.mongo_initdb_root_password}" >> .env

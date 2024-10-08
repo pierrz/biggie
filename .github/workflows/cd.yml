@@ -75,6 +75,7 @@ jobs:
         TF_VAR_postgres_password: ${{ secrets.POSTGRES_PASSWORD }}
         TF_VAR_postgres_app_user: ${{ secrets.POSTGRES_APP_USER }}
         TF_VAR_postgres_app_password: ${{ secrets.POSTGRES_APP_PASSWORD }}
+        TF_VAR_postgres_port: ${{ secrets.POSTGRES_PORT }}
         # Mongo secrets
         TF_VAR_mongo_initdb_root_username: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
         TF_VAR_mongo_initdb_root_password: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}

@@ -125,6 +125,10 @@ variable "postgres_app_password" {
   type        = string
   description = "PostgreSQL password for clients"
 }
+variable "postgres_port" {
+  type        = number
+  description = "Host port for PostgreSQL"
+}
 # Mongo variables
 variable "mongo_initdb_root_username" {
   type        = string
