@@ -1,18 +1,22 @@
-name: CD Pipeline
+name: CD
 
 on:
-  push:
-    branches:
-      - "main"
-      # - "features/**"
-  pull_request:
-    branches:
-      - "main"
-      # - "features/**"
-  # workflow_run:
-  #   workflows: ["CI Pipeline"]
-  #   types: [completed]
-  workflow_dispatch:      # manual trigger
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+# on:
+#   # push:
+#   #   branches:
+#   #     - "main"
+#   #     # - "feature/**"
+#   # pull_request:
+#   #   branches:
+#   #     - "main"
+#       # - "feature/**"
+#   workflow_run:
+#     workflows: ["CI Pipeline"]
+#     types: [completed]
+  # workflow_dispatch:      # manual trigger
 
 jobs:
 
@@ -101,7 +105,7 @@ jobs:
         TF_VAR_me_config_basicauth_password: ${{ secrets.ME_CONFIG_BASICAUTH_PASSWORD }}
         TF_VAR_me_config_port: ${{ secrets.ME_CONFIG_PORT }}
 
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
 
     - name: Set Secrets for Push
