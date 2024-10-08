@@ -9,7 +9,7 @@ on:
     workflows: ["CodeQL Analysis"]
     types:
       - completed
-  workflow_dispatch:      # manual trigger
+  # workflow_dispatch:      # manual trigger
 
 env:
   REGISTRY: ghcr.io
