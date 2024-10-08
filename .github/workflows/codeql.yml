@@ -22,7 +22,7 @@ on:
       # - "features/**"
   schedule:
     - cron: '30 20 * * 4'
-  workflow_dispatch:      # manual trigger
+  # workflow_dispatch:      # manual trigger
 
 jobs:
   analyze:
