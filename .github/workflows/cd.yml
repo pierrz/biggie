@@ -105,7 +105,6 @@ jobs:
         TF_VAR_me_config_basicauth_password: ${{ secrets.ME_CONFIG_BASICAUTH_PASSWORD }}
         TF_VAR_me_config_port: ${{ secrets.ME_CONFIG_PORT }}
 
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
 
     - name: Set Secrets for Push
