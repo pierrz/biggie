@@ -2,44 +2,35 @@
 #  - Postgres, Mongo and Spark logs as files (permissions issues related to their volumes)
 #  - debug setup
 
-x-biggie-common:
-  environment:
-    &biggie-common-env
-    COMPOSE_PREFIX: "${COMPOSE_PREFIX}"
-    DB_NAME: "${DB_NAME}"
-    MONGODB_URI: "mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${COMPOSE_PREFIX}biggie_mongo:27017/"
-    POSTGRESDB_HOST: "${COMPOSE_PREFIX}biggie_postgres:5432"
-    POSTGRES_APP_USER: "${POSTGRES_APP_USER}"
-    POSTGRES_APP_PASSWORD: "${POSTGRES_APP_PASSWORD}"
+x-biggie-common-env: &biggie-common-env
+  COMPOSE_PREFIX: "${COMPOSE_PREFIX}"
+  DB_NAME: "${DB_NAME}"
+  MONGODB_URI: "mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${COMPOSE_PREFIX}biggie_mongo:27017/"
+  POSTGRESDB_HOST: "${COMPOSE_PREFIX}biggie_postgres:5432"
+  POSTGRES_APP_USER: "${POSTGRES_APP_USER}"
+  POSTGRES_APP_PASSWORD: "${POSTGRES_APP_PASSWORD}"
 
-x-postgres:
-  environment:
-    &postgres-env
-    DB_NAME: "${DB_NAME}"
-    POSTGRES_DB: "${POSTGRES_DB}"
-    POSTGRES_USER: "${POSTGRES_USER}"
-    POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-    POSTGRES_APP_USER: "${POSTGRES_APP_USER}"
-    POSTGRES_APP_PASSWORD: "${POSTGRES_APP_PASSWORD}"
+x-postgres-env: &postgres-env
+  DB_NAME: "${DB_NAME}"
+  POSTGRES_DB: "${POSTGRES_DB}"
+  POSTGRES_USER: "${POSTGRES_USER}"
+  POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+  POSTGRES_APP_USER: "${POSTGRES_APP_USER}"
+  POSTGRES_APP_PASSWORD: "${POSTGRES_APP_PASSWORD}"
 
-x-mongo:
-  environment:
-    &mongo-env
-    DB_NAME: "${DB_NAME}"
-    MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
-    MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
-    MONGO_USERNAME: "${MONGO_USERNAME}"
-    MONGO_PASSWORD: "${MONGO_PASSWORD}"
+x-mongo-env: &mongo-env
+  DB_NAME: "${DB_NAME}"
+  MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
+  MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
+  MONGO_USERNAME: "${MONGO_USERNAME}"
+  MONGO_PASSWORD: "${MONGO_PASSWORD}"
 
-x-biggie-orchestrator:
-  &biggie-orchestrator
+x-biggie-orchestrator: &biggie-orchestrator
   environment:
-    &biggie-orchestrator-env
     <<: *biggie-common-env
-    TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
-    # PYTHON_ENABLE_DEBUGGER: 1   # debug mode
+    TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
   volumes:
     - ${LOGS_DIR}/orchestrator:/opt/orchestrator/logs
     - ${DATA_DIR}:/opt/data
@@ -89,7 +80,7 @@ services:
       - ./db/postgres/init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh:ro
       # - ${LOGS_DIR}/postgresql:/var/log/postgres
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.102
@@ -157,13 +148,13 @@ services:
         - TEST_MODE="True"
     <<: *biggie-orchestrator
     depends_on:
-      - biggie-rabbitmq
+      - rabbitmq
       - mongo
       - postgres
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: python3 -m pytest -vv  # test/spark_jobs/test_mongo.py   # test/spark_jobs/test_postgres.py
+    command: python3 -m pytest -vv
     profiles:
       - test
     restart: on-failure
@@ -178,7 +169,7 @@ services:
       dockerfile: orchestrator/Dockerfile
     <<: *biggie-orchestrator
     depends_on:
-      - biggie-rabbitmq
+      - rabbitmq
       - mongo
       - postgres
       - spark-master
@@ -195,17 +186,11 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.132
 
-  biggie-rabbitmq:
+  rabbitmq:
     container_name: ${COMPOSE_PREFIX}biggie_rabbitmq
-    build:
-      context: .
-      dockerfile: rabbit-mq/Dockerfile
-      # args:
-      #   - RABBITMQ_PORT=${RABBITMQ_PORT}
+    image: rabbitmq:3.13.7-management
     restart: on-failure
     ports:
-      # - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
-      # - "1${RABBITMQ_PORT}:1${RABBITMQ_PORT}"
       - "${RABBITMQ_PORT}:5672"
       - "1${RABBITMQ_PORT}:15672"
     volumes:
