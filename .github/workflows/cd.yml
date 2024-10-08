@@ -129,23 +129,8 @@ jobs:
         # Enable the submission of anonymous usage telemetry.
         anonymous-telemetry: 1
 
-    # - name: Check Teleport connection
-    #   run: |
-    #     tsh status --verbose
-    #     tsh ls
-    #     echo "${{ github.repository }}"
-    #     echo "${{ github.ref_name }}"
-    #     echo "PR branch: ${{ github.head_ref }}"
-    #     echo "--> ${{ env.TF_VAR_github_repo_branch }}"
-
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2
-
-    # - name: Create SSH private key file
-    #   run: |
-    #     echo "${{ secrets.SCALEWAY_SSH_PRIVATE_KEY }}" > ${{ github.workspace }}/id_key
-    #     chmod 600 ${{ github.workspace }}/id_key
-    #     cat ${{ github.workspace }}/id_key
 
     - name: Initialize Terraform
       uses: ./.github/actions/terraform
