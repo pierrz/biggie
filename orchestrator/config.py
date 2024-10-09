@@ -62,17 +62,20 @@ class HarvesterConfig(BaseSettings):
     PER_PAGE: int = 20
 
 
-class PySparkConfig(BaseSettings):
+class MainConfig(BaseSettings):
     """
     PySpark module config
     """
 
     MONGODB_URI: str
+    POSTGRESDB_HOST: str
+    POSTGRES_APP_USER: str
+    POSTGRES_APP_PASSWORD: str
     DB_NAME: str
-    # DB_USER: str      # TODO: might be usefult to implement Postgres 16.4
-
+    # POSTGRES_USER: str      # TODO: might be usefult to implement Postgres 16.x
+    
 
 celery_config = CeleryConfig()
 harvester_config = HarvesterConfig()
-pyspark_config = PySparkConfig()
+main_config = MainConfig()
 data_directories = DataDirectories()

@@ -2,26 +2,29 @@
 #  - Can be self-hosted for debugging purposes
 #  - TODO: fix the Github action about PR comments from coverage report (very end of this file)
 
-name: CI Pipeline
+name: CI
 
 on:
-  push:
-    branches:
-      - main
-    #   - 'features/**'
-  pull_request:
-    branches:
-      - main
-
-  workflow_dispatch:
+  workflow_dispatch:      # manual trigger
+  workflow_run:
+    workflows: [CodeQL]
+    types: [completed]
+  # push:
+  #   branches:
+  #     - "main"
+  #     # - "feature/**"
+  # pull_request:
+  #   branches:
+  #     - "main"
+  #     # - "feature/**"
 
 env:
   REGISTRY: ghcr.io
-  RELEASE: 0.5.2                # /!\ increase this to avoid overwriting older image
+  RELEASE: 0.5.3                # /!\ increase this to avoid overwriting older image
 
 jobs:
 
-  build-and-push-image-api:
+  build-and-push-api:
 
     name: API - build/push image
     runs-on: ubuntu-latest
@@ -46,7 +49,7 @@ jobs:
           tag: ${{ env.RELEASE }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  build-and-push-image-orchestrator:
+  build-and-push-orchestrator:
 
     name: Orchestrator - build/push image
     runs-on: ubuntu-latest
@@ -74,7 +77,7 @@ jobs:
   test:
 
     name: Tests
-    needs: [build-and-push-image-api, build-and-push-image-orchestrator]
+    needs: [build-and-push-api, build-and-push-orchestrator]
     runs-on: ubuntu-latest
     # runs-on: self-hosted
     permissions:
@@ -84,151 +87,163 @@ jobs:
       contents: write
 
     env:
-      CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
-      CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_USER: ${{ secrets.DB_USER }}
-      MONGODB_URI: ${{ secrets.MONGODB_URI }}
-      MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-      MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      TOKEN_GITHUB_API: ${{ secrets.TOKEN_GITHUB_API }}
-      DATA_DIR: ${{ secrets.DATA_DIR }}
+
       NETWORK: ci_network
+      SPARK_MASTER_URL: "spark://spark-master:7077"
+      POSTGRES_HOST: "biggie_postgres:5432"
+      MONGODB_URI: "mongodb://${{ secrets.MONGO_USERNAME }}:${{ secrets.MONGO_PASSWORD }}@biggie_mongo:27017/?authSource=${{ secrets.DB_NAME }}"
 
     steps:
 
-      - name: Checkout repository
-        uses: actions/checkout@v4.1.7
+    - name: Checkout repository
+      uses: actions/checkout@v4.1.7
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3.3.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Log in to the Container registry
+      uses: docker/login-action@v3.3.0
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create network & Mongo container
-        run: |
-          docker network create -d bridge ${{ env.NETWORK }}
-          docker build db/mongo --tag biggie_mongo:latest
-          docker run -d --name biggie_mongo \
-            --env MONGO_INITDB_ROOT_USERNAME=${{ env.MONGO_INITDB_ROOT_USERNAME }} \
-            --env MONGO_INITDB_ROOT_PASSWORD=${{ env.MONGO_INITDB_ROOT_PASSWORD }} \
-            --network=${{ env.NETWORK }} \
-            mongo:7.0.14
+    - name: Create network & Mongo container
+      run: docker network create -d bridge ${{ env.NETWORK }}
 
-      - name: Create Postgres container
-        run: |
-          docker build db/postgres --tag biggie_postgres:latest
-          docker run -d --name biggie_postgres \
-            --env POSTGRES_DB=${{ env.POSTGRES_DB }} \
-            --env POSTGRES_USER=${{ env.POSTGRES_USER }} \
-            --env POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} \
-            --env DB_NAME=${{ env.DB_NAME }} \
-            --env DB_USER=${{ env.DB_USER }} \
-            --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
-            --network=${{ env.NETWORK }} \
-            --volume ./db/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
-            biggie_postgres:latest
+    - name: Create Mongo container
+      run: |
+        docker build db/mongo --tag biggie_mongo:latest
+        chmod +x ./db/mongo/mongo-init.sh
+        docker run -d --name biggie_mongo \
+          --env DB_NAME=${{ secrets.DB_NAME }} \
+          --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} \
+          --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} \
+          --env MONGO_USERNAME=${{ secrets.MONGO_USERNAME }} \
+          --env MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} \
+          --network=${{ env.NETWORK }} \
+          --volume ./db/mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh \
+          --volume ./db/mongo/mongod.conf:/etc/mongod.conf \
+          biggie_mongo:latest
 
-      # /!\ The flag --network-alias spark-master is CRITICAL for the master /!\
-      - name: Create Spark containers (master and workers)
-        run: |
-          docker build spark_cluster --tag biggie_spark:latest
-          docker run -d --name biggie_spark-master \
-            --env SPARK_MODE=master \
-            --publish 7077:7077 \
-            --network=${{ env.NETWORK }} \
-            --network-alias spark-master \
-            biggie_spark:latest \
-          && docker run -d --name biggie_spark-worker-1 \
-            --env SPARK_MODE=worker \
-            --env SPARK_MASTER_URL=spark://spark-master:7077 \
-            --network=${{ env.NETWORK }} \
-            biggie_spark:latest \
-          && docker run -d --name biggie_spark-worker-2 \
-            --env SPARK_MODE=worker \
-            --env SPARK_MASTER_URL=spark://spark-master:7077 \
-            --network=${{ env.NETWORK }} \
-            biggie_spark:latest
+    - name: Create Postgres container
+      run: |
+        docker build db/postgres --tag biggie_postgres:latest
+        chmod +x ./db/postgres/init-postgres.sh
+        docker run -d --name biggie_postgres \
+          --env DB_NAME=${{ secrets.DB_NAME }} \
+          --env POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+          --env POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+          --env POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+          --env POSTGRES_APP_USER=${{ secrets.POSTGRES_APP_USER }} \
+          --env POSTGRES_APP_PASSWORD=${{ secrets.POSTGRES_APP_PASSWORD }} \
+          --network=${{ env.NETWORK }} \
+          --volume ./db/postgres/init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh \
+          biggie_postgres:latest
 
-      - name: Test API image
-        run: |
-          docker run --name biggie_api-test \
-            --env MONGODB_URI=${{ env.MONGODB_URI }} \
-            --env DB_NAME=${{ env.DB_NAME }} \
-            --env DB_USER=${{ env.DB_USER }} \
-            --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
-            --network=${{ env.NETWORK }} \
-            --volume ${{ env.DATA_DIR }}:/opt/data \
-            ghcr.io/pierrz/biggie_api_img:latest \
-            sh -c "poetry install --only dev && \
-            pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
-            mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage"
+    # /!\ The flag --network-alias spark-master is CRITICAL for the master /!\
+    - name: Create Spark containers (master and workers)
+      run: |
+        docker build spark_cluster --tag biggie_spark:latest
+        docker run -d --name biggie_spark-master \
+          --env SPARK_MODE=master \
+          --publish 7077:7077 \
+          --network=${{ env.NETWORK }} \
+          --network-alias spark-master \
+          biggie_spark:latest \
+        && docker run -d --name biggie_spark-worker-1 \
+          --env SPARK_MODE=worker \
+          --env SPARK_MASTER_URL=${{ env.SPARK_MASTER_URL }} \
+          --network=${{ env.NETWORK }} \
+          biggie_spark:latest \
+        && docker run -d --name biggie_spark-worker-2 \
+          --env SPARK_MODE=worker \
+          --env SPARK_MASTER_URL=${{ env.SPARK_MASTER_URL }} \
+          --network=${{ env.NETWORK }} \
+          biggie_spark:latest
 
-      - name: Create Orchestrator container
-        run: |
-          docker run --name biggie_orchestrator-test \
-            --env CELERY_BROKER_URL=${{ env.CELERY_BROKER_URL }} \
-            --env CELERY_RESULT_BACKEND=${{ env.CELERY_RESULT_BACKEND }} \
-            --env MONGODB_URI=${{ env.MONGODB_URI }} \
-            --env DB_NAME=${{ env.DB_NAME }} \
-            --env DB_USER=${{ env.DB_USER }} \
-            --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
-            --env TOKEN_GITHUB_API=${{ env.TOKEN_GITHUB_API }} \
-            --env TEST_MODE="True" \
-            --network=${{ env.NETWORK }} \
-            --volume ${{ env.DATA_DIR }}:/opt/data \
-            ghcr.io/pierrz/biggie_orchestrator_img:latest \
-            sh -c "poetry install --only dev && \
-            python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
-            mkdir /opt/data/orchestrator_coverage && cp .coverage /opt/data/orchestrator_coverage/.coverage"
+    - name: Verify MongoDB user
+      run: |
+        docker exec biggie_mongo mongosh --username ${{ secrets.MONGO_INITDB_ROOT_USERNAME }} --password ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} --authenticationDatabase admin --eval "db.getUser('${{ secrets.MONGO_USERNAME }}')"
 
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v4.4.0
-        with:
-          name: html-coverage-report
-          path: |
-            ${{ env.DATA_DIR }}/orchestrator_coverage_html_report
-            ${{ env.DATA_DIR }}/api_coverage_html_report
+    - name: Checks
+      run: |
+        docker ps -a
+        docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}"
+        docker logs biggie_mongo
+        docker logs biggie_postgres
 
-      # /!\ Step triggered only when the pipeline is running in the self-hosted runner /!\
-      - name: Delete Docker elements in self-hosted runner
-        if: runner.labels == 'self-hosted' && always()
-        run: |
-          # Get names of all containers starting with biggie_
-          echo "Getting containers name ..."
-          CONTAINER_NAMES=$(docker ps -a --format '{{.Names}}' | grep '^biggie_' || true)
+    - name: API tests
+      run: |
+        docker run --name biggie_api-test \
+          --env MONGODB_URI=${{ env.MONGODB_URI }} \
+          --env DB_NAME=${{ secrets.DB_NAME }} \
+          --env POSTGRES_APP_USER=${{ secrets.POSTGRES_APP_USER }} \
+          --env POSTGRES_APP_PASSWORD=${{ secrets.POSTGRES_APP_PASSWORD }} \
+          --network=${{ env.NETWORK }} \
+          --volume ${{ secrets.DATA_DIR }}:/opt/data \
+          ghcr.io/pierrz/biggie_api_img:latest \
+          sh -c "poetry install --only dev && \
+          pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
+          mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage"
 
-          if [ ! -z "$CONTAINER_NAMES" ]; then
-            # Get volume names associated with the containers
-            echo "Retrieving created volumes ..."
-            VOLUME_NAMES=$(docker container inspect $CONTAINER_NAMES \
-              -f '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}' | tr ' ' '\n' | sort -u | tr '\n' ' ') || echo "Failed to inspect containers"
+    - name: Orchestrator tests
+      run: |
+        docker run --name biggie_orchestrator-test \
+          --env CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }} \
+          --env CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }} \
+          --env MONGODB_URI=${{ env.MONGODB_URI }} \
+          --env DB_NAME=${{ secrets.DB_NAME }} \
+          --env POSTGRESDB_HOST=${{ env.POSTGRES_HOST }} \
+          --env POSTGRES_APP_USER=${{ secrets.POSTGRES_APP_USER }} \
+          --env POSTGRES_APP_PASSWORD=${{ secrets.POSTGRES_APP_PASSWORD }} \
+          --env TOKEN_GITHUB_API=${{ secrets.TOKEN_GITHUB_API }} \
+          --env TEST_MODE="True" \
+          --network=${{ env.NETWORK }} \
+          --volume ${{ secrets.DATA_DIR }}:/opt/data \
+          ghcr.io/pierrz/biggie_orchestrator_img:latest \
+          sh -c "poetry install --only dev && \
+          python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
+          mkdir /opt/data/orchestrator_coverage && cp .coverage /opt/data/orchestrator_coverage/.coverage"
 
-            # Remove containers
-            echo "Removing containers ..."
-            docker container stop -f $CONTAINER_NAMES || echo "Failed to remove some containers"
-            docker container rm -f $CONTAINER_NAMES || echo "Failed to remove some containers"
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4.4.0
+      with:
+        name: html-coverage-report
+        path: |
+          ${{ secrets.DATA_DIR }}/orchestrator_coverage_html_report
+          ${{ secrets.DATA_DIR }}/api_coverage_html_report
 
-            # Remove volumes
-            if [ ! -z "$VOLUME_NAMES" ]; then
-              echo "Removing volumes ..."
-              docker volume rm $VOLUME_NAMES || echo "Failed to remove some volumes"
-            else
-              echo "No volumes to remove"
-            fi
+    # /!\ Step triggered only when the pipeline is running in the self-hosted runner /!\
+    - name: Delete Docker elements in self-hosted runner
+      if: runner.labels == 'self-hosted' && always()
+      run: |
+        # Get names of all containers starting with biggie_
+        echo "Getting containers name ..."
+        CONTAINER_NAMES=$(docker ps -a --format '{{.Names}}' | grep '^biggie_' || true)
+
+        if [ ! -z "$CONTAINER_NAMES" ]; then
+          # Get volume names associated with the containers
+          echo "Retrieving created volumes ..."
+          VOLUME_NAMES=$(docker container inspect $CONTAINER_NAMES \
+            -f '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}' | tr ' ' '\n' | sort -u | tr '\n' ' ') || echo "Failed to inspect containers"
+
+          # Remove containers
+          echo "Removing containers ..."
+          docker container stop -f $CONTAINER_NAMES || echo "Failed to remove some containers"
+          docker container rm -f $CONTAINER_NAMES || echo "Failed to remove some containers"
+
+          # Remove volumes
+          if [ ! -z "$VOLUME_NAMES" ]; then
+            echo "Removing volumes ..."
+            docker volume rm $VOLUME_NAMES || echo "Failed to remove some volumes"
           else
-            echo "No biggie_* containers found"
+            echo "No volumes to remove"
           fi
+        else
+          echo "No biggie_* containers found"
+        fi
 
-          # Remove network
-          echo "Removing created network ..."
-          docker network rm ${{ env.NETWORK }} || true
+        # Remove network
+        echo "Removing created network ..."
+        docker network rm ${{ env.NETWORK }} || true
 
 
       # TODO: fix py-cov-action/python-coverage-comment-action errors (permissions, absolute/relative files)

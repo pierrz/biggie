@@ -1,89 +1,92 @@
 # TODO:
-#  - mount/retrieve Spark, Mongo and Postgres logs
-#  - implement Mongo conf for authentication
+#  - Postgres, Mongo and Spark logs as files (permissions issues related to their volumes)
 #  - debug setup
 
-x-biggie-common:
-  environment:
-    &biggie-common-env
-    MONGODB_URI: "${MONGODB_URI}"
-    DB_NAME: "${DB_NAME}"
-    DB_USER: "${DB_USER}"
-    DB_PASSWORD: "${DB_PASSWORD}"
+x-biggie-common-env: &biggie-common-env
+  COMPOSE_PREFIX: "${COMPOSE_PREFIX}"
+  DB_NAME: "${DB_NAME}"
+  MONGODB_URI: "mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${COMPOSE_PREFIX}biggie_mongo:27017/?authSource=${DB_NAME}"
+  POSTGRESDB_HOST: "${COMPOSE_PREFIX}biggie_postgres:5432"
+  POSTGRES_APP_USER: "${POSTGRES_APP_USER}"
+  POSTGRES_APP_PASSWORD: "${POSTGRES_APP_PASSWORD}"
 
-x-biggie-orchestrator:
-  &biggie-orchestrator
+x-postgres-env: &postgres-env
+  DB_NAME: "${DB_NAME}"
+  POSTGRES_DB: "${POSTGRES_DB}"
+  POSTGRES_USER: "${POSTGRES_USER}"
+  POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+  POSTGRES_APP_USER: "${POSTGRES_APP_USER}"
+  POSTGRES_APP_PASSWORD: "${POSTGRES_APP_PASSWORD}"
+
+x-mongo-env: &mongo-env
+  DB_NAME: "${DB_NAME}"
+  MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
+  MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
+  MONGO_USERNAME: "${MONGO_USERNAME}"
+  MONGO_PASSWORD: "${MONGO_PASSWORD}"
+
+x-biggie-orchestrator: &biggie-orchestrator
   environment:
-    &biggie-orchestrator-env
     <<: *biggie-common-env
-    TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
-    # PYTHON_ENABLE_DEBUGGER: 1   # debug mode
+    TOKEN_GITHUB_API: "${TOKEN_GITHUB_API}"
   volumes:
     - ${LOGS_DIR}/orchestrator:/opt/orchestrator/logs
     - ${DATA_DIR}:/opt/data
 
 volumes:
-  biggie_vmongo:
-    name: biggie_vmongo
-  biggie_vpostgres:
-    name: biggie_vpostgres
-  biggie_vrabbitmq:
-    name: biggie_vrabbitmq
+  biggie-vmongo:
+    name: ${COMPOSE_PREFIX}biggie_vmongo
+  biggie-vpostgres:
+    name: ${COMPOSE_PREFIX}biggie_vpostgres
+  biggie-vrabbitmq:
+    name: ${COMPOSE_PREFIX}biggie_vrabbitmq
+
+networks:
+  biggie-network:
+    name: ${COMPOSE_PREFIX}biggie_network
+    driver: bridge
+    ipam:
+      config:
+        # specific range to avoid conflicts with the bridge network (172.17)
+        - subnet: ${DOCKER_SUBNET_BASE}.0/16
 
 services:
 
-  nginx:
-    build: nginx
-    container_name: biggie_nginx
-    volumes:
-      - ./conf/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
-      - ./conf/nginx/certificate.conf:/etc/nginx/certificate.conf:ro
-      - ./logs/nginx:/var/log/nginx
-      - ./conf/nginx/app_docker.conf:/etc/nginx/sites-enabled/app_docker.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro  # certificate of the host machine
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - api_prod
-    profiles:
-      - live_prod
-
   mongo:
-    container_name: biggie_mongo
+    container_name: ${COMPOSE_PREFIX}biggie_mongo
     build: db/mongo
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
-      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
+      <<: *mongo-env
     volumes:
-      - biggie_vmongo:/data/db
-      - ${LOGS_DIR}/mongodb:/var/log/mongodb
-      # TODO: implement authentication for api container calls
-      # - ./db/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+      - biggie-vmongo:/data/db
+      - ./db/mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+      - ./db/mongo/mongod.conf:/etc/mongod.conf:ro
+      # - ${LOGS_DIR}/mongodb:/var/log/mongodb
+    networks:
+      biggie-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.101
 
   postgres:
-    container_name: biggie_postgres
+    container_name: ${COMPOSE_PREFIX}biggie_postgres
     build: db/postgres
     restart: always
     environment:
-      POSTGRES_DB: "${POSTGRES_DB}"
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      DB_NAME: "${DB_NAME}"
-      DB_USER: "${DB_USER}"
-      DB_PASSWORD: "${DB_PASSWORD}"
+      <<: *postgres-env
     volumes:
-      - biggie_vpostgres:/var/lib/postgresql/data
-      - ./db/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-      - ${LOGS_DIR}/postgresql:/var/log/postgresql #/postgresql-14.9-main.log
+      - biggie-vpostgres:/var/lib/postgresql/data
+      - ./db/postgres/init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh:ro
+      # - ${LOGS_DIR}/postgresql:/var/log/postgres
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      biggie-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.102
 
   api-test:
-    container_name: biggie_api-test
+    container_name: ${COMPOSE_PREFIX}biggie_api-test
     build:
       context: .
       dockerfile: api/Dockerfile
@@ -104,15 +107,18 @@ services:
       # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
       # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
       # - ./commons:/opt/api/src/commons
+    networks:
+      biggie-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.121
 
   api-prod:
-    container_name: biggie_api-prod
+    container_name: ${COMPOSE_PREFIX}biggie_api-prod
     build:
       context: .
       dockerfile: api/Dockerfile
     environment:
       <<: *biggie-common-env
-    command: uvicorn main:app --host 0.0.0.0 --reload --log-level debug
+    command: uvicorn main:app --host 0.0.0.0 --reload --log-level info
     depends_on:
       - mongo
       - postgres
@@ -129,9 +135,12 @@ services:
       # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
       # - ./db/postgres_db.py:/opt/api/src/db/postgres_db.py
       # - ./commons:/opt/api/src/commons
+    networks:
+      biggie-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.122
 
   orchestrator-test:
-    container_name: biggie_orchestrator-test
+    container_name: ${COMPOSE_PREFIX}biggie_orchestrator-test
     build:
       context: .
       dockerfile: orchestrator/Dockerfile
@@ -149,9 +158,12 @@ services:
     profiles:
       - test
     restart: on-failure
+    networks:
+      biggie-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.131
 
   orchestrator-prod:
-    container_name: biggie_orchestrator-prod
+    container_name: ${COMPOSE_PREFIX}biggie_orchestrator-prod
     build:
       context: .
       dockerfile: orchestrator/Dockerfile
@@ -170,42 +182,51 @@ services:
     restart: on-failure
     # ports:
     #   - "5678:5678"  # Expose debugging port
+    networks:
+      biggie-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.132
 
   rabbitmq:
-    container_name: biggie_rabbitmq
+    container_name: ${COMPOSE_PREFIX}biggie_rabbitmq
     image: rabbitmq:3.13.7-management
     restart: on-failure
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_PORT}:5672"
+      - "1${RABBITMQ_PORT}:15672"
     volumes:
-      - biggie_vrabbitmq:/var/lib/rabbitmq
+      - biggie-vrabbitmq:/var/lib/rabbitmq
       - ${LOGS_DIR}/rabbitmq:/var/log/rabbitmq
     profiles:
       - test
       - prod_full
       - prod_acquisition
+    networks:
+      biggie-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.133
 
   spark-master:
-    container_name: biggie_spark-master
+    container_name: ${COMPOSE_PREFIX}biggie_spark-master
     build: spark_cluster
     environment:
       - SPARK_MODE=master
     ports:
-      - "7077:7077"  # Spark master port
-      - "8080:8080"  # Web UI for Spark master
+      - "${SPARK_PORTS_RANGE}77:7077"  # Spark master port
+      - "${SPARK_PORTS_RANGE}80:8080"  # Web UI for Spark master
     depends_on:
       - mongo
       - postgres
-    volumes:
-      - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
+    # volumes:
+    #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
       - test
       - prod_full
       - prod_acquisition
+    networks:
+      biggie-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.141
 
   spark-worker-1:
-    container_name: biggie_spark-worker-1
+    container_name: ${COMPOSE_PREFIX}biggie_spark-worker-1
     build: spark_cluster
     environment:
       - SPARK_MODE=worker
@@ -215,16 +236,19 @@ services:
       - mongo
       - postgres
     ports:
-      - "8091:8091"  # Web UI for this worker
-    volumes:
-      - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
+      - "${SPARK_PORTS_RANGE}91:8091"  # Web UI for this worker
+    # volumes:
+    #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
       - test
       - prod_full
       - prod_acquisition
+    networks:
+      biggie-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.142
 
   spark-worker-2:
-    container_name: biggie_spark-worker-2
+    container_name: ${COMPOSE_PREFIX}biggie_spark-worker-2
     build: spark_cluster
     environment:
       - SPARK_MODE=worker
@@ -234,10 +258,13 @@ services:
       - mongo
       - postgres
     ports:
-      - "8092:8092"  # Web UI for this worker
-    volumes:
-      - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
+      - "${SPARK_PORTS_RANGE}92:8092"  # Web UI for this worker
+    # volumes:
+    #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
       - test
       - prod_full
       - prod_acquisition
+    networks:
+      biggie-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.143

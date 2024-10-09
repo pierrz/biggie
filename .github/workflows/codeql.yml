@@ -9,16 +9,17 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "CodeQL Analysis"
+
+name: CodeQL
 
 on:
+  workflow_dispatch:      # manual trigger
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   schedule:
     - cron: '30 20 * * 4'
-  workflow_dispatch:      # manual trigger
 
 jobs:
   analyze:

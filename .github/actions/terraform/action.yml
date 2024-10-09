@@ -1,0 +1,15 @@
+name: Terraform template
+description: This is a custom action to do Terraform operations
+author: pierrz
+
+inputs:
+  command:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run Terraform command
+      shell: bash
+      run: terraform ${{ inputs.command }}
+      working-directory: ./terraform

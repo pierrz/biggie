@@ -5,7 +5,7 @@ ARG TEST_MODE="False"
 # Java (required for PySpark)
 RUN apt-get clean \
     && apt-get update \
-    && apt-get install -qy wget openjdk-17-jdk
+    && apt-get install -qy openjdk-17-jdk
 
 # Environment
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \

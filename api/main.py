@@ -3,7 +3,7 @@ Module spinning up FastApi
 NB: Postgres is disabled at the moment, only Mongo is handling data
 """
 
-from config import app_config
+from config import main_config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -19,7 +19,7 @@ from src.routers import dummy_endpoint, github_events
 app = FastAPI(debug=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-if app_config.LOCAL_DEV:
+if main_config.LOCAL_DEV:
     localhost_origins = [
         "http://localhost",
         "https://localhost",
