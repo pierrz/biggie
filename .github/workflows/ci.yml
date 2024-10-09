@@ -111,6 +111,7 @@ jobs:
     - name: Create Mongo container
       run: |
         docker build db/mongo --tag biggie_mongo:latest
+        chmod +x ./db/mongo/mongo-init.sh
         docker run -d --name biggie_mongo \
           --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} \
           --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} \
@@ -122,6 +123,7 @@ jobs:
     - name: Create Postgres container
       run: |
         docker build db/postgres --tag biggie_postgres:latest
+        chmod +x ./db/postgres/init-postgres.sh
         docker run -d --name biggie_postgres \
           --env POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
           --env POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
@@ -156,6 +158,7 @@ jobs:
 
     - name: Checks
       run: |
+        docker ps -a
         docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}"
         docker network inspect ${{ env.NETWORK }}
 
