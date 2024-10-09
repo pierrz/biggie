@@ -9,6 +9,8 @@ on:
   workflow_run:
     workflows: ["CodeQL analysis"]
     types: [completed]
+  pull_request:
+    branches: [ "main" ]
 
 env:
   REGISTRY: ghcr.io
