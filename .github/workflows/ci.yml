@@ -152,6 +152,12 @@ jobs:
           --network=${{ env.NETWORK }} \
           biggie_spark:latest
 
+    - name: Checks
+      run: |
+        docker ps -a
+        docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.CreatedAt}}"
+        docker network inspect ${{ env.NETWORK }}
+
     - name: API tests
       run: |
         docker run --name biggie_api-test \
