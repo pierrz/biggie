@@ -73,7 +73,7 @@ class MainConfig(BaseSettings):
     POSTGRES_APP_PASSWORD: str
     DB_NAME: str
     # POSTGRES_USER: str      # TODO: might be usefult to implement Postgres 16.x
-
+    
 
 celery_config = CeleryConfig()
 harvester_config = HarvesterConfig()

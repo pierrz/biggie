@@ -1,6 +1,5 @@
 FROM postgres:14.9
 
-
 # TODO: enable file logging (issue with permissions, root always coming back)
 # USER root
 # COPY ./postgresql.conf /etc/postgresql/postgresql.conf
@@ -18,4 +17,5 @@ FROM postgres:14.9
 # issues with creating tables (permission denied for schema public)
 # FROM postgres:16.4
 # COPY ./pg_hba.conf /etc/postgresql/pg_hba.conf
+
 # CMD ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]

@@ -87,11 +87,13 @@ jobs:
       contents: write
 
     env:
+
       MONGODB_URI: "mongodb://${{ secrets.MONGO_USERNAME }}:${{ secrets.MONGO_PASSWORD }}@biggie_mongo:27017/"
       NETWORK: ci_network
       POSTGRES_HOST: "biggie_postgres:5432"
       SPARK_MASTER_URL: "spark://spark-master:7077"
-    steps:
+
+  steps:
 
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
