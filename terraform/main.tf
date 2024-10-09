@@ -135,7 +135,7 @@ resource "null_resource" "server_configuration" {
           -f docker-compose.yml \
           -f docker-compose.monitoring.yml \
           --profile prod_full \
-          up --detach
+          up --build --detach
       '
     EOT
   }
