@@ -2,6 +2,7 @@
 name: CD
 
 on:
+  workflow_dispatch:      # manual trigger
   workflow_run:
     workflows: [CI]
     types: [completed]
@@ -14,10 +15,6 @@ on:
 #   #   branches:
 #   #     - "main"
 #       # - "feature/**"
-#   workflow_run:
-#     workflows: ["CI Pipeline"]
-#     types: [completed]
-  workflow_dispatch:      # manual trigger
 
 jobs:
 
@@ -112,10 +109,7 @@ jobs:
       if: github.event_name == 'pull_request'
       run: echo "TF_VAR_github_repo_branch=${{ github.head_ref }}" >> $GITHUB_ENV
 
-    - name: Set Secrets for Push
-      # # if: github.event_name == 'push'
-      # # if: github.event_name != 'pull_request'
-      # if ${{ env.TF_VAR_github_repo_branch }}
+    - name: Set repository branch environment variable
       run: |
         if [ -z "${{ env.TF_VAR_github_repo_branch }}" ]; then
             echo "TF_VAR_github_repo_branch is not set"

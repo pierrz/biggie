@@ -13,13 +13,13 @@
 name: CodeQL
 
 on:
+  workflow_dispatch:      # manual trigger
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   schedule:
     - cron: '30 20 * * 4'
-  workflow_dispatch:      # manual trigger
 
 jobs:
   analyze:
