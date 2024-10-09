@@ -2,8 +2,8 @@
 Tests focused on PySpark based features
 """
 
-from test.spark_jobs.base_test import MongoDFTest
 from test.spark_jobs.fixtures.mongo_schema import test_mongo_schema
+from test.spark_jobs.utils.base_test import MongoDFTest
 
 import pandas as pd
 from pandas.testing import assert_frame_equal

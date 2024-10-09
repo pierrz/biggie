@@ -3,7 +3,7 @@ Test that Celery can handle task which rely on Spark jobs.
 """
 
 from src import logger
-from src.tasks.dummy_spark_task import dummy_spark_task
+from src.tasks.dummy.dummy_spark_task import dummy_spark_task
 
 
 def test_spark_job():

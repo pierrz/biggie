@@ -1,5 +1,5 @@
 import pytest
-from src.spark_jobs.session import session_check
+from src.spark_jobs.commons.session import session_check
 
 
 def test_spark_session():

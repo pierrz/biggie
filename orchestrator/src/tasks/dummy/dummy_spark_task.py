@@ -5,7 +5,7 @@ Test related Celery tasks
 from typing import Dict, List
 
 from src import logger
-from src.spark_jobs.session import session_check
+from src.spark_jobs.commons.session import session_check
 from worker import celery
 
 

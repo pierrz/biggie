@@ -15,7 +15,8 @@ import pandas as pd
 from config import data_directories, harvester_config
 from src import logger
 from src.commons import names as ns
-from src.harvester.errors import APILimitError, EmptyResults, GenericError
+
+from .errors import APILimitError, EmptyResults, GenericError
 
 
 async def get_url(auth: Dict = None, **kwargs):

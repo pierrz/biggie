@@ -1,6 +1,6 @@
 from config import harvester_config
-from src.harvester.asyncio_operations import get_url
-from src.harvester.errors import APILimitError, GenericError
+from src.harvester.commons.asyncio_operations import get_url
+from src.harvester.commons.errors import APILimitError, GenericError
 
 from .auth_parameters import github_params
 

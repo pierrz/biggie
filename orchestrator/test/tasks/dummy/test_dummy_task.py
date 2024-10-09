@@ -2,7 +2,7 @@
 Test that Celery and RabbitMQ are up and running.
 """
 
-from src.tasks.dummy_task import dummy_task
+from src.tasks.dummy.dummy_task import dummy_task
 
 
 # TODO: transform it to check/init also Beat
