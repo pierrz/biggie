@@ -156,8 +156,7 @@ jobs:
 
     - name: Checks
       run: |
-        docker ps -a
-        docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.CreatedAt}}"
+        docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}"
         docker network inspect ${{ env.NETWORK }}
 
     - name: API tests
