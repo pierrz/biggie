@@ -88,10 +88,20 @@ jobs:
 
     env:
 
-      MONGODB_URI: "mongodb://${{ secrets.MONGO_USERNAME }}:${{ secrets.MONGO_PASSWORD }}@biggie_mongo:27017/"
       NETWORK: ci_network
       POSTGRES_HOST: "biggie_postgres:5432"
       SPARK_MASTER_URL: "spark://spark-master:7077"
+      DB_NAME: ${{ secrets.DB_NAME }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_APP_USER: ${{ secrets.POSTGRES_APP_USER }}
+      POSTGRES_APP_PASSWORD: ${{ secrets.POSTGRES_APP_PASSWORD }}
+      MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+      MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+      MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
+      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+      MONGODB_URI: "mongodb://${{ secrets.MONGO_USERNAME }}:${{ secrets.MONGO_PASSWORD }}@biggie_mongo:27017/"
 
     steps:
 
