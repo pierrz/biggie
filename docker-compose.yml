@@ -45,7 +45,7 @@ volumes:
 
 networks:
   biggie-network:
-    name: biggie_network
+    name: ${COMPOSE_PREFIX}biggie_network
     driver: bridge
     ipam:
       config:
