@@ -108,13 +108,20 @@ jobs:
 
     steps:
 
-    - name: Set Secrets for Push
-      if: github.event_name == 'push'
-      run: echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
-
     - name: Set Secrets for Pull Request
       if: github.event_name == 'pull_request'
       run: echo "TF_VAR_github_repo_branch=${{ github.head_ref }}" >> $GITHUB_ENV
+
+    - name: Set Secrets for Push
+      # # if: github.event_name == 'push'
+      # # if: github.event_name != 'pull_request'
+      # if ${{ env.TF_VAR_github_repo_branch }}
+      run: |
+        if [ -z "${{ env.TF_VAR_github_repo_branch }}" ]; then
+            echo "TF_VAR_github_repo_branch is not set"
+            echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
+        fi
+        echo "TF_VAR_github_repo_branch is set to: ${{ env.TF_VAR_github_repo_branch }}"
 
     - name: Checkout repository
       uses: actions/checkout@v4.1.7
