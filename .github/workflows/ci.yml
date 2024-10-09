@@ -89,18 +89,18 @@ jobs:
     env:
 
       NETWORK: ci_network
-      POSTGRES_HOST: "biggie_postgres:5432"
       SPARK_MASTER_URL: "spark://spark-master:7077"
-      DB_NAME: ${{ secrets.DB_NAME }}
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_APP_USER: ${{ secrets.POSTGRES_APP_USER }}
-      POSTGRES_APP_PASSWORD: ${{ secrets.POSTGRES_APP_PASSWORD }}
-      MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
-      MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-      MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
-      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+      # DB_NAME: ${{ secrets.DB_NAME }}
+      # POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      # POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      # POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      # POSTGRES_APP_USER: ${{ secrets.POSTGRES_APP_USER }}
+      # POSTGRES_APP_PASSWORD: ${{ secrets.POSTGRES_APP_PASSWORD }}
+      POSTGRES_HOST: "biggie_postgres:5432"
+      # MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+      # MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+      # MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
+      # MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
       MONGODB_URI: "mongodb://${{ secrets.MONGO_USERNAME }}:${{ secrets.MONGO_PASSWORD }}@biggie_mongo:27017/"
 
     steps:
@@ -123,8 +123,11 @@ jobs:
         docker build db/mongo --tag biggie_mongo:latest
         chmod +x ./db/mongo/mongo-init.sh
         docker run -d --name biggie_mongo \
+          --env DB_NAME=${{ secrets.DB_NAME }} \
           --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} \
           --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} \
+          --env MONGO_USERNAME=${{ secrets.MONGO_USERNAME }} \
+          --env MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} \
           --network=${{ env.NETWORK }} \
           --volume ./db/mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh \
           --volume ./db/mongo/mongod.conf:/etc/mongod.conf \
@@ -135,12 +138,12 @@ jobs:
         docker build db/postgres --tag biggie_postgres:latest
         chmod +x ./db/postgres/init-postgres.sh
         docker run -d --name biggie_postgres \
+          --env DB_NAME=${{ secrets.DB_NAME }} \
           --env POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
           --env POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
           --env POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
-          --env DB_NAME=${{ secrets.DB_NAME }} \
-          --env DB_USER=${{ secrets.POSTGRES_APP_USER }} \
-          --env DB_PASSWORD=${{ secrets.POSTGRES_APP_PASSWORD }} \
+          --env POSTGRES_APP_USER=${{ secrets.POSTGRES_APP_USER }} \
+          --env POSTGRES_APP_PASSWORD=${{ secrets.POSTGRES_APP_PASSWORD }} \
           --network=${{ env.NETWORK }} \
           --volume ./db/postgres/init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh \
           biggie_postgres:latest
