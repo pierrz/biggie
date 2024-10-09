@@ -160,7 +160,8 @@ jobs:
       run: |
         docker ps -a
         docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}"
-        docker network inspect ${{ env.NETWORK }}
+        docker logs biggie_mongo
+        docker logs biggie_postgres
 
     - name: API tests
       run: |
