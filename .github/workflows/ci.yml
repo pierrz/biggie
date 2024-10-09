@@ -2,21 +2,13 @@
 #  - Can be self-hosted for debugging purposes
 #  - TODO: fix the Github action about PR comments from coverage report (very end of this file)
 
-name: CI
+name: CI pipeline
 
 on:
   workflow_dispatch:      # manual trigger
   workflow_run:
-    workflows: [CodeQL]
+    workflows: ["CodeQL analysis"]
     types: [completed]
-  # push:
-  #   branches:
-  #     - "main"
-  #     # - "feature/**"
-  # pull_request:
-  #   branches:
-  #     - "main"
-  #     # - "feature/**"
 
 env:
   REGISTRY: ghcr.io
@@ -33,6 +25,7 @@ jobs:
       contents: read
       packages: write
 
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
@@ -58,6 +51,7 @@ jobs:
       contents: read
       packages: write
 
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7

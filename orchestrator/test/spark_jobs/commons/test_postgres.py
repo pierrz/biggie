@@ -2,7 +2,7 @@
 Tests focused on Postgres based features
 """
 
-from test.spark_jobs.base_test import PostgresDFTest, PostgresTestReader
+from test.spark_jobs.utils.base_test import PostgresDFTest, PostgresTestReader
 
 from pandas.testing import assert_frame_equal
 from sqlalchemy import Table

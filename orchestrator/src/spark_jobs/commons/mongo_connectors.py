@@ -13,7 +13,6 @@ from config import main_config
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as psf
 from src import logger
-from src.commons import names as ns
 
 from .connectors import ReaderBase
 from .session import spark_session
@@ -76,29 +75,3 @@ class MongoReader(ReaderBase):
 
     def _name(self) -> Tuple[str]:
         return self.collection, "collection", "MongoReader"
-
-
-class EventBase(MongoConnector, ABC):
-    """
-    Base class dedicated to defining the Mongo collection 'event' related to the Github Event API data
-    """
-
-    collection = ns.events
-    check_columns = [
-        psf.col("event_id"),
-        psf.col("type"),
-        psf.col("actor_id"),
-        psf.col("repo_name"),
-    ]
-
-
-class EventLoader(EventBase, MongoLoader):
-    """
-    Class dedicated to load the Mongo collection 'event' with new data
-    """
-
-
-class EventReader(EventBase, MongoReader):
-    """
-    Class dedicated to read data from the Mongo collection 'event'
-    """

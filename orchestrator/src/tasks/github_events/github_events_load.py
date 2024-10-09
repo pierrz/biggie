@@ -11,9 +11,9 @@ from config import data_directories
 from src import logger
 from src.commons import enums
 from src.commons import names as ns
-from src.spark_jobs.jobs import ToMongoFromJson
-from src.spark_jobs.mongo_connectors import EventReader
-from src.spark_jobs.schemas import event_schema
+from src.spark_jobs.commons.jobs import ToMongoFromJson
+from src.spark_jobs.github_events.events_mongo_connectors import EventReader
+from src.spark_jobs.github_events.schemas import event_schema
 from worker import celery
 
 

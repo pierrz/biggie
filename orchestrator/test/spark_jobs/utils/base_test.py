@@ -6,9 +6,12 @@ from abc import ABC, abstractmethod
 from test.spark_jobs.fixtures.dataframe_fixture import DataframeFixture
 
 from pyspark.sql import functions as psf  # pylint: disable=E0611
-from src.spark_jobs.dataframe_maker import MongoDataframeMaker, PostgresDataframeMaker
-from src.spark_jobs.mongo_connectors import MongoReader
-from src.spark_jobs.postgres_connectors import PostgresReader
+from src.spark_jobs.commons.dataframe_maker import (
+    MongoDataframeMaker,
+    PostgresDataframeMaker,
+)
+from src.spark_jobs.commons.mongo_connectors import MongoReader
+from src.spark_jobs.commons.postgres_connectors import PostgresReader
 
 
 class DataframeTestBase(ABC):

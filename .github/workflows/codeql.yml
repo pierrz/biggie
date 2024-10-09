@@ -10,7 +10,7 @@
 # supported CodeQL languages.
 #
 
-name: CodeQL
+name: CodeQL analysis
 
 on:
   workflow_dispatch:      # manual trigger

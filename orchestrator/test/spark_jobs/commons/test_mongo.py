@@ -6,8 +6,8 @@ TODO: investigate why we need to use .simpleString() to get identical schemas
  as we are reading data based on a provided schema
 """
 
-from test.spark_jobs.base_test import MongoDFTest, MongoTestReader
 from test.spark_jobs.fixtures.mongo_schema import test_mongo_schema
+from test.spark_jobs.utils.base_test import MongoDFTest, MongoTestReader
 
 from pandas.testing import assert_frame_equal
 from src.db.mongo.mongo_db import init_pymongo_client
