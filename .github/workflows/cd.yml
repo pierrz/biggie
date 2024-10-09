@@ -1,4 +1,4 @@
-# CD pipeline to deploy the codeon the Scaleway machine
+# CD pipeline to deploy the code on the Scaleway machine
 name: CD
 
 on:
