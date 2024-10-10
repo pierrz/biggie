@@ -123,7 +123,7 @@ services:
       - mongo
       - postgres
     ports:
-      - "8100:8100"
+      - "${API_PORT}:8100"
     profiles:
       - prod_full
       - prod_analytics
