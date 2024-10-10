@@ -43,13 +43,21 @@ services:
 
   pgadmin:
     container_name: ${COMPOSE_PREFIX}biggie_pgadmin
-    image: dpage/pgadmin4:8.11.0
+    # image: dpage/pgadmin4:8.11.0
+    build:
+      context: .
+      dockerfile: db/postgres/Dockerfile.pgadmin
+      args:
+        - POSTGRES_PORT=${POSTGRES_PORT}
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_HOST=${COMPOSE_PREFIX}biggie_postgres
+        - MAINTENANCE_DB=${POSTGRES_DB}
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
       PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
-    volumes:
-      - ./db/postgres/pgadmin_conf/servers.json:/pgadmin4/servers.json
+    # volumes:
+    #   - ./db/postgres/pgadmin_conf/servers.json:/pgadmin4/servers.json
     depends_on:
       - postgres
     profiles:

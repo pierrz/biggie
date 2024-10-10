@@ -33,14 +33,17 @@ class CeleryConfig(BaseSettings):
     )
 
     if TEST_MODE:
-        imports: List[str] = ["src.tasks.dummy_task.py"]
+        imports: List[str] = [
+            "src.tasks.dummy.dummy_task",
+            "src.tasks.dummy.dummy_spark_task",
+        ]
         # TODO: implement beat test
         # beat_schedule = {"task": "test_task", "schedule": crontab(minute="*"), "options": {**data_pipeline_queue}}
     else:
         imports: List[str] = [
-            "src.tasks.github_events_data_acquisition",
-            "src.tasks.github_events_load",
-            "src.tasks.github_events_cleaning",
+            "src.tasks.github_events.github_events_data_acquisition",
+            "src.tasks.github_events.github_events_load",
+            "src.tasks.github_events.github_events_cleaning",
         ]
         beat_schedule: Dict[str, Dict] = {"github-events-stream": github_events_stream}
 
@@ -73,7 +76,7 @@ class MainConfig(BaseSettings):
     POSTGRES_APP_PASSWORD: str
     DB_NAME: str
     # POSTGRES_USER: str      # TODO: might be usefult to implement Postgres 16.x
-    
+
 
 celery_config = CeleryConfig()
 harvester_config = HarvesterConfig()

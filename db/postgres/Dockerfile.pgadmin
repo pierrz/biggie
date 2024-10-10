@@ -1,0 +1,23 @@
+FROM dpage/pgadmin4:8.11.0
+
+ARG POSTGRES_PORT \
+    POSTGRES_USER \
+    POSTGRES_HOST \
+    MAINTENANCE_DB
+
+RUN apt-get update && apt-get install -y jq
+
+USER pgadmin4
+RUN echo '{"Servers": \
+            {"1": \
+                { \
+                    "Name": "Biggie", \
+                    "Group": "Docker", \
+                    "Port": $POSTGRES_PORT, \
+                    "Username": "'$POSTGRES_USER'", \
+                    "Host": "'$POSTGRES_HOST'", \
+                    "SSLMode": "prefer", \
+                    "MaintenanceDB": "'$MAINTENANCE_DB'" \
+                }\
+            }\
+        }' | jq '.' > /pgadmin4/servers.json
