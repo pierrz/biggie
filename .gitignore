@@ -142,6 +142,4 @@ pyrightconfig.json
 
 # secrets and configs
 db/postgres/pgadmin_conf/servers.json
-nginx/conf/certificate.conf
-nginx/conf/app_docker.conf
-nginx/conf/monitor_docker.conf
+nginx/*.conf
