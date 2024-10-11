@@ -95,6 +95,8 @@ resource "null_resource" "server_configuration" {
         echo "RABBITMQ_PORT=${var.rabbitmq_port}" >> .env
         echo "DATA_DIR=${var.data_dir}" >> .env
         echo "LOGS_DIR=${var.logs_dir}" >> .env
+        echo "CELERY_BROKER_URL=${var.celery_broker_url}" >> .env
+        echo "CELERY_RESULT_BACKEND=${var.celery_result_backend}" >> .env
         echo "" >> .env
         echo "# DBs" >> .env
         echo "DB_NAME=${var.db_name}" >> .env
@@ -110,19 +112,22 @@ resource "null_resource" "server_configuration" {
         echo "MONGO_INITDB_ROOT_PASSWORD=${var.mongo_initdb_root_password}" >> .env
         echo "MONGO_USERNAME=${var.mongo_username}" >> .env
         echo "MONGO_PASSWORD=${var.mongo_password}" >> .env
+        echo "MONGO_PORT=${var.mongo_port}" >> .env
         echo "" >> .env
+        echo "# SERVICES" >> .env
         echo "# Orchestrator" >> .env
-        echo "CELERY_BROKER_URL=${var.celery_broker_url}" >> .env
-        echo "CELERY_RESULT_BACKEND=${var.celery_result_backend}" >> .env
         echo "TOKEN_GITHUB_API=${var.token_github_api}" >> .env
+        echo "# API" >> .env
+        echo "API_PORT=${var.api_port}" >> .env
+        echo "# Jupyter" >> .env
+        echo "JUPYTER_PASSWORD=${var.jupyter_password}" >> .env
+        echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
         echo "" >> .env
         echo "# Monitoring" >> .env
         echo "# Flower" >> .env
         echo "FLOWER_PORT=${var.flower_port}" >> .env
-        echo "# PGadmin" >> .env
-        echo "PGADMIN_DEFAULT_EMAIL=${var.pgadmin_default_email}" >> .env
-        echo "PGADMIN_DEFAULT_PASSWORD=${var.pgadmin_default_password}" >> .env
-        echo "PGADMIN_DEFAULT_PORT=${var.pgadmin_default_port}" >> .env
+        echo "# DBeaver" >> .env
+        echo "DBEAVER_PORT=${var.dbeaver_port}" >> .env
         echo "# Mongo-Express" >> .env
         echo "ME_CONFIG_MONGODB_ADMINUSERNAME=${var.me_config_mongodb_adminusername}" >> .env
         echo "ME_CONFIG_MONGODB_ADMINPASSWORD=${var.me_config_mongodb_adminpassword}" >> .env

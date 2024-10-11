@@ -56,37 +56,7 @@ services:
       - prod_analytics
       - prod_acquisition
     ports:
-      - "8180:8978"
+      - "${DBEAVER_PORT}:8978"
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.153
-
-  # pgadmin:
-  #   container_name: ${COMPOSE_PREFIX}biggie_pgadmin
-  #   # image: dpage/pgadmin4:8.11.0
-  #   build:
-  #     context: .
-  #     dockerfile: db/postgres/Dockerfile.pgadmin
-  #     args:
-  #       - POSTGRES_PORT=${POSTGRES_PORT}
-  #       - POSTGRES_USER=${POSTGRES_USER}
-  #       - POSTGRES_HOST=${COMPOSE_PREFIX}biggie_postgres
-  #       - MAINTENANCE_DB=${POSTGRES_DB}
-  #   restart: always
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
-  #     PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
-  #     PGADMIN_ENABLE_X_FORWARD_HEADERS: True
-  #   volumes:
-  #     - ./db/postgres/pgadmin_conf/config_local.py:/pgadmin4/config_local.py
-  #   depends_on:
-  #     - postgres
-  #   profiles:
-  #     - prod_full
-  #     - prod_analytics
-  #     - prod_acquisition
-  #   ports:
-  #     - "${PGADMIN_DEFAULT_PORT}:80"
-  #   networks:
-  #     biggie-network:
-  #       ipv4_address: ${DOCKER_SUBNET_BASE}.153

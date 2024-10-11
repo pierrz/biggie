@@ -64,6 +64,8 @@ services:
     restart: always
     environment:
       <<: *mongo-env
+    ports:
+      - "${MONGODB_PORT}:27017"
     volumes:
       - biggie-vmongo:/data/db
       - ./db/mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
@@ -99,7 +101,7 @@ services:
     volumes:
       - ${DATA_DIR}/jupyterlab:/home/jovyan/work
     ports:
-      - "10000:8888"
+      - "${JUPYTER_PORT}:8888"
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.111

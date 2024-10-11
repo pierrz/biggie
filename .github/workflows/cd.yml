@@ -59,6 +59,8 @@ jobs:
         TF_VAR_rabbitmq_port: ${{ secrets.RABBITMQ_PORT }}
         TF_VAR_logs_dir: ${{ secrets.LOGS_DIR }}
         TF_VAR_data_dir: ${{ secrets.DATA_DIR }}
+        TF_VAR_celery_broker_url: ${{ secrets.CELERY_BROKER_URL }}
+        TF_VAR_celery_result_backend: ${{ secrets.CELERY_RESULT_BACKEND }}
 
         # DBs secrets
         TF_VAR_db_name: ${{ secrets.DB_NAME }}
@@ -74,19 +76,22 @@ jobs:
         TF_VAR_mongo_initdb_root_password: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
         TF_VAR_mongo_username: ${{ secrets.MONGO_USERNAME }}
         TF_VAR_mongo_password: ${{ secrets.MONGO_PASSWORD }}
+        TF_VAR_mongo_port: ${{ secrets.MONGO_PORT }}
 
+        # SERVICES
         # Orchestrator secrets
-        TF_VAR_celery_broker_url: ${{ secrets.CELERY_BROKER_URL }}
-        TF_VAR_celery_result_backend: ${{ secrets.CELERY_RESULT_BACKEND }}
         TF_VAR_token_github_api: ${{ secrets.TOKEN_GITHUB_API }}
+        # API secrets
+        TF_VAR_api_port: ${{ secrets.API_PORT }}
+        # Jupyter secrets
+        TF_VAR_jupyter_password: ${{ secrets.JUPYTER_PASSWORD }}
+        TF_VAR_jupyter_port: ${{ secrets.JUPYTER_PORT }}
 
         # Monitoring
         # Flower secrets
         TF_VAR_flower_port: ${{ secrets.FLOWER_PORT }}
-        # PGAdmin secrets
-        TF_VAR_pgadmin_default_email: ${{ secrets.PGADMIN_DEFAULT_EMAIL }}
-        TF_VAR_pgadmin_default_password: ${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
-        TF_VAR_pgadmin_default_port: ${{ secrets.PGADMIN_DEFAULT_PORT }}
+        # DBeaver secrets
+        TF_VAR_dbeaver_port: ${{ secrets.DBEAVER_PORT }}
         # Mongo-Express secrets
         TF_VAR_me_config_mongodb_adminusername: ${{ secrets.ME_CONFIG_MONGODB_ADMINUSERNAME }}
         TF_VAR_me_config_mongodb_adminpassword: ${{ secrets.ME_CONFIG_MONGODB_ADMINPASSWORD }}
