@@ -5,7 +5,7 @@ ARG POSTGRES_PORT \
     POSTGRES_HOST \
     MAINTENANCE_DB
 
-USER root
+USER pgadmin
 RUN echo '{\
  "Servers":\
  {\
@@ -13,7 +13,7 @@ RUN echo '{\
   {\
    "Name": "Biggie",\
    "Group": "Docker",\
-   "Port": '$POSTGRES_PORT',\
+   "Port": 5432,\
    "Username": "'$POSTGRES_USER'",\
    "Host": "'$POSTGRES_HOST'",\
    "SSLMode": "prefer",\
@@ -21,3 +21,5 @@ RUN echo '{\
   }\
  }\
 }' | python3 -m json.tool > /pgadmin4/servers.json
+
+# RUN chown pgadmin:pgadmin /pgadmin4/servers.json

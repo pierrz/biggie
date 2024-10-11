@@ -1,3 +1,5 @@
+name: "${COMPOSE_PREFIX}biggie"
+
 services:
 
   flower:
@@ -30,7 +32,7 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: "${ME_CONFIG_MONGODB_ADMINPASSWORD}"
       ME_CONFIG_BASICAUTH_USERNAME: "${ME_CONFIG_BASICAUTH_USERNAME}"
       ME_CONFIG_BASICAUTH_PASSWORD: "${ME_CONFIG_BASICAUTH_PASSWORD}"
-      ME_CONFIG_MONGODB_URL: "mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${COMPOSE_PREFIX}biggie_mongo:27017/"
+      ME_CONFIG_MONGODB_URL: "mongodb://${ME_CONFIG_MONGODB_ADMINUSERNAME}:${ME_CONFIG_MONGODB_ADMINPASSWORD}@${COMPOSE_PREFIX}biggie_mongo:27017/?authSource=admin"
     depends_on:
       - mongo
     profiles:
@@ -41,23 +43,12 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.152
 
-  pgadmin:
-    container_name: ${COMPOSE_PREFIX}biggie_pgadmin
-    # image: dpage/pgadmin4:8.11.0
-    build:
-      context: .
-      dockerfile: db/postgres/Dockerfile.pgadmin
-      args:
-        - POSTGRES_PORT=${POSTGRES_PORT}
-        - POSTGRES_USER=${POSTGRES_USER}
-        - POSTGRES_HOST=${COMPOSE_PREFIX}biggie_postgres
-        - MAINTENANCE_DB=${POSTGRES_DB}
+  dbeaver:
+    container_name: ${COMPOSE_PREFIX}biggie_dbeaver
+    image: dbeaver/cloudbeaver:24.2.2
     restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
-      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
-    # volumes:
-    #   - ./db/postgres/pgadmin_conf/servers.json:/pgadmin4/servers.json
+    volumes:
+      - ${DATA_DIR}/cloudbeaver/workspace:/opt/cloudbeaver/workspace
     depends_on:
       - postgres
     profiles:
@@ -65,7 +56,37 @@ services:
       - prod_analytics
       - prod_acquisition
     ports:
-      - "${PGADMIN_DEFAULT_PORT}:80"
+      - "8180:8978"
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.153
+
+  # pgadmin:
+  #   container_name: ${COMPOSE_PREFIX}biggie_pgadmin
+  #   # image: dpage/pgadmin4:8.11.0
+  #   build:
+  #     context: .
+  #     dockerfile: db/postgres/Dockerfile.pgadmin
+  #     args:
+  #       - POSTGRES_PORT=${POSTGRES_PORT}
+  #       - POSTGRES_USER=${POSTGRES_USER}
+  #       - POSTGRES_HOST=${COMPOSE_PREFIX}biggie_postgres
+  #       - MAINTENANCE_DB=${POSTGRES_DB}
+  #   restart: always
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
+  #     PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
+  #     PGADMIN_ENABLE_X_FORWARD_HEADERS: True
+  #   volumes:
+  #     - ./db/postgres/pgadmin_conf/config_local.py:/pgadmin4/config_local.py
+  #   depends_on:
+  #     - postgres
+  #   profiles:
+  #     - prod_full
+  #     - prod_analytics
+  #     - prod_acquisition
+  #   ports:
+  #     - "${PGADMIN_DEFAULT_PORT}:80"
+  #   networks:
+  #     biggie-network:
+  #       ipv4_address: ${DOCKER_SUBNET_BASE}.153
