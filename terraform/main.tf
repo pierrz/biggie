@@ -95,6 +95,12 @@ resource "null_resource" "compose_setup" {
         chmod +x ./terraform/create_env.sh
         ./terraform/create_env.sh
 
+        echo "Clean Docker components ..."
+        docker network rm biggie_network || true
+        docker container stop $(docker ps --format "{{.Names}}" | grep "^biggie_")
+        docker container rm $(docker ps --format "{{.Names}}" | grep "^biggie_")
+        docker container stop biggie_network || true
+
         echo "Test compose setup ..."
         docker compose up api-test orchestrator-test --build
       '

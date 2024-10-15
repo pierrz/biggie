@@ -1,5 +1,5 @@
 # CD pipeline to deploy the code on the Scaleway machine
-name: CD
+name: CD pipeline
 
 on:
   workflow_dispatch:      # manual trigger
