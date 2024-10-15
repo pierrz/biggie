@@ -121,7 +121,6 @@ jobs:
           --volume ./db/mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh \
           --volume ./db/mongo/mongod.conf:/etc/mongod.conf \
           biggie_mongo:latest
-          DB_NAME: "${DB_NAME}"
 
     - name: Create Postgres container
       run: |
