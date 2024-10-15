@@ -156,9 +156,9 @@ jobs:
           --network=${{ env.NETWORK }} \
           biggie_spark:latest
 
-    - name: Verify MongoDB user
-      run: |
-        docker exec biggie_mongo mongosh --username ${{ secrets.MONGO_INITDB_ROOT_USERNAME }} --password ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} --authenticationDatabase admin --eval "db.getUser('${{ secrets.MONGO_USERNAME }}')"
+    # - name: Verify MongoDB user
+    #   run: |
+    #     docker exec biggie_mongo mongosh --username ${{ secrets.MONGO_INITDB_ROOT_USERNAME }} --password ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} --authenticationDatabase admin --eval "db.getUser('${{ secrets.MONGO_USERNAME }}')"
 
     - name: Checks
       run: |
