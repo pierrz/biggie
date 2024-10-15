@@ -137,8 +137,8 @@ resource "null_resource" "server_configuration" {
 
         echo "Run compose setup ..."
         docker compose \
-          -f docker-compose.yml \
-          -f docker-compose.monitoring.yml \
+          -f compose.yaml \
+          -f compose.monitoring.yaml \
           --profile prod_full \
           up --build --detach
       '

@@ -4,9 +4,10 @@ All API endpoints.
 
 from datetime import datetime, timedelta, timezone
 
-# from src import logger
-from config import github_events
 from fastapi import APIRouter, HTTPException, Request
+
+# from src import logger
+from src.commons import names as ns
 from src.db.mongo.models import (
     Event,
     EventAverageTime,
@@ -26,8 +27,8 @@ from src.routers.data_lib import (
 )
 
 router = APIRouter(
-    prefix="/events",
-    tags=["events"],
+    prefix=f"/{ns.events}",
+    tags=[f"{ns.events}"],
     responses={404: {"description": "Issue with endpoint"}},
 )
 
@@ -238,7 +239,7 @@ async def dashboard(request: Request):
     data = [event.dict() for event in event_counts.repository_list]
 
     return templates.TemplateResponse(
-        f"{github_events}/dashboard.html",
+        f"{ns.github_events}/dashboard.html",
         context={
             "request": request,
             "data": data,
@@ -262,7 +263,7 @@ async def details(request: Request, repo_name: str):
     diagram_filepath = generate_diagram(results_df, repo_name, pr_count.count)
 
     return templates.TemplateResponse(
-        f"{github_events}/details.html",
+        f"{ns.github_events}/details.html",
         context={
             "request": request,
             "repo_name": repo_name,

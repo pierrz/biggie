@@ -1,5 +1,6 @@
 # TODO:
 #  - Postgres, Mongo and Spark logs as files (permissions issues related to their volumes)
+#  - check/enable Postgres authentication
 #  - debug setup
 
 name: "${COMPOSE_PREFIX}biggie"
@@ -65,7 +66,7 @@ services:
     environment:
       <<: *mongo-env
     ports:
-      - "${MONGODB_PORT}:27017"
+      - "${MONGO_PORT}:27017"
     volumes:
       - biggie-vmongo:/data/db
       - ./db/mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
@@ -84,6 +85,8 @@ services:
     volumes:
       - biggie-vpostgres:/var/lib/postgresql/data
       - ./db/postgres/init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh:ro
+      # - ./db/postgres/pg_hba.conf:/etc/postgresql/postgresql-14.9/main/pg_hba.conf
+      # - ./db/postgres/pg_hba.conf:/etc/postgresql/postgresql-14.9/main/postgresql.conf
       # - ${LOGS_DIR}/postgresql:/var/log/postgres
     ports:
       - "${POSTGRES_PORT}:5432"
@@ -115,6 +118,8 @@ services:
         - TEST_MODE="True"
     environment:
       <<: *biggie-common-env
+      DOCKER_SUBNET_BASE: ${DOCKER_SUBNET_BASE}
+      API_PORT: ${API_PORT}
     command: pytest -vv
     depends_on:
       - mongo
@@ -139,7 +144,12 @@ services:
       dockerfile: api/Dockerfile
     environment:
       <<: *biggie-common-env
-    command: uvicorn main:app --host 0.0.0.0 --reload --log-level info
+      DOCKER_SUBNET_BASE: ${DOCKER_SUBNET_BASE}
+      API_PORT: ${API_PORT}
+    command: ["uvicorn", "main:app",
+            "--host", "${DOCKER_SUBNET_BASE}.122",
+            "--port", "${API_PORT}",
+            "--reload", "--log-level", "info"]
     depends_on:
       - mongo
       - postgres

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict
 
 import pytest
-from config import data_dir_root
+from config import data_directories
 
 
 @pytest.fixture(scope="module")
@@ -58,7 +58,7 @@ def json_sample_dict(id_sample):
 
 @pytest.fixture(scope="module")
 def test_dir():
-    return Path(data_dir_root, "test")
+    return Path(data_directories.data_dir_root, "test")
 
 
 @pytest.fixture(scope="module")

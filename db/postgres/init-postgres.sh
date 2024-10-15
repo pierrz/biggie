@@ -4,6 +4,9 @@ set -e
 
 echo "Initializing PostgreSQL database from Compose ..."
 
+# echo "$POSTGRES_USER"
+# echo "$POSTGRES_APP_USER"
+
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
 
     -- Create a new user

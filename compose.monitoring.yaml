@@ -1,5 +1,9 @@
 name: "${COMPOSE_PREFIX}biggie"
 
+volumes:
+  biggie-vdbeaver:
+    name: ${COMPOSE_PREFIX}biggie_vdbeaver
+
 services:
 
   flower:
@@ -48,7 +52,7 @@ services:
     image: dbeaver/cloudbeaver:24.2.2
     restart: always
     volumes:
-      - ${DATA_DIR}/cloudbeaver/workspace:/opt/cloudbeaver/workspace
+      - biggie-vdbeaver:/opt/cloudbeaver/workspace
     depends_on:
       - postgres
     profiles:

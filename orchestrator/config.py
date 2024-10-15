@@ -11,9 +11,6 @@ from src.commons import enums
 from src.commons import names as ns
 from src.tasks.schedules import github_events_stream
 
-data_dir_root = Path(os.sep, "opt", ns.data)
-TEST_MODE: str = bool(os.getenv("TEST_MODE"))
-
 
 class CeleryConfig(BaseSettings):
     """
@@ -32,6 +29,7 @@ class CeleryConfig(BaseSettings):
         "Enabled"  # re-run the task if the worker crashes mid-execution
     )
 
+    TEST_MODE: bool = bool(os.getenv("TEST_MODE"))
     if TEST_MODE:
         imports: List[str] = [
             "src.tasks.dummy.dummy_task",
@@ -49,6 +47,7 @@ class CeleryConfig(BaseSettings):
 
 
 class DataDirectories(BaseSettings):
+    data_dir_root: Path = Path(os.sep, "opt", ns.data)
     github_in: Path = Path(data_dir_root, ns.github_events, ns.received)
     github_out: Path = Path(data_dir_root, ns.github_events, ns.processed)
     github_diagrams: Path = Path(data_dir_root, ns.github_events, ns.diagrams)
