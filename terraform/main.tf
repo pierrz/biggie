@@ -90,7 +90,7 @@ resource "null_resource" "compose_setup" {
           --single-branch git@github.com:${var.github_repo_name}.git \
           /opt/biggie
 
-        # echo "Prepare Jupyter hash ..."
+        echo "Prepare Jupyter hash ..."
         cd ~
         source biggie-cd-venv/bin/activate
         HASHED_PASSWORD=$(python -c "from jupyter_server.auth import passwd; print(passwd('${var.jupyter_password}'))")
