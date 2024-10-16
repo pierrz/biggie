@@ -144,8 +144,9 @@ resource "null_resource" "compose_setup" {
 
         echo "# Jupyter" >> .env
         echo "JUPYTER_HASHED_PASSWORD=$(cat /opt/biggie/hashed_password.txt)" >> .env
-        echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
         rm /opt/biggie/hashed_password.txt
+        echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
+        echo "JUPYTER_SUBDOMAIN=${var.jupyter_subdomain}" >> .env
 
         echo "" >> .env
         echo "# Monitoring" >> .env

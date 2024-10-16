@@ -85,6 +85,7 @@ jobs:
         TF_VAR_api_port: ${{ secrets.API_PORT }}
         # Jupyter secrets
         TF_VAR_jupyter_port: ${{ secrets.JUPYTER_PORT }}
+        TF_VAR_jupyter_subdomain: ${{ secrets.JUPYTER_SUBDOMAIN }}
 
         # Monitoring
         # Flower secrets

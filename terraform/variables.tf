@@ -172,8 +172,12 @@ variable "api_port" {
 }
 # Jupyter variables
 variable "jupyter_port" {
-  description = "Host port for the Jupyter"
+  description = "Host port for Jupyter"
   type        = number
+}
+variable "jupyter_subdomain" {
+  description = "Subdomain for Jupyter"
+  type        = string
 }
 
 
