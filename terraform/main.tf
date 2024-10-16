@@ -94,6 +94,7 @@ resource "null_resource" "compose_setup" {
         # cd /home/${var.scaleway_server_user}
         # . biggie-cd-venv/bin/activate
         # HASHED_PASSWORD=$(python -c "from jupyter_server.auth import passwd; print(passwd('${var.jupyter_password}'))")
+        /home/${var.scaleway_server_user}/biggie-cd-venv/bin/python3 -m pip list
         HASHED_PASSWORD=$(/home/${var.scaleway_server_user}/biggie-cd-venv/bin/python3 -c "from jupyter_server.auth import passwd; print(passwd('${var.jupyter_password}'))")
         echo "$HASHED_PASSWORD"
 
