@@ -72,7 +72,7 @@ resource "null_resource" "compose_setup" {
     EOT
   }
 
-  # Install repo and run tests
+  # Install repository
   provisioner "local-exec" {
     command = <<-EOT
       set -e
@@ -97,11 +97,27 @@ resource "null_resource" "compose_setup" {
         /home/${var.scaleway_server_user}/biggie-cd-venv/bin/python3 -m pip list
         HASHED_PASSWORD=$(/home/${var.scaleway_server_user}/biggie-cd-venv/bin/python3 -c "from jupyter_server.auth import passwd; print(passwd('${var.jupyter_password}'))")
         echo "$HASHED_PASSWORD"
+      '
+    EOT
+  }
 
+  # Retrieve Jupyter hashed password
+  provisioner "local-exec" {
+    command = <<-EOT
+      set -e
+      tsh scp ./hashed_password.txt ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
+    EOT
+  }
+
+  # Prepare .env and run tests
+  provisioner "local-exec" {
+    command = <<-EOT
+      set -e
+      tsh ssh ${var.scaleway_server_user}@${var.scaleway_server_name} \
+      '
         echo "Creating .env file ..."
         cd /opt/biggie
-        # chmod +x ./terraform/create_env.sh
-        # ./terraform/create_env.sh
+
         echo "# Docker routing" >> .env
         echo "DOCKER_SUBNET_BASE=${var.docker_subnet_base}" >> .env
         echo "COMPOSE_PREFIX=${var.compose_prefix}" >> .env
@@ -134,7 +150,8 @@ resource "null_resource" "compose_setup" {
         echo "# API" >> .env
         echo "API_PORT=${var.api_port}" >> .env
         echo "# Jupyter" >> .env
-        echo "JUPYTER_HASHED_PASSWORD=$HASHED_PASSWORD" >> .env
+        # echo "JUPYTER_HASHED_PASSWORD=$HASHED_PASSWORD" >> .env
+        echo "JUPYTER_HASHED_PASSWORD=$(cat ./hashed_password.txt | tr -d '\n')" >> .env
         echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
         echo "" >> .env
         echo "# Monitoring" >> .env

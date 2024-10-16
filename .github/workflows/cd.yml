@@ -114,19 +114,20 @@ jobs:
         fi
         echo "TF_VAR_github_repo_branch is set to: ${{ env.TF_VAR_github_repo_branch }}"
 
-    # - name: Set up Python
-    #   uses: actions/setup-python@v5.2.0
-    #   with:
-    #     python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v5.2.0
+      with:
+        python-version: '3.11'
 
-    # - name: Generate hashed password for Jupyter
-    #   run: |
-    #     python -m venv venv
-    #     . venv/bin/activate
-    #     python -m pip install --upgrade pip
-    #     pip install jupyter_server
-    #     HASHED_PASSWORD=$(python -c "from jupyter_server.auth import passwd; print(passwd('${{ secrets.JUPYTER_PASSWORD }}'))")
-    #     echo "TF_VAR_jupyter_hashed_password=$HASHED_PASSWORD" >> $GITHUB_ENV
+    - name: Generate hashed password for Jupyter
+      run: |
+        python -m venv venv
+        . venv/bin/activate
+        python -m pip install --upgrade pip
+        pip install jupyter_server
+        HASHED_PASSWORD=$(python -c "from jupyter_server.auth import passwd; print(passwd('${{ secrets.JUPYTER_PASSWORD }}'))")
+        echo "$HASHED_PASSWORD" >> ./hashed_password.txt
+      # echo "TF_VAR_jupyter_hashed_password=$HASHED_PASSWORD" >> $GITHUB_ENV
 
     - name: Checkout repository
       uses: actions/checkout@v4.1.7
