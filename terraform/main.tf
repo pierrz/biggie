@@ -152,7 +152,7 @@ resource "null_resource" "compose_setup" {
         echo "API_PORT=${var.api_port}" >> .env
         echo "# Jupyter" >> .env
         # echo "JUPYTER_HASHED_PASSWORD=$HASHED_PASSWORD" >> .env
-        echo "JUPYTER_HASHED_PASSWORD='$(cat ./hashed_password.txt | tr -d '\n')'" >> .env
+        echo "JUPYTER_HASHED_PASSWORD='$(cat ./hashed_password.txt)'" >> .env
         echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
         echo "" >> .env
         echo "# Monitoring" >> .env
