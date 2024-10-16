@@ -114,6 +114,9 @@ jobs:
         fi
         echo "TF_VAR_github_repo_branch is set to: ${{ env.TF_VAR_github_repo_branch }}"
 
+    - name: Checkout repository
+      uses: actions/checkout@v4.1.7
+
     - name: Set up Python
       uses: actions/setup-python@v5.2.0
       with:
@@ -130,9 +133,6 @@ jobs:
         ls -al .
         ls -al ${{ github.workspace }}
       # echo "TF_VAR_jupyter_hashed_password=$HASHED_PASSWORD" >> $GITHUB_ENV
-
-    - name: Checkout repository
-      uses: actions/checkout@v4.1.7
 
     - name: Fetch Teleport binaries
       uses: teleport-actions/setup@v1.0.6
