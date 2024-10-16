@@ -143,9 +143,10 @@ resource "null_resource" "compose_setup" {
         echo "API_PORT=${var.api_port}" >> .env
 
         echo "# Jupyter" >> .env
-        printf "JUPYTER_HASHED_PASSWORD=%s\n" "$(cat ./hashed_password.txt | tr -d '\n')" >> .env
+        # printf "JUPYTER_HASHED_PASSWORD=%s\n" "$(cat ./hashed_password.txt | tr -d '\n')" >> .env
+        # echo "CHECK_JUPYTER_HASHED_PASSWORD=${var.jupyter_hashed_password}" >> .env
+        echo "JUPYTER_HASHED_PASSWORD=$(cat /opt/biggie/hashed_password.txt)" >> .env
         echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
-        echo "CHECK_JUPYTER_HASHED_PASSWORD=${var.jupyter_hashed_password}" >> .env
 
         echo "" >> .env
         echo "# Monitoring" >> .env
