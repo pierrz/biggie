@@ -130,7 +130,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install jupyter_server
         HASHED_PASSWORD=$(python -c "from jupyter_server.auth import passwd; print(passwd('${{ secrets.JUPYTER_PASSWORD }}'))")
-        echo "$HASHED_PASSWORD" >> ./hashed_password.txt
+        echo "'$HASHED_PASSWORD'" >> ./hashed_password.txt
         ls -al .
         ls -al ${{ github.workspace }}
       # echo "TF_VAR_jupyter_hashed_password=$HASHED_PASSWORD" >> $GITHUB_ENV
