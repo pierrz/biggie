@@ -114,8 +114,15 @@ jobs:
         fi
         echo "TF_VAR_github_repo_branch is set to: ${{ env.TF_VAR_github_repo_branch }}"
 
-    - name: Generate hashed password fro Jupyter
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Generate hashed password for Jupyter
       run: |
+        python -m venv venv
+        . venv/bin/activate
         python -m pip install --upgrade pip
         pip install jupyter_server
         HASHED_PASSWORD=$(python -c "from jupyter_server.auth import passwd; print(passwd('${{ secrets.JUPYTER_PASSWORD }}'))")
