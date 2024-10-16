@@ -89,14 +89,6 @@ resource "null_resource" "compose_setup" {
           --branch ${var.github_repo_branch} \
           --single-branch git@github.com:${var.github_repo_name}.git \
           /opt/biggie
-
-        # echo "Prepare Jupyter hash ..."
-        # # cd /home/${var.scaleway_server_user}
-        # # . biggie-cd-venv/bin/activate
-        # # HASHED_PASSWORD=$(python -c "from jupyter_server.auth import passwd; print(passwd('${var.jupyter_password}'))")
-        # /home/${var.scaleway_server_user}/biggie-cd-venv/bin/python3 -m pip list
-        # HASHED_PASSWORD=$(/home/${var.scaleway_server_user}/biggie-cd-venv/bin/python3 -c "from jupyter_server.auth import passwd; print(passwd('${var.jupyter_password}'))")
-        # echo "$HASHED_PASSWORD"
       '
     EOT
   }
@@ -106,7 +98,7 @@ resource "null_resource" "compose_setup" {
     command = <<-EOT
       set -e
       ls -al ${var.github_workspace}
-      tsh scp ${var.github_workspace}/hashed_password.txt ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
+      tsh scp ./hashed_password.txt ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
     EOT
   }
 
@@ -152,11 +144,8 @@ resource "null_resource" "compose_setup" {
         echo "API_PORT=${var.api_port}" >> .env
 
         echo "# Jupyter" >> .env
-        # echo "JUPYTER_HASHED_PASSWORD=$HASHED_PASSWORD" >> .env
-        HASHED_PASSWORD=$(cat ./hashed_password.txt | tr -d '\n')
         printf "JUPYTER_HASHED_PASSWORD=%s\n" "$(cat ./hashed_password.txt | tr -d '\n')" >> .env
         echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
-        echo "SECRET__JUPYTER_HASHED_PASSWORD=${var.jupyter_hashed_password}" >> .env
 
         echo "" >> .env
         echo "# Monitoring" >> .env
