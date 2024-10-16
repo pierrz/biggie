@@ -90,6 +90,11 @@ resource "null_resource" "compose_setup" {
           --single-branch git@github.com:${var.github_repo_name}.git \
           /opt/biggie
 
+        # echo "Prepare Jupyter hash ..."
+        cd ~
+        source biggie-cd-venv/bin/activate
+        HASHED_PASSWORD=$(python -c "from jupyter_server.auth import passwd; print(passwd('${var.jupyter_password}'))")
+
         echo "Creating .env file ..."
         cd /opt/biggie
         # chmod +x ./terraform/create_env.sh
@@ -126,7 +131,7 @@ resource "null_resource" "compose_setup" {
         echo "# API" >> .env
         echo "API_PORT=${var.api_port}" >> .env
         echo "# Jupyter" >> .env
-        echo "JUPYTER_HASHED_PASSWORD=${var.jupyter_hashed_password}" >> .env
+        echo "JUPYTER_HASHED_PASSWORD=$HASHED_PASSWORD" >> .env
         echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
         echo "" >> .env
         echo "# Monitoring" >> .env
