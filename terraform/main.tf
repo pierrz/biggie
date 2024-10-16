@@ -143,10 +143,9 @@ resource "null_resource" "compose_setup" {
         echo "API_PORT=${var.api_port}" >> .env
 
         echo "# Jupyter" >> .env
-        # printf "JUPYTER_HASHED_PASSWORD=%s\n" "$(cat ./hashed_password.txt | tr -d '\n')" >> .env
-        # echo "CHECK_JUPYTER_HASHED_PASSWORD=${var.jupyter_hashed_password}" >> .env
         echo "JUPYTER_HASHED_PASSWORD=$(cat /opt/biggie/hashed_password.txt)" >> .env
         echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
+        rm /opt/biggie/hashed_password.txt
 
         echo "" >> .env
         echo "# Monitoring" >> .env
@@ -160,12 +159,6 @@ resource "null_resource" "compose_setup" {
         echo "ME_CONFIG_BASICAUTH_USERNAME=${var.me_config_basicauth_username}" >> .env
         echo "ME_CONFIG_BASICAUTH_PASSWORD=${var.me_config_basicauth_password}" >> .env
         echo "ME_CONFIG_PORT=${var.me_config_port}" >> .env
-
-        # echo "Clean Docker components ..."
-        # docker network rm biggie_network || true
-        # docker container stop $(docker ps --format "{{.Names}}" | grep "^biggie_")
-        # docker container rm $(docker ps --format "{{.Names}}" | grep "^biggie_")
-        # docker container stop biggie_network || true
 
         echo "Test compose setup ..."
         docker compose up api-test orchestrator-test --build

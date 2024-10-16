@@ -158,6 +158,7 @@ jobs:
           --network=${{ env.NETWORK }} \
           biggie_spark:latest
 
+    # This can be useful to check the DBs after changes in the init scripts or authentication methods
     # - name: Checks
     #   run: |
     #     docker ps -a

@@ -160,7 +160,7 @@ services:
       - prod_analytics
     volumes:
       - ${LOGS_DIR}/api:/var/log/api/
-      - ${DATA_DIR}/github_events/diagrams:/opt/api/templates/github_events/diagrams
+      - ${DATA_DIR}/orchestrator/github_events/diagrams:/opt/api/templates/github_events/diagrams
       # Dev speed up (no build)
       # - ./api:/opt/api
       # - ./db/mongo_db.py:/opt/api/src/db/mongo_db.py
