@@ -154,8 +154,9 @@ resource "null_resource" "compose_setup" {
         echo "# Jupyter" >> .env
         # echo "JUPYTER_HASHED_PASSWORD=$HASHED_PASSWORD" >> .env
         HASHED_PASSWORD=$(cat ./hashed_password.txt | tr -d '\n')
-        echo "JUPYTER_HASHED_PASSWORD='$HASHED_PASSWORD'" >> .env
+        echo "JUPYTER_HASHED_PASSWORD='${HASHED_PASSWORD}'" >> .env
         echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
+        echo "SECRET__JUPYTER_HASHED_PASSWORD=${var.jupyter_hashed_password}" >> .env
 
         echo "" >> .env
         echo "# Monitoring" >> .env

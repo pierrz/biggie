@@ -175,10 +175,10 @@ variable "jupyter_password" {
   description = "Password for Jupyter"
   type        = string
 }
-# variable "jupyter_hashed_password" {
-#   description = "Hashed password for Jupyter"
-#   type        = string
-# }
+variable "jupyter_hashed_password" {
+  description = "Hashed password for Jupyter"
+  type        = string
+}
 variable "jupyter_port" {
   description = "Host port for the Jupyter"
   type        = number
