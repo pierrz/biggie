@@ -22,6 +22,7 @@ plotly = "==5.24.0"
 pydantic = "==2.9.1"
 pydantic-settings = "==2.4.0"
 pymongo = "==4.8.0"
+starlette = "==0.41.0"
 SQLAlchemy = "==2.0.34"             # previous version was 1.4.54
 typing = "3.7.4.3"                  # issues with installing the latest version 3.10.0.0
 uvicorn = "0.31.1"

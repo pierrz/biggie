@@ -171,8 +171,8 @@ variable "api_port" {
   type        = number
 }
 # Jupyter variables
-variable "jupyter_password" {
-  description = "Password for Jupyter"
+variable "jupyter_hashed_password" {
+  description = "Hashed password for Jupyter"
   type        = string
 }
 variable "jupyter_port" {

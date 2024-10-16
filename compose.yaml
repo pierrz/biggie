@@ -99,7 +99,7 @@ services:
     build:
       context: notebook
       args:
-        - JUPYTER_PASSWORD=${JUPYTER_PASSWORD}
+        - JUPYTER_HASHED_PASSWORD=${JUPYTER_HASHED_PASSWORD}
     restart: always
     volumes:
       - ${DATA_DIR}/jupyterlab:/home/jovyan/work

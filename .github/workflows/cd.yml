@@ -84,7 +84,7 @@ jobs:
         # API secrets
         TF_VAR_api_port: ${{ secrets.API_PORT }}
         # Jupyter secrets
-        TF_VAR_jupyter_password: ${{ secrets.JUPYTER_PASSWORD }}
+        # TF_VAR_jupyter_password: ${{ secrets.JUPYTER_PASSWORD }}
         TF_VAR_jupyter_port: ${{ secrets.JUPYTER_PORT }}
 
         # Monitoring
@@ -113,6 +113,13 @@ jobs:
             echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
         fi
         echo "TF_VAR_github_repo_branch is set to: ${{ env.TF_VAR_github_repo_branch }}"
+
+    - name: Generate hashed password fro Jupyter
+      run: |
+        python -m pip install --upgrade pip
+        pip install jupyter_server
+        HASHED_PASSWORD=$(python -c "from jupyter_server.auth import passwd; print(passwd('${{ secrets.JUPYTER_PASSWORD }}'))")
+        echo "TF_VAR_jupyter_hashed_password=$HASHED_PASSWORD" >> $GITHUB_ENV
 
     - name: Checkout repository
       uses: actions/checkout@v4.1.7
