@@ -105,7 +105,7 @@ resource "null_resource" "compose_setup" {
   provisioner "local-exec" {
     command = <<-EOT
       set -e
-      tsh scp ./hashed_password.txt ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
+      tsh scp ${var.github_workspace}/hashed_password.txt ${var.scaleway_server_user}@${var.scaleway_server_name}:/opt/biggie
     EOT
   }
 
