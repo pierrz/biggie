@@ -87,7 +87,7 @@ jobs:
 
       NETWORK: ci_network
       SPARK_MASTER_URL: "spark://spark-master:7077"
-      POSTGRES_HOST: "biggie_postgres:5432"
+      POSTGRESDB_HOST: "biggie_postgres:5432"
       MONGODB_URI: "mongodb://${{ secrets.MONGO_USERNAME }}:${{ secrets.MONGO_PASSWORD }}@biggie_mongo:27017/?authSource=${{ secrets.DB_NAME }}"
 
     steps:
@@ -169,9 +169,13 @@ jobs:
     - name: API tests
       run: |
         docker run --name biggie_api-test \
+          --env DOCKER_SUBNET_BASE=${{ secrets.DOCKER_SUBNET_BASE }} \
+          --env API_PORT=${{ secrets.API_PORT }} \
           --env MONGODB_URI=${{ env.MONGODB_URI }} \
           --env DB_NAME=${{ secrets.DB_NAME }} \
+          --env POSTGRESDB_HOST=${{ env.POSTGRESDB_HOST }} \
           --env POSTGRES_APP_USER=${{ secrets.POSTGRES_APP_USER }} \
+          --env POSTGRES_APP_PASSWORD=${{ secrets.POSTGRES_APP_PASSWORD }} \
           --env POSTGRES_APP_PASSWORD=${{ secrets.POSTGRES_APP_PASSWORD }} \
           --network=${{ env.NETWORK }} \
           --volume ${{ secrets.DATA_DIR }}:/opt/data \
@@ -187,7 +191,7 @@ jobs:
           --env CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }} \
           --env MONGODB_URI=${{ env.MONGODB_URI }} \
           --env DB_NAME=${{ secrets.DB_NAME }} \
-          --env POSTGRESDB_HOST=${{ env.POSTGRES_HOST }} \
+          --env POSTGRESDB_HOST=${{ env.POSTGRESDB_HOST }} \
           --env POSTGRES_APP_USER=${{ secrets.POSTGRES_APP_USER }} \
           --env POSTGRES_APP_PASSWORD=${{ secrets.POSTGRES_APP_PASSWORD }} \
           --env TOKEN_GITHUB_API=${{ secrets.TOKEN_GITHUB_API }} \
