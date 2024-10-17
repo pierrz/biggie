@@ -107,6 +107,9 @@ services:
       - ${DATA_DIR}/jupyterlab:/home/jovyan/work
     ports:
       - "${JUPYTER_PORT}:8888"
+    profiles:
+      - prod_analytics
+      - prod_full
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.111
