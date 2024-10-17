@@ -9,7 +9,7 @@ on:
 
 jobs:
 
-  deploy:
+  deployment:
 
     permissions:
       # The "id-token: write" permission is required
@@ -111,10 +111,7 @@ jobs:
     steps:
 
     - name: Set Environment URL Output
-      id: set_url
-      run: echo "::set-output name=url::$ENVIRONMENT_URL"
-      env:
-        ENVIRONMENT_URL: ${{ secrets.ENVIRONMENT_URL }}  # Use environment secret
+      run: echo "url=${{ secrets.ENVIRONMENT_URL }}" >> $GITHUB_OUTPUT
 
     - name: Set Secrets for Pull Request
       if: github.event_name == 'pull_request'
@@ -189,3 +186,18 @@ jobs:
       uses: ./.github/actions/terraform
       with:
         command: apply -auto-approve
+
+  cancelled_deployment:
+    runs-on: ubuntu-latest
+    needs: deployment
+    steps:
+      - name: Wait for approval or timeout
+        run: |
+          timeout=30m
+          while [[ $(date +%s) -lt $(date -d "$timeout" +%s) ]]; do
+            approval_status=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ github.workflow }}/runs/${{ github.run_id }}/jobs/cancel_pipeline")
+            if [[ $approval_status == *"approved"* ]]; then
+              echo "Pipeline approved, continuing..."
+              exit 0
+            fi
+            sleep 30
