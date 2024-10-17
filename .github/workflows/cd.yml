@@ -101,10 +101,8 @@ jobs:
         TF_VAR_me_config_port: ${{ secrets.ME_CONFIG_PORT }}
 
     if: |
-      github.event.workflow_run.conclusion == 'success' && (
-        github.event.workflow_run.event == 'pull_request' ||
-        github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'
-      )
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
 
     - name: Set Secrets for Pull Request
