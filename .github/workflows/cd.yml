@@ -18,6 +18,9 @@ jobs:
       contents: read
 
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      # url: ${{ secrets.ENVIRONMENT_URL }}
 
     env:
 
@@ -106,6 +109,12 @@ jobs:
        github.event.workflow_run.conclusion == 'success' &&
        (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.event == 'pull_request'))
     steps:
+
+    - name: Set Environment URL Output
+      id: set_url
+      run: echo "::set-output name=url::$ENVIRONMENT_URL"
+      env:
+        ENVIRONMENT_URL: ${{ secrets.ENVIRONMENT_URL }}  # Use environment secret
 
     - name: Set Secrets for Pull Request
       if: github.event_name == 'pull_request'

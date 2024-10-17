@@ -1,13 +1,13 @@
 # biggie
 
-Biggie is a tool to
+Biggie is a tool dedicated to:
 - quickly get data from (external) APIs into either a Mongo or Postgres database
 - have it exposed/searchable via a dedicated API
 - investigate it from a Jupyter Lab server
 
-It is a Docker compose setup including
+It is a Docker compose setup including:
 - an orchestrator container based on Celery (including Beat) and asyncio
-- A Spark cluster made of a master and 2 workers containers
+- a Spark cluster made of a master and 2 workers containers
 - an API endpoints container based on FastAPI
 - 2 containers for MongoDB and PostgreSQL databases
 - 3 containers for Flower, Mongo-Express and DBeaver for monitoring purpose
