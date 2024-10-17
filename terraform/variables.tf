@@ -105,6 +105,10 @@ variable "celery_result_backend" {
   description = "Celery result backend"
   type        = string
 }
+variable "host_user_uid" {
+  description = "Host user UID, useful for mounted volumes permissions e.g. Jupyter Dockerfile"
+  type        = number
+}
 
 
 # DBs variables
@@ -174,10 +178,6 @@ variable "api_port" {
 variable "jupyter_port" {
   description = "Host port for Jupyter"
   type        = number
-}
-variable "jupyter_subdomain" {
-  description = "Subdomain for Jupyter"
-  type        = string
 }
 
 

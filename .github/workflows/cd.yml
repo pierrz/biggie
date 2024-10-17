@@ -61,6 +61,7 @@ jobs:
         TF_VAR_data_dir: ${{ secrets.DATA_DIR }}
         TF_VAR_celery_broker_url: ${{ secrets.CELERY_BROKER_URL }}
         TF_VAR_celery_result_backend: ${{ secrets.CELERY_RESULT_BACKEND }}
+        TF_VAR_host_user_uid: ${{ secrets.HOST_USER_UID }}
 
         # DBs secrets
         TF_VAR_db_name: ${{ secrets.DB_NAME }}
@@ -85,7 +86,7 @@ jobs:
         TF_VAR_api_port: ${{ secrets.API_PORT }}
         # Jupyter secrets
         TF_VAR_jupyter_port: ${{ secrets.JUPYTER_PORT }}
-        TF_VAR_jupyter_subdomain: ${{ secrets.JUPYTER_SUBDOMAIN }}
+        # TF_VAR_jupyter_subdomain: ${{ secrets.JUPYTER_SUBDOMAIN }}    # TODO: refine jupyter config
 
         # Monitoring
         # Flower secrets

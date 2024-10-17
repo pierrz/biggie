@@ -100,7 +100,8 @@ services:
       context: notebook
       args:
         - JUPYTER_HASHED_PASSWORD=${JUPYTER_HASHED_PASSWORD}
-        - JUPYTER_SUBDOMAIN=${JUPYTER_SUBDOMAIN}
+        - HOST_USER_UID=${HOST_USER_UID}
+        # - JUPYTER_SUBDOMAIN=${JUPYTER_SUBDOMAIN}    # TODO: refine jupyter config
     restart: always
     volumes:
       - ${DATA_DIR}/jupyterlab:/home/jovyan/work

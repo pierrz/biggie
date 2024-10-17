@@ -119,6 +119,7 @@ resource "null_resource" "compose_setup" {
         echo "LOGS_DIR=${var.logs_dir}" >> .env
         echo "CELERY_BROKER_URL=${var.celery_broker_url}" >> .env
         echo "CELERY_RESULT_BACKEND=${var.celery_result_backend}" >> .env
+        echo "HOST_USER_UID=${var.host_user_uid}" >> .env
         echo "" >> .env
         echo "# DBs" >> .env
         echo "DB_NAME=${var.db_name}" >> .env
@@ -146,7 +147,6 @@ resource "null_resource" "compose_setup" {
         echo "JUPYTER_HASHED_PASSWORD=$(cat /opt/biggie/hashed_password.txt)" >> .env
         rm /opt/biggie/hashed_password.txt
         echo "JUPYTER_PORT=${var.jupyter_port}" >> .env
-        echo "JUPYTER_SUBDOMAIN=${var.jupyter_subdomain}" >> .env
 
         echo "" >> .env
         echo "# Monitoring" >> .env

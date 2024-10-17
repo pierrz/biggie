@@ -1,0 +1,6 @@
+listen 443 ssl;
+ssl_certificate /some/path/to/fullchain.pem;
+ssl_certificate_key /some/path/to/privkey.pem;
+# for letsencrypt only
+include /etc/letsencrypt/options-ssl-nginx.conf;
+ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
