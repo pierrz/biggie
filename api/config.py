@@ -5,17 +5,25 @@ Configuration module
 from pathlib import Path
 
 from pydantic_settings import BaseSettings
+from src.commons import names as ns
 
-github_events = "github_events"
-diagrams_dir = Path("templates", github_events, "diagrams")  # github endpoints specific
+diagrams_dir = Path(
+    "templates", ns.github_events, ns.diagrams
+)  # github endpoints specific
 
 
-class Config(BaseSettings):
+class MainConfig(BaseSettings):
     """
     Config class.
     """
 
-    LOCAL_DEV: bool = True
+    API_PORT: str
+    DOCKER_SUBNET_BASE: str
+    DB_NAME: str
+    MONGODB_URI: str
+    POSTGRESDB_HOST: str
+    POSTGRES_APP_USER: str
+    POSTGRES_APP_PASSWORD: str
 
 
-main_config = Config()
+main_config = MainConfig()

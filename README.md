@@ -28,7 +28,7 @@ You have to create the `.env` environment file and use/create a Github token for
 [wip] Eventually tweak the schedule parameter for the cleaning task (see **"Data streaming"** section below.).
 
 If you plan to use the same Github-actions CI file, you need to create the same secrets
-as in the `jobs > env` section in `.github/workflows/docker-ci.yml` (see **line 31**).
+as in the `jobs > env` section in `.github/workflows/docker-ci.yaml` (see **line 31**).
 
 **NB**:
 - For all files embedded with secrets, you'll find the `<file>.example` ready to adapt.
@@ -63,7 +63,7 @@ See `kwargs={"wait_minutes": 30}` in the `github_events_stream` schedule in [**`
 
 ```
 docker compose \
-  -f docker-compose.yml \
+  -f compose.yaml \
   --profile prod_acquisition \
   up
 ```
@@ -73,15 +73,15 @@ docker compose \
 #### Data acquisition with monitoring
 You can just pass the monitoring configuration to include the pending containers
 with any profile or container command:
-```-f docker-compose.monitoring.yml```
+```-f compose.monitoring.yaml```
 
 For Data acquisition, this will spin up both the Mongo-Express and Flower containers
 along the production containers.
 ```
-docker compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
+docker compose -f compose.yaml -f compose.monitoring.yaml --profile monitoring up
 docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+  -f compose.yaml \
+  -f compose.monitoring.yaml \
   --profile prod_acquisition \
   up
 ```
@@ -92,8 +92,8 @@ docker compose \
 Just to have the FastAPI container up
 ```
 docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+  -f compose.yaml \
+  -f compose.monitoring.yaml \
   --profile prod_analytics \
   up
 ```
@@ -104,8 +104,8 @@ docker compose \
 Both production containers as well as both monitoring containers.
 ```
 docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+  -f compose.yaml \
+  -f compose.monitoring.yaml \
   --profile prod_full \
   up
 ```
@@ -133,8 +133,8 @@ The `nginx` configuration files are:
 Finally run the `docker compose` command to spin up the whole shewbang:
 ```
 docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.monitoring.yml \
+  -f compose.yaml \
+  -f compose.monitoring.yaml \
   --profile prod_full \
   up
 ```
@@ -180,4 +180,4 @@ and either:
 
 ### Contribute
 You can always propose a PR, just don't forget to update the release version
-that you can find in `ci.yml` and all `pyproject.toml` files.
+that you can find in `ci.yaml` and all `pyproject.toml` files.

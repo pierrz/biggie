@@ -1,0 +1,93 @@
+# Nginx configuration file for all Biggie containers (production)
+# TODO: investigate proxy_pass https://localhost:8443 VS https://localhost:3080  (Cf. Teleport config)
+
+##########
+# SERVICES
+server {        # API
+    server_name api.example.com;
+
+    include /path/to/certificate_biggie.conf;
+
+    access_log /path/to/logs/nginx/api.access.log combined;
+    error_log /path/to/logs/nginx/api.error.log warn;
+
+    location / {
+        proxy_pass https://localhost:8443;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {        # Jupyter
+    server_name jupyter.example.com;
+
+    include /path/to/certificate_biggie.conf;
+
+    access_log /path/to/logs/nginx/jupyter.access.log combined;
+    error_log /path/to/logs/nginx/jupyter.error.log warn;
+
+    location / {
+        proxy_pass https://localhost:8443;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+
+############
+# MONITORING
+server {        # Flower
+    server_name flower.example.com;
+
+    include /path/to/certificate_biggie.conf;
+
+    access_log /path/to/logs/nginx/flower.access.log combined;
+    error_log /path/to/logs/nginx/flower.error.log warn;
+
+    location / {
+        proxy_pass https://localhost:8443;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {        # DBeaver
+    server_name dbeaver.example.com;
+
+    include /path/to/certificate_biggie.conf;
+
+    access_log /path/to/logs/nginx/dbeaver.access.log combined;
+    error_log /path/to/logs/nginx/dbeaver.error.log warn;
+
+    location / {
+        proxy_pass https://localhost:8443;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # proxy_set_header X-Forwarded-Host $host;
+    }
+}
+
+server {        # Mongo-Express
+    server_name mongoex.example.com;
+
+    include /path/to/certificate_biggie.conf;
+
+    access_log /path/to/logs/nginx/mongoex.access.log combined;
+    error_log /path/to/logs/nginx/mongoex.error.log warn;
+
+    location / {
+        proxy_pass https://localhost:8443;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

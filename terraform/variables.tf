@@ -82,84 +82,102 @@ variable "compose_prefix" {
   type        = string
 }
 variable "spark_ports_range" {
-  type        = number
   description = "Prefix used to change the range of Spark ports"
+  type        = number
 }
 variable "rabbitmq_port" {
-  type        = number
   description = "RabbitMQ port"
+  type        = number
 }
 variable "logs_dir" {
-  type        = string
   description = "Logs directory path"
+  type        = string
 }
 variable "data_dir" {
-  type        = string
   description = "Data directory path"
+  type        = string
+}
+variable "celery_broker_url" {
+  description = "Celery broker URL"
+  type        = string
+}
+variable "celery_result_backend" {
+  description = "Celery result backend"
+  type        = string
+}
+variable "host_user_uid" {
+  description = "Host user UID, useful for mounted volumes permissions e.g. Jupyter Dockerfile"
+  type        = number
 }
 
 
 # DBs variables
 variable "db_name" {
-  type        = string
   description = "Database name; Used by both PostgresSQL and MongoDB"
+  type        = string
 }
 # Postgres variables
 variable "postgres_db" {
-  type        = string
   description = "PostgreSQL database for initialization/admin"
+  type        = string
 }
 variable "postgres_user" {
-  type        = string
   description = "PostgreSQL user for initialization/admin"
+  type        = string
 }
 variable "postgres_password" {
-  type        = string
   description = "PostgreSQL password for initialization/admin"
+  type        = string
 }
 variable "postgres_app_user" {
-  type        = string
   description = "PostgreSQL user for clients"
+  type        = string
 }
 variable "postgres_app_password" {
-  type        = string
   description = "PostgreSQL password for clients"
+  type        = string
 }
 variable "postgres_port" {
-  type        = number
   description = "Host port for PostgreSQL"
+  type        = number
 }
 # Mongo variables
 variable "mongo_initdb_root_username" {
-  type        = string
   description = "MongoDB username for initialization"
+  type        = string
 }
 variable "mongo_initdb_root_password" {
-  type        = string
   description = "MongoDB password for initialization"
+  type        = string
 }
 variable "mongo_username" {
-  type        = string
   description = "MongoDB username for clients"
+  type        = string
 }
 variable "mongo_password" {
-  type        = string
   description = "MongoDB password for clients"
+  type        = string
+}
+variable "mongo_port" {
+  description = "Host port for MongoDB"
+  type        = number
 }
 
 
 # Orchestrator variables
-variable "celery_broker_url" {
-  type        = string
-  description = "Celery broker URL"
-}
-variable "celery_result_backend" {
-  type        = string
-  description = "Celery result backend"
-}
 variable "token_github_api" {
-  type        = string
   description = "GitHub API token"
+  type        = string
+}
+# API variables
+variable "api_port" {
+  description = "Host port for the API"
+  type        = number
+}
+# Jupyter variables
+variable "jupyter_port" {
+  description = "Host port for Jupyter"
+  type        = number
 }
 
 
@@ -169,17 +187,9 @@ variable "flower_port" {
   description = "Host port for FLower"
   type        = number
 }
-# PGAdmin variables
-variable "pgadmin_default_email" {
-  description = "Default email for pgAdmin"
-  type        = string
-}
-variable "pgadmin_default_password" {
-  description = "Default password for pgAdmin"
-  type        = string
-}
-variable "pgadmin_default_port" {
-  description = "Host port for pgAdmin"
+# DBeaver variables
+variable "dbeaver_port" {
+  description = "Host port for DBeaver"
   type        = number
 }
 # Mongo-Express variables

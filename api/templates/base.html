@@ -7,7 +7,83 @@
     <title>{{ title }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" media="screen" href="{{url_for('static', path='/css/main.css')}}">
+    <!-- <link rel="stylesheet" media="screen" href="{{url_for('static', path='/css/main.css')}}"> -->
+    <!-- <link rel="stylesheet" media="screen" href="/static/css/main.css"> -->
+
+    <!-- Temporary hack to bypass the CSP issue with static files -->
+    <!-- Cf. Blocked loading mixed active content “http://the.docker.service.ip:port/static/css/main.css” -->
+    <style>
+        html {
+          position: relative;
+          min-height: 100%;
+        }
+        body {
+          padding-top: 2rem;
+          margin-bottom: 60px;
+        }
+        table {
+            margin: auto
+        }
+
+        .level.page {
+            display: none
+        }
+        .level.page.active_page {
+            display: initial
+        }
+        .active_button {
+            background-color: blue
+        }
+
+
+        /* BULMA forced light theme */
+        /* Set background color to light */
+        body, html {
+          background-color: #ffffff !important;
+          color: #363636 !important; /* Bulma's default text color */
+        }
+
+        /* Override Bulma's navbar and hero sections if they use dark colors */
+        .navbar, .hero {
+          background-color: #ffffff !important;
+          color: #363636 !important;
+        }
+
+        /* Force all buttons to use Bulma's default light background */
+        .button {
+          background-color: #ffffff !important;
+          color: #363636 !important;
+        }
+
+        /* Ensure text elements and heading colors are dark */
+        h1, h2, h3, h4, h5, h6, p {
+          color: #363636 !important;  /* Bulma's default dark text color */
+        }
+
+        /* Handle dark-theme-specific elements (e.g., modals, forms) */
+        .modal, .box, .card {
+          background-color: #ffffff !important;
+          color: #363636 !important;
+        }
+
+        /* Striped Table - Make stripes light */
+        table.is-striped thead tr:nth-child(odd) {
+          background-color: #f1f1f1 !important;  /* Light gray for the odd rows */
+        }
+        table.is-striped tbody tr:nth-child(even) {
+          background-color: #f8f8f8 !important;  /* Light gray for the odd rows */
+        }
+
+        table.is-striped tbody tr:nth-child(odd) {
+          background-color: #ffffff !important;  /* White for the even rows */
+        }
+
+        /* Table text colors */
+        table, th, td {
+          color: #363636 !important;  /* Ensure text is dark */
+        }
+    </style>
+
   </head>
 
   <body>

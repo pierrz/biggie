@@ -1,7 +1,5 @@
 FROM python:3.11.9
 
-ARG TEST_MODE="False"
-
 # Java (required for PySpark)
 RUN apt-get clean \
     && apt-get update \
@@ -33,6 +31,7 @@ RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi --only main,security
 
 # Install test dependencies only in TEST_MODE
+ARG TEST_MODE="False"
 RUN if [ $(echo $TEST_MODE | tr -d '\"') = "True" ]; then \
         echo "Running in TEST mode"; \
         poetry install --only dev; \
