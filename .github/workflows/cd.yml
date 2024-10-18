@@ -16,14 +16,15 @@ jobs:
       run: |
           ENVIRONMENT_NAME="production"
           TIMEOUT_MINUTES=15
-          let TIMEOUT_SECONDS=TIMEOUT_MINUTES*60
+          # let TIMEOUT_SECONDS=TIMEOUT_MINUTES*60
 
           echo "Waiting $TIMEOUT_MINUTES minutes for approval ..."
-          sleep $TIMEOUT_SECONDS
+          # sleep $TIMEOUT_SECONDS
 
           # Check every minutes
           for ((i=1; i<=$TIMEOUT_MINUTES; i++)); do
 
+            sleep 60
             echo "Checking status after $i minute(s) ..."
             DEPLOYMENT_RESPONSE=$(curl -s \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
