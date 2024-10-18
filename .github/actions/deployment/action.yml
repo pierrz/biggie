@@ -25,19 +25,19 @@ runs:
         echo "$REF"
 
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ||
-              ( "${{ github.event_name }}" == "workflow_run" &&
-                "${{ github.event.workflow_run.conclusion }}" == "success" &&
+            ( "${{ github.event_name }}" == "workflow_run" &&
+              "${{ github.event.workflow_run.conclusion }}" == "success" &&
+              (
                 (
-                  (
-                    "${{ github.event.workflow_run.head_branch }}" != "main" &&
-                    "${{ github.event.workflow_run.event }}" == "pull_request"
-                  ) ||
-                  (
-                    "${{ github.event.workflow_run.head_branch }}" == "main" &&
-                      "${{ github.event.workflow_run.event }}" == "push"
-                  )
+                  "${{ github.event.workflow_run.head_branch }}" != "main" &&
+                  "${{ github.event.workflow_run.event }}" == "pull_request"
+                ) ||
+                (
+                  "${{ github.event.workflow_run.head_branch }}" == "main" &&
+                  "${{ github.event.workflow_run.event }}" == "push"
                 )
-              ) ]]; then
+              )
+            ) ]]; then
           echo "Conditions met!"
           echo "RUN_DEPLOYMENT=true" >> $GITHUB_OUTPUT
         else
