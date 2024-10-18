@@ -39,7 +39,6 @@ jobs:
             echo "$STATUS"
             if [[ $STATUS == "error" || "$STATUS" == "waiting" ]]; then
               echo "Approval not received yet - keep waiting for it"
-              exit 0
             else
               break
             fi
