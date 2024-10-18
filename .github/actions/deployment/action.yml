@@ -1,3 +1,7 @@
+# TODO: improve the following logic in PRs -> after the CI workflow is successful/completed
+# - get the CD workflow to trigger
+# - avoid the CD workflow to get triggered from the main branch (as it is behind the current PR branch)
+
 name: "Check Deployment Condition"
 description: "Checks if deployment conditions are met"
 author: pierrz
@@ -17,23 +21,26 @@ runs:
               -H "Authorization: Bearer ${{ inputs.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/${{ github.repository }}/deployments?environment=$ENVIRONMENT_NAME&per_page=1")
-        echo "$RESPONSE"
+        # echo "$RESPONSE"
 
         BRANCH=$(echo "$RESPONSE" | jq -r '.[0].ref')
         echo "BRANCH: $BRANCH"
 
-        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] ||
-            [[ "${{ github.event_name }}" == "workflow_run" &&
-                "${{ github.event.workflow_run.conclusion }}" == "success" &&
-                (
-                  ( "$BRANCH" != "main" &&
-                    "${{ github.event.workflow_run.event }}" == "pull_request" ) ||
-                  ( "$BRANCH" == "main" &&
-                    "${{ github.event.workflow_run.event }}" == "push" )
-                )
-            ]]; then
-          echo "Conditions met!"
-          echo "RUN_DEPLOYMENT=true" >> $GITHUB_OUTPUT
+        if [[
+          "${{ github.event_name }}" == "workflow_dispatch" ||
+          (
+            "${{ github.event_name }}" == "workflow_run" &&
+            "${{ github.event.workflow_run.conclusion }}" == "success" &&
+            (
+              ( "$BRANCH" != "main" &&
+                "${{ github.event.workflow_run.event }}" == "pull_request" ) ||
+              ( "$BRANCH" == "main" &&
+                "${{ github.event.workflow_run.event }}" == "push" )
+            )
+          )
+        ]]; then
+        echo "Conditions met!"
+        echo "RUN_DEPLOYMENT=true" >> $GITHUB_OUTPUT
         else
           echo "RUN_DEPLOYMENT=false" >> $GITHUB_OUTPUT
         fi
