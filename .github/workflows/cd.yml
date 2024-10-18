@@ -36,7 +36,7 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/deployments/$DEPLOYMENT_ID/statuses")
 
             STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.[0].state')
-            if [[ $STATUS == "error" ]]; then
+            if [[ $STATUS == "error" || "$STATUS" == "waiting" ]]; then
               echo "Approval not received yet - keep waiting for it"
               exit 0
             else
@@ -46,7 +46,7 @@ jobs:
           done
 
           # tags: error, failure, inactive, in_progress, queued, pending, success
-          if [[ $STATUS != "error" ]]; then
+          if [[ $STATUS != "error" || "$STATUS" == "waiting" ]]; then
               echo "Current deployment status is '$STATUS' --> Approval received"
               exit 0
           else
