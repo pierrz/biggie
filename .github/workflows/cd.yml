@@ -18,6 +18,25 @@ jobs:
           let TIMEOUT_SECONDS=TIMEOUT_MINUTES*60
           END_TIME=$(($(date +%s) + $TIMEOUT_SECONDS))
 
+          ENVIRONMENT_NAME="production"
+          DEPLOYMENT_RESPONSE=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/deployments?environment=$ENVIRONMENT_NAME&per_page=1")
+
+          echo "Deployment Response: $DEPLOYMENT_RESPONSE"
+          DEPLOYMENT_ID=$(echo "$DEPLOYMENT_RESPONSE" | jq -r '.[0].id')
+          echo "$DEPLOYMENT_ID"
+
+          STATUS_RESPONSE=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/deployments/$DEPLOYMENT_ID/statuses")
+
+          echo "$STATUS_RESPONSE"
+          STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.[0].state')
+          echo "$STATUS"
+
           echo "Waiting $TIMEOUT_MINUTES minutes for approval ..."
           sleep $TIMEOUT_SECONDS
 
@@ -44,6 +63,7 @@ jobs:
           echo "$STATUS_RESPONSE"
           STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.[0].state')
           echo "$STATUS"
+
           if [[ $STATUS == *"approved"* ]]; then
               echo "Approval received"
               exit 0
