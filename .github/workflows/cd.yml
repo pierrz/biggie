@@ -12,6 +12,8 @@ jobs:
   check-condition:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.7
       - name: Run condition check
         uses: ./.github/actions/deployment
 
