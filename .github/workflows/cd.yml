@@ -24,7 +24,7 @@ jobs:
     steps:
     - name: Wait for approval or timeout
       run: |
-          echo "CHECKS ..."
+          echo "CHECKS ......"
           CHECK=$(curl -s \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github.v3+json" \

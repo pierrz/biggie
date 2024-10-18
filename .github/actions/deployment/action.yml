@@ -6,6 +6,7 @@ runs:
     - name: Prepare condition output
       shell: bash
       run: |
+        echo "BRANCH: ${{ github.event.workflow_run.head_branch }}"
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ||
               ( "${{ github.event_name }}" == "workflow_run" &&
                 "${{ github.event.workflow_run.conclusion }}" == "success" &&
@@ -15,10 +16,6 @@ runs:
                     "${{ github.event.workflow_run.event }}" == "pull_request"
                   ) || (
                     "${{ github.event.workflow_run.head_branch }}" == "main" &&
-                    (
-                      "${{ github.event.workflow_run.event }}" == "pull_request" &&
-                      "${{ github.event.workflow_run.name }}" == "pull_request.closed"
-                    ) || (
                       "${{ github.event.workflow_run.event }}" == "push"
                     )
                   )
