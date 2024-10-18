@@ -1,5 +1,11 @@
 name: "Check Deployment Condition"
 description: "Checks if deployment conditions are met"
+author: pierrz
+
+inputs:
+  GITHUB_TOKEN:
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -10,7 +16,7 @@ runs:
         echo "--> "${{ github.event.workflow_run.event }}"
 
         CHECK=$(curl -s \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Authorization: Bearer ${{ inputs.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/${{ github.repository }}/deployments?environment=$ENVIRONMENT_NAME&per_page=1")
         echo "$CHECK"

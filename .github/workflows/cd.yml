@@ -16,6 +16,8 @@ jobs:
         uses: actions/checkout@v4.1.7
       - name: Run condition check
         uses: ./.github/actions/deployment
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   approval-timeout:
     runs-on: ubuntu-latest
