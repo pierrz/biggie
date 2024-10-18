@@ -39,7 +39,7 @@ jobs:
           STATUS_RESPONSE=$(curl -s \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/deployments/$DEPLOYMENT_ID/statuses"
+            "https://api.github.com/repos/${{ github.repository }}/deployments/$DEPLOYMENT_ID/statuses")
 
           STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.[0].state')
           echo "$STATUS"
