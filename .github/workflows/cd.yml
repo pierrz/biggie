@@ -7,9 +7,9 @@ on:
     workflows: ["CI pipeline"]
     types: [completed]
 
-env:
-  ENVIRONMENT_NAME: production
-  ENVIRONMENT_URL: ${{ secrets.ENVIRONMENT_URL }}
+# env:
+#   ENVIRONMENT_NAME: production
+#   ENVIRONMENT_URL: ${{ secrets.ENVIRONMENT_URL }}
 
 jobs:
 
@@ -63,9 +63,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Set Environment URL Output
-      run: echo "name=${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_OUTPUT
+      run: echo "name=production" >> $GITHUB_OUTPUT
     - name: Set Environment URL Output
-      run: echo "url=${{ env.ENVIRONMENT_URL }}" >> $GITHUB_OUTPUT
+      run: echo "url=${{ secrets.ENVIRONMENT_URL }}" >> $GITHUB_OUTPUT
 
   deployment:
 
