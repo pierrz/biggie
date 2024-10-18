@@ -30,7 +30,7 @@ jobs:
             if [[ $APPROVAL_STATUS == *"approved"* ]]; then
               echo "Pipeline approved, continuing..."
               exit 0
-            elif
+            else
               echo "Cancelling workflow ..."
               curl -L \
                 -X POST \
