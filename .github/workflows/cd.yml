@@ -14,6 +14,12 @@ jobs:
     steps:
     - name: Wait for approval or timeout
       run: |
+          CHECK=$(curl -s \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/deployments?environment=$ENVIRONMENT_NAME&per_page=1")
+          echo "$CHECK"
+
           ENVIRONMENT_NAME="production"
           TIMEOUT_MINUTES=15
           echo "Waiting $TIMEOUT_MINUTES minutes for approval ..."
@@ -21,8 +27,14 @@ jobs:
           # iterative checks every minute
           for ((i=1; i<=$TIMEOUT_MINUTES; i++)); do
 
+            if [[ $i -gt 1 ]]; then
+              MINUTE_STRING="minutes"
+            else
+              MINUTE_STRING="minute"
+            fi
+
             sleep 60
-            echo "Checking status after $i minute(s) ..."
+            echo "Checking status after $i $MINUTE_STRING ..."
 
             DEPLOYMENT_RESPONSE=$(curl -s \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -36,9 +48,8 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/deployments/$DEPLOYMENT_ID/statuses")
 
             STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.[0].state')
-            if [[ $STATUS == "error" ]]; then
+            if [[ $STATUS == "error" || "$STATUS" == "waiting" ]]; then
               echo "Approval not received yet - keep waiting for it"
-              exit 0
             else
               break
             fi
@@ -46,7 +57,7 @@ jobs:
           done
 
           # tags: error, failure, inactive, in_progress, queued, pending, success
-          if [[ $STATUS != "error" ]]; then
+          if [[ $STATUS != "error" || "$STATUS" != "waiting" ]]; then
               echo "Current deployment status is '$STATUS' --> Approval received"
               exit 0
           else
