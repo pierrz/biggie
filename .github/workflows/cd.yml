@@ -22,7 +22,7 @@ jobs:
           echo "$CHECK"
 
           ENVIRONMENT_NAME="production"
-          TIMEOUT_MINUTES=15
+          TIMEOUT_MINUTES=1
           echo "Waiting $TIMEOUT_MINUTES minutes for approval ..."
 
           # iterative checks every minute
