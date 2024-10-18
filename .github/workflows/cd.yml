@@ -16,7 +16,7 @@ jobs:
     - name: Wait for approval or timeout
       run: |
           TIMEOUT_MINUTES=2
-          TIMEOUT_SECONDS=($TIMEOUT_MINUTES * 60)
+          let TIMEOUT_SECONDS=TIMEOUT_MINUTES*60
           END_TIME=$(($(date +%s) + $TIMEOUT_SECONDS))
           echo "$TIMEOUT_MINUTES"
           echo "$TIMEOUT_SECONDS"
