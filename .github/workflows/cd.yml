@@ -20,7 +20,7 @@ jobs:
   approval-timeout:
     runs-on: ubuntu-latest
     needs: check-condition
-    if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }}
+    if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }} == 'true'
     steps:
     - name: Wait for approval or timeout
       run: |
@@ -178,7 +178,7 @@ jobs:
         TF_VAR_me_config_port: ${{ secrets.ME_CONFIG_PORT }}
 
     needs: check-condition
-    if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }}
+    if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }} == 'true'
     steps:
 
     - name: Set Secrets for Pull Request
