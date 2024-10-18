@@ -3,7 +3,9 @@ description: "Checks if deployment conditions are met"
 runs:
   using: "composite"
   steps:
-    - run: |
+    - name: Prepare condition output
+      shell: bash
+      run: |
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ||
               ( "${{ github.event_name }}" == "workflow_run" &&
                 "${{ github.event.workflow_run.conclusion }}" == "success" &&
