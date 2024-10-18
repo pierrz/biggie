@@ -15,8 +15,8 @@ jobs:
 
     - name: Wait for approval or timeout
       run: |
-          timeout_duration="2m"
-          end_time=$(($(date +%s) + (timeout_minutes * 60)))
+          TIMEOUT_MINUTES="2"
+          end_time=$(($(date +%s) + (TIMEOUT_MINUTES * 60)))
 
           while [[ $(date +%s) -lt $end_time ]]; do
             approval_status=$(curl -s \
@@ -30,7 +30,8 @@ jobs:
             fi
 
             echo "Waiting for approval... ($(( (end_time - $(date +%s)) / 60 )) minutes remaining)"
-            sleep 30
+            echo "$TIMEOUT_MINUTESm"
+            sleep "$TIMEOUT_MINUTESm"
           done
 
           echo "Timeout reached without approval"
