@@ -1,4 +1,4 @@
-# CD pipeline to deploy the code on the Scaleway machine
+# CD pipeline with timeout based cancellation logic to deploy the code on the Scaleway machine
 name: CD pipeline
 
 on:
@@ -9,7 +9,59 @@ on:
 
 jobs:
 
-  deploy:
+  approval-timeout:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Wait for approval or timeout
+      run: |
+          ENVIRONMENT_NAME="production"
+          TIMEOUT_MINUTES=15
+          echo "Waiting $TIMEOUT_MINUTES minutes for approval ..."
+
+          # iterative checks every minute
+          for ((i=1; i<=$TIMEOUT_MINUTES; i++)); do
+
+            sleep 60
+            echo "Checking status after $i minute(s) ..."
+
+            DEPLOYMENT_RESPONSE=$(curl -s \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/deployments?environment=$ENVIRONMENT_NAME&per_page=1")
+
+            DEPLOYMENT_ID=$(echo "$DEPLOYMENT_RESPONSE" | jq -r '.[0].id')
+            STATUS_RESPONSE=$(curl -s \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/deployments/$DEPLOYMENT_ID/statuses")
+
+            STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.[0].state')
+            if [[ $STATUS == "error" ]]; then
+              echo "Approval not received yet - keep waiting for it"
+              exit 0
+            else
+              break
+            fi
+
+          done
+
+          # tags: error, failure, inactive, in_progress, queued, pending, success
+          if [[ $STATUS != "error" ]]; then
+              echo "Current deployment status is '$STATUS' --> Approval received"
+              exit 0
+          else
+            echo "No approval found - cancelling workflow ..."
+            curl -L \
+              -X POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+            echo "Workflow cancelled"
+            exit 1
+          fi
+
+  deployment:
 
     permissions:
       # The "id-token: write" permission is required
@@ -18,6 +70,8 @@ jobs:
       contents: read
 
     runs-on: ubuntu-latest
+    environment:
+      name: production
 
     env:
 
@@ -100,7 +154,26 @@ jobs:
         TF_VAR_me_config_basicauth_password: ${{ secrets.ME_CONFIG_BASICAUTH_PASSWORD }}
         TF_VAR_me_config_port: ${{ secrets.ME_CONFIG_PORT }}
 
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        (
+          (
+            github.event.workflow_run.head_branch != 'main' &&
+            github.event.workflow_run.event == 'pull_request'
+          ) ||
+          (
+            github.event.workflow_run.head_branch == 'main' &&
+            (
+              github.event.workflow_run.event == 'pull_request' &&
+              github.event.workflow_run.name == 'pull_request.closed'
+            ) ||
+            (github.event.workflow_run.event == 'push')
+          )
+        )
+      )
     steps:
 
     - name: Set Secrets for Pull Request
