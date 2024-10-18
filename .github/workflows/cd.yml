@@ -16,7 +16,7 @@ jobs:
     - name: Wait for approval or timeout
       run: |
           timeout_duration="2m"
-          end_time=$(date -d "+ $timeout_duration" +%s)
+          end_time=$(($(date +%s) + (timeout_minutes * 60)))
 
           while [[ $(date +%s) -lt $end_time ]]; do
             approval_status=$(curl -s \
