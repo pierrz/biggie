@@ -9,8 +9,16 @@ on:
 
 jobs:
 
+  check-condition:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run condition check
+        uses: ./.github/actions/deployment
+
   approval-timeout:
     runs-on: ubuntu-latest
+    needs: check-condition
+    if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }}
     steps:
     - name: Wait for approval or timeout
       run: |
@@ -57,13 +65,13 @@ jobs:
 
           done
 
-          echo "$STATUS"
           # tags: error, failure, inactive, in_progress, queued, pending, success
+          echo "Current deployment status is '$STATUS'"
           if [[ $STATUS != "error" && "$STATUS" != "waiting" ]]; then
-              echo "Current deployment status is '$STATUS' --> Approval received"
-              exit 0
+            echo "--> Approval received"
+            exit 0
           else
-            echo "No approval found - cancelling workflow ..."
+            echo "--> No approval found - cancelling workflow ..."
             curl -L \
               -X POST \
               -H "Accept: application/vnd.github+json" \
@@ -167,26 +175,8 @@ jobs:
         TF_VAR_me_config_basicauth_password: ${{ secrets.ME_CONFIG_BASICAUTH_PASSWORD }}
         TF_VAR_me_config_port: ${{ secrets.ME_CONFIG_PORT }}
 
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (
-        github.event_name == 'workflow_run' &&
-        github.event.workflow_run.conclusion == 'success' &&
-        (
-          (
-            github.event.workflow_run.head_branch != 'main' &&
-            github.event.workflow_run.event == 'pull_request'
-          ) ||
-          (
-            github.event.workflow_run.head_branch == 'main' &&
-            (
-              github.event.workflow_run.event == 'pull_request' &&
-              github.event.workflow_run.name == 'pull_request.closed'
-            ) ||
-            (github.event.workflow_run.event == 'push')
-          )
-        )
-      )
+    needs: check-condition
+    if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }}
     steps:
 
     - name: Set Secrets for Pull Request
