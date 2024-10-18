@@ -49,7 +49,7 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/deployments/$DEPLOYMENT_ID/statuses")
 
             STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.[0].state')
-            if [[ ($STATUS == "error" || "$STATUS" == "waiting") && $i -lt 15 ]]; then
+            if [[ ($STATUS == "error" || "$STATUS" == "waiting") && $i -lt $TIMEOUT_MINUTES ]]; then
               echo "Approval not received yet - keep waiting for it"
             else
               break
