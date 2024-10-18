@@ -190,6 +190,7 @@ jobs:
 
     - name: Set repository branch environment variable
       run: |
+        echo "${{ needs.set-deployment-environment.outputs.name }}"
         echo "URL trail: ${${{ needs.set-deployment-environment.outputs.url }}: -4}"
         if [ -z "${{ env.TF_VAR_github_repo_branch }}" ]; then
             echo "TF_VAR_github_repo_branch is not set"
