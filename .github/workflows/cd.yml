@@ -17,9 +17,12 @@ jobs:
       run: |
           TIMEOUT_MINUTES=2
           TIMEOUT_SECONDS=($TIMEOUT_MINUTES * 60)
-          end_time=$(($(date +%s) + $TIMEOUT_SECONDS))
+          END_TIME=$(($(date +%s) + $TIMEOUT_SECONDS))
+          echo "$TIMEOUT_MINUTES"
+          echo "$TIMEOUT_SECONDS"
+          echo "$END_TIME"
 
-          while [[ $(date +%s) -lt $end_time ]]; do
+          while [[ $(date +%s) -lt $END_TIME ]]; do
             approval_status=$(curl -s \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github.v3+json" \
@@ -30,8 +33,7 @@ jobs:
               exit 0
             fi
 
-            echo "Waiting for approval... ($(( (end_time - $(date +%s)) / 60 )) minutes remaining)"
-            echo $TIMEOUT_SECONDS
+            echo "Waiting for approval ... ($(( ($END_TIME - $(date +%s)) / 60 )) minutes remaining)"
             sleep $TIMEOUT_SECONDS
           done
 
