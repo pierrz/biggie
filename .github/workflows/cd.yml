@@ -9,12 +9,12 @@ on:
 
 jobs:
 
-  approval_timeout:
+  approval-timeout:
     runs-on: ubuntu-latest
     steps:
     - name: Wait for approval or timeout
       run: |
-          TIMEOUT_MINUTES=15
+          TIMEOUT_MINUTES=1
           let TIMEOUT_SECONDS=TIMEOUT_MINUTES*60
           END_TIME=$(($(date +%s) + $TIMEOUT_SECONDS))
 
@@ -41,7 +41,7 @@ jobs:
             exit 1
           fi
 
-  set_environment_url:
+  set-environment-url:
     runs-on: ubuntu-latest
     steps:
     - name: Set Environment URL Output
