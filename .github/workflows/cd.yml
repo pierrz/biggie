@@ -9,6 +9,36 @@ on:
 
 jobs:
 
+  approval_timeout:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Wait for approval or timeout
+      run: |
+          TIMEOUT_MINUTES=2
+          let TIMEOUT_SECONDS=TIMEOUT_MINUTES*60
+          END_TIME=$(($(date +%s) + $TIMEOUT_SECONDS))
+          echo "$TIMEOUT_MINUTES"
+          echo "$TIMEOUT_SECONDS"
+          echo "$END_TIME"
+
+          while [[ $(date +%s) -lt $END_TIME ]]; do
+            approval_status=$(curl -s \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}")
+
+            if [[ $approval_status == *"approved"* ]]; then
+              echo "Pipeline approved, continuing..."
+              exit 0
+            fi
+
+            echo "Waiting for approval ... ($(( ($END_TIME - $(date +%s)) / 60 )) minutes remaining)"
+            sleep $TIMEOUT_SECONDS
+          done
+
+          echo "Timeout reached without approval"
+          exit 1
+
   set_environment_url:
     runs-on: ubuntu-latest
     steps:
@@ -131,33 +161,6 @@ jobs:
         )
       )
     steps:
-
-    - name: Wait for approval or timeout
-      run: |
-          TIMEOUT_MINUTES=2
-          let TIMEOUT_SECONDS=TIMEOUT_MINUTES*60
-          END_TIME=$(($(date +%s) + $TIMEOUT_SECONDS))
-          echo "$TIMEOUT_MINUTES"
-          echo "$TIMEOUT_SECONDS"
-          echo "$END_TIME"
-
-          while [[ $(date +%s) -lt $END_TIME ]]; do
-            approval_status=$(curl -s \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}")
-
-            if [[ $approval_status == *"approved"* ]]; then
-              echo "Pipeline approved, continuing..."
-              exit 0
-            fi
-
-            echo "Waiting for approval ... ($(( ($END_TIME - $(date +%s)) / 60 )) minutes remaining)"
-            sleep $TIMEOUT_SECONDS
-          done
-
-          echo "Timeout reached without approval"
-          exit 1
 
     - name: Set Secrets for Pull Request
       if: github.event_name == 'pull_request'
