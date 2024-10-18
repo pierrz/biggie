@@ -56,7 +56,7 @@ jobs:
       contents: read
 
     runs-on: ubuntu-latest
-    needs: set_environment_url
+    needs: set-environment-url
     environment:
       name: production
       url: ${{ needs.approval_timeout.outputs.url }}
