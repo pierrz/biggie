@@ -59,7 +59,7 @@ jobs:
 
           echo "$STATUS"
           # tags: error, failure, inactive, in_progress, queued, pending, success
-          if [[ $STATUS != "error" || "$STATUS" != "waiting" ]]; then
+          if [[ $STATUS != "error" && "$STATUS" != "waiting" ]]; then
               echo "Current deployment status is '$STATUS' --> Approval received"
               exit 0
           else
