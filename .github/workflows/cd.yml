@@ -13,19 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Wait for approval or timeout
-        run: |
-          timeout=30m
-          while [[ $(date +%s) -lt $(date -d "$timeout" +%s) ]]; do
-            approval_status=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ github.workflow }}/runs/${{ github.run_id }}/jobs/cancel_pipeline")
-            if [[ $approval_status == *"approved"* ]]; then
-              echo "Pipeline approved, continuing..."
-              exit 0
-            fi
-            sleep 2
+    - name: Wait for approval or timeout
+      run: |
+        timeout=30m
+        while [[ $(date +%s) -lt $(date -d "$timeout" +%s) ]]; do
+          approval_status=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ github.workflow }}/runs/${{ github.run_id }}/jobs/cancel_pipeline")
+          if [[ $approval_status == *"approved"* ]]; then
+            echo "Pipeline approved, continuing..."
+            exit 0
+          fi
+          sleep 2
 
-      - name: Set Environment URL Output
-        run: echo "url=${{ secrets.ENVIRONMENT_URL }}" >> $GITHUB_OUTPUT
+    - name: Set Environment URL Output
+      run: echo "url=${{ secrets.ENVIRONMENT_URL }}" >> $GITHUB_OUTPUT
 
   deployment:
 
