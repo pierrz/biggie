@@ -14,7 +14,7 @@ jobs:
     steps:
     - name: Wait for approval or timeout
       run: |
-          TIMEOUT_MINUTES=2
+          TIMEOUT_MINUTES=1
           let TIMEOUT_SECONDS=TIMEOUT_MINUTES*60
           END_TIME=$(($(date +%s) + $TIMEOUT_SECONDS))
           echo "$TIMEOUT_MINUTES"
@@ -55,7 +55,6 @@ jobs:
 
     runs-on: ubuntu-latest
     needs: [approval_timeout, set_environment_url]
-    timeout-minutes: 1
     environment:
       name: production
       url: ${{ needs.approval_timeout.outputs.url }}
