@@ -9,6 +9,24 @@ on:
 
 jobs:
 
+  approval_timeout:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Wait for approval or timeout
+        run: |
+          timeout=30m
+          while [[ $(date +%s) -lt $(date -d "$timeout" +%s) ]]; do
+            approval_status=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ github.workflow }}/runs/${{ github.run_id }}/jobs/cancel_pipeline")
+            if [[ $approval_status == *"approved"* ]]; then
+              echo "Pipeline approved, continuing..."
+              exit 0
+            fi
+            sleep 2
+
+      - name: Set Environment URL Output
+        run: echo "url=${{ secrets.ENVIRONMENT_URL }}" >> $GITHUB_OUTPUT
+
   deployment:
 
     permissions:
@@ -18,9 +36,10 @@ jobs:
       contents: read
 
     runs-on: ubuntu-latest
+    needs: approval_timeout
     environment:
       name: production
-      # url: ${{ secrets.ENVIRONMENT_URL }}
+      url: ${{ needs.approval_timeout.outputs.url }}
 
     env:
 
@@ -125,15 +144,13 @@ jobs:
       )
     steps:
 
-    - name: Set Environment URL Output
-      run: echo "url=${{ secrets.ENVIRONMENT_URL }}" >> $GITHUB_OUTPUT
-
     - name: Set Secrets for Pull Request
       if: github.event_name == 'pull_request'
       run: echo "TF_VAR_github_repo_branch=${{ github.head_ref }}" >> $GITHUB_ENV
 
     - name: Set repository branch environment variable
       run: |
+        echo "${{ needs.approval_timeout.outputs.url }}"
         if [ -z "${{ env.TF_VAR_github_repo_branch }}" ]; then
             echo "TF_VAR_github_repo_branch is not set"
             echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
@@ -201,18 +218,3 @@ jobs:
       uses: ./.github/actions/terraform
       with:
         command: apply -auto-approve
-
-  cancelled_deployment:
-    runs-on: ubuntu-latest
-    needs: deployment
-    steps:
-      - name: Wait for approval or timeout
-        run: |
-          timeout=30m
-          while [[ $(date +%s) -lt $(date -d "$timeout" +%s) ]]; do
-            approval_status=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ github.workflow }}/runs/${{ github.run_id }}/jobs/cancel_pipeline")
-            if [[ $approval_status == *"approved"* ]]; then
-              echo "Pipeline approved, continuing..."
-              exit 0
-            fi
-            sleep 30
