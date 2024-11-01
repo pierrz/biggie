@@ -260,6 +260,8 @@ services:
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.141
+    mem_limit: 8g
+    cpus: '2.0'
 
   spark-worker-1:
     container_name: ${COMPOSE_PREFIX}biggie_spark-worker-1
@@ -282,6 +284,8 @@ services:
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.142
+    mem_limit: 8g
+    cpus: '2.0'
 
   spark-worker-2:
     container_name: ${COMPOSE_PREFIX}biggie_spark-worker-2
@@ -304,3 +308,5 @@ services:
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.143
+    mem_limit: 8g
+    cpus: '2.0'

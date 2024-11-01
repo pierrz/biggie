@@ -9,6 +9,12 @@ USER root
 RUN install_packages curl python3.11 \
     && ln -s /usr/bin/python3.11 /usr/local/bin/python3.11
 
+ENV SPARK_CONFIG=/opt/bitnami/spark/conf/spark-defaults.conf
+
+RUN echo "spark.driver.port 10000" >> $SPARK_CONFIG \
+    && echo "spark.blockManager.port 10001" >> $SPARK_CONFIG \
+    && echo "spark.network.timeout 800s" >> $SPARK_CONFIG
+
 # DISABLED (not working): Install drivers and connectors for Spark
 # Cf. https://github.com/bitnami/containers/tree/main/bitnami/spark#installing-additional-jars
 # USER 1001
