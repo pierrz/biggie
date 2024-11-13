@@ -41,6 +41,11 @@ runs:
         ]]; then
         echo "Conditions met!"
         echo "RUN_DEPLOYMENT=true" >> $GITHUB_OUTPUT
+        if [ -z "${{ github.github.ref_name }}" ]; then
+          echo "REPO_BRANCH=${{ github.github.head_ref }}" >> $GITHUB_OUTPUT
+        else
+          echo "REPO_BRANCH=${{ github.github.ref_name }}" >> $GITHUB_OUTPUT
+        fi
         else
           echo "RUN_DEPLOYMENT=false" >> $GITHUB_OUTPUT
         fi

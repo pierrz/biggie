@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
       - name: Run condition check
-        uses: ./.github/actions/deployment
+        uses: ./.github/actions/condition-check
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -24,60 +24,16 @@ jobs:
     needs: check-condition
     if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }} == 'true'
     steps:
-    - name: Wait for approval or timeout
-      run: |
-          ENVIRONMENT_NAME="production"
-          TIMEOUT_MINUTES=15
-          echo "Waiting $TIMEOUT_MINUTES minutes for approval ..."
-
-          # iterative checks every minute
-          for ((i=1; i<=$TIMEOUT_MINUTES; i++)); do
-
-            if [[ $i -gt 1 ]]; then
-              MINUTE_STRING="minutes"
-            else
-              MINUTE_STRING="minute"
-            fi
-
-            sleep 60
-            echo "Checking status after $i $MINUTE_STRING ..."
-
-            DEPLOYMENT_RESPONSE=$(curl -s \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/deployments?environment=$ENVIRONMENT_NAME&per_page=1")
-
-            DEPLOYMENT_ID=$(echo "$DEPLOYMENT_RESPONSE" | jq -r '.[0].id')
-            STATUS_RESPONSE=$(curl -s \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/deployments/$DEPLOYMENT_ID/statuses")
-
-            STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.[0].state')
-            if [[ ($STATUS == "error" || "$STATUS" == "waiting") && $i -lt $TIMEOUT_MINUTES ]]; then
-              echo "Approval not received yet - keep waiting for it"
-            else
-              break
-            fi
-
-          done
-
-          # tags: error, failure, inactive, in_progress, queued, pending, success
-          echo "Current deployment status is '$STATUS'"
-          if [[ $STATUS != "error" && "$STATUS" != "waiting" ]]; then
-            echo "--> Approval received"
-            exit 0
-          else
-            echo "--> No approval found - cancelling workflow ..."
-            curl -L \
-              -X POST \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
-            echo "Workflow cancelled"
-            exit 1
-          fi
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.7
+      - name: Run approval timeout mechanism
+        uses: ./.github/actions/approval-timeout
+        with:
+          ENVIRONMENT: production
+          TIMEOUT_MINUTES: 15
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
 
   deployment:
 
@@ -179,6 +135,7 @@ jobs:
     - name: Set Secrets for Pull Request
       if: github.event_name == 'pull_request'
       run: |
+          echo "${{ needs.check-condition.outputs.REPO_BRANCH }}"
           echo "TF_VAR_github_repo_branch=${{ github.head_ref }}" >> $GITHUB_ENV
           echo "TF_VAR_github_repo_branch is set to: ${{ github.head_ref }}"
           echo "TF_VAR_github_repo_branch is set to: ${{ env.TF_VAR_github_repo_branch }}"
@@ -186,9 +143,10 @@ jobs:
     - name: Set repository branch environment variable
       if: github.event_name != 'pull_request'
       run: |
-        echo "${{ github.event_name }}"
-        echo "${{ github.ref_name }}"
-        echo "${{ github.head_ref }}"
+        echo "0: ${{ needs.check-condition.outputs.REPO_BRANCH }}"
+        echo "1: ${{ github.event_name }}"
+        echo "2: ${{ github.ref_name }}"
+        echo "3: ${{ github.head_ref }}"
         if [ -z "${{ env.TF_VAR_github_repo_branch }}" ]; then
             echo "TF_VAR_github_repo_branch is not set"
             echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
