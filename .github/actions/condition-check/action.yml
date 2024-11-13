@@ -40,9 +40,9 @@ runs:
           )
         ]]; then
         echo "Conditions met!"
-        echo "1: ${{ github.event_name }}"
-        echo "2: ${{ github.ref_name }}"
-        echo "3: ${{ github.head_ref }}"
+        # echo "1: ${{ github.event_name }}"
+        # echo "2: ${{ github.ref_name }}"
+        # echo "3: ${{ github.head_ref }}"
         echo "RUN_DEPLOYMENT=true" >> $GITHUB_OUTPUT
         if [ -z "${{ github.github.ref_name }}" ]; then
           echo "REPO_BRANCH=${{ github.github.head_ref }}" >> $GITHUB_OUTPUT

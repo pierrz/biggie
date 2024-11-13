@@ -132,28 +132,31 @@ jobs:
     if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }} == 'true'
     steps:
 
-    - name: Set Secrets for Pull Request
-      if: github.event_name == 'pull_request'
-      run: |
-          echo "${{ needs.check-condition.outputs.RUN_DEPLOYMENT }}"
-          echo "${{ needs.check-condition.outputs.REPO_BRANCH }}"
-          echo "TF_VAR_github_repo_branch=${{ github.head_ref }}" >> $GITHUB_ENV
-          echo "TF_VAR_github_repo_branch is set to: ${{ github.head_ref }}"
-          echo "TF_VAR_github_repo_branch is set to: ${{ env.TF_VAR_github_repo_branch }}"
+    - name: Set repository branch secret
+      run: echo "TF_VAR_github_repo_branch=${{ needs.check-condition.outputs.REPO_BRANCH }}" >> $GITHUB_ENV
 
-    - name: Set repository branch environment variable
-      if: github.event_name != 'pull_request'
-      run: |
-        echo "${{ needs.check-condition.outputs.RUN_DEPLOYMENT }}"
-        echo "0: ${{ needs.check-condition.outputs.REPO_BRANCH }}"
-        echo "1: ${{ github.event_name }}"
-        echo "2: ${{ github.ref_name }}"
-        echo "3: ${{ github.head_ref }}"
-        if [ -z "${{ env.TF_VAR_github_repo_branch }}" ]; then
-            echo "TF_VAR_github_repo_branch is not set"
-            echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
-        fi
-        echo "TF_VAR_github_repo_branch is set to: ${{ env.TF_VAR_github_repo_branch }}"
+    # - name: Set Secrets for Pull Request
+    #   if: github.event_name == 'pull_request'
+    #   run: |
+    #       echo "${{ needs.check-condition.outputs.RUN_DEPLOYMENT }}"
+    #       echo "${{ needs.check-condition.outputs.REPO_BRANCH }}"
+    #       echo "TF_VAR_github_repo_branch=${{ github.head_ref }}" >> $GITHUB_ENV
+    #       echo "TF_VAR_github_repo_branch is set to: ${{ github.head_ref }}"
+    #       echo "TF_VAR_github_repo_branch is set to: ${{ env.TF_VAR_github_repo_branch }}"
+
+    # - name: Set repository branch environment variable
+    #   if: github.event_name != 'pull_request'
+    #   run: |
+    #     echo "${{ needs.check-condition.outputs.RUN_DEPLOYMENT }}"
+    #     echo "0: ${{ needs.check-condition.outputs.REPO_BRANCH }}"
+    #     echo "1: ${{ github.event_name }}"
+    #     echo "2: ${{ github.ref_name }}"
+    #     echo "3: ${{ github.head_ref }}"
+    #     if [ -z "${{ env.TF_VAR_github_repo_branch }}" ]; then
+    #         echo "TF_VAR_github_repo_branch is not set"
+    #         echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
+    #     fi
+    #     echo "TF_VAR_github_repo_branch is set to: ${{ env.TF_VAR_github_repo_branch }}"
 
     - name: Checkout repository
       uses: actions/checkout@v4.1.7
