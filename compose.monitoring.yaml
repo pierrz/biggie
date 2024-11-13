@@ -13,8 +13,8 @@ services:
     environment:
       CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
       CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
-    ports:
-      - "${FLOWER_PORT}:5555"
+    # ports:
+    #   - "${FLOWER_PORT}:5555"
     depends_on:
       - orchestrator-prod
     profiles:
@@ -28,8 +28,8 @@ services:
     image: mongo-express:1.0.2-20
     container_name: ${COMPOSE_PREFIX}biggie_mongoex
     restart: always
-    ports:
-      - "${ME_CONFIG_PORT}:8081"
+    # ports:
+    #   - "${ME_CONFIG_PORT}:8081"
     environment:
       ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
       ME_CONFIG_MONGODB_ADMINUSERNAME: "${ME_CONFIG_MONGODB_ADMINUSERNAME}"
@@ -59,8 +59,8 @@ services:
       - prod_full
       - prod_analytics
       - prod_acquisition
-    ports:
-      - "${DBEAVER_PORT}:8978"
+    # ports:
+    #   - "${DBEAVER_PORT}:8978"
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.153
