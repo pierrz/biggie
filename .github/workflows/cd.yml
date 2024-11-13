@@ -186,6 +186,9 @@ jobs:
     - name: Set repository branch environment variable
       if: github.event_name != 'pull_request'
       run: |
+        echo "${{ github.event_name }}"
+        echo "${{ github.ref_name }}"
+        echo "${{ github.head_ref }}"
         if [ -z "${{ env.TF_VAR_github_repo_branch }}" ]; then
             echo "TF_VAR_github_repo_branch is not set"
             echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
