@@ -133,7 +133,14 @@ jobs:
     steps:
 
     - name: Set repository branch secret
-      run: echo "TF_VAR_github_repo_branch=${{ needs.check-condition.outputs.REPO_BRANCH }}" >> $GITHUB_ENV
+      run: |
+        echo "output: ${{ needs.check-condition.outputs.REPO_BRANCH }}"
+        # echo "TF_VAR_github_repo_branch=${{ needs.check-condition.outputs.REPO_BRANCH }}" >> $GITHUB_ENV
+        if [ -z "${{ github.ref_name }}" ]; then
+          echo "TF_VAR_github_repo_branch=${{ github.head_ref }}" >> $GITHUB_ENV
+        else
+          echo "TF_VAR_github_repo_branch=${{ github.ref_name }}" >> $GITHUB_ENV
+        fi
 
     # - name: Set Secrets for Pull Request
     #   if: github.event_name == 'pull_request'
