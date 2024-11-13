@@ -65,8 +65,8 @@ services:
     restart: always
     environment:
       <<: *mongo-env
-    ports:
-      - "${MONGO_PORT}:27017"
+    # ports:
+    #   - "${MONGO_PORT}:27017"
     volumes:
       - biggie-vmongo:/data/db
       - ./db/mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
@@ -88,8 +88,8 @@ services:
       # - ./db/postgres/pg_hba.conf:/etc/postgresql/postgresql-14.9/main/pg_hba.conf
       # - ./db/postgres/pg_hba.conf:/etc/postgresql/postgresql-14.9/main/postgresql.conf
       # - ${LOGS_DIR}/postgresql:/var/log/postgres
-    ports:
-      - "${POSTGRES_PORT}:5432"
+    # ports:
+    #   - "${POSTGRES_PORT}:5432"
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.102
@@ -105,8 +105,8 @@ services:
     restart: always
     volumes:
       - ${DATA_DIR}/jupyterlab:/home/jovyan/work
-    ports:
-      - "${JUPYTER_PORT}:8888"
+    # ports:
+    #   - "${JUPYTER_PORT}:8888"
     profiles:
       - prod_analytics
       - prod_full
@@ -158,8 +158,8 @@ services:
     depends_on:
       - mongo
       - postgres
-    ports:
-      - "${API_PORT}:8100"
+    # ports:
+    #   - "${API_PORT}:8100"
     profiles:
       - prod_full
       - prod_analytics
@@ -226,9 +226,9 @@ services:
     container_name: ${COMPOSE_PREFIX}biggie_rabbitmq
     image: rabbitmq:3.13.7-management
     restart: on-failure
-    ports:
-      - "${RABBITMQ_PORT}:5672"
-      - "1${RABBITMQ_PORT}:15672"
+    # ports:
+    #   - "${RABBITMQ_PORT}:5672"
+    #   - "1${RABBITMQ_PORT}:15672"
     volumes:
       - biggie-vrabbitmq:/var/lib/rabbitmq
       - ${LOGS_DIR}/rabbitmq:/var/log/rabbitmq
@@ -240,14 +240,15 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.133
 
+  # Ports (service/UI): 7077/8080
   spark-master:
     container_name: ${COMPOSE_PREFIX}biggie_spark-master
     build: spark_cluster
     environment:
       - SPARK_MODE=master
-    ports:
-      - "${SPARK_PORTS_RANGE}77:7077"  # Spark master port
-      - "${SPARK_PORTS_RANGE}80:8080"  # Web UI for Spark master
+    # ports:
+    #   - "${SPARK_PORTS_RANGE}77:7077"  # Spark master port
+    #   - "${SPARK_PORTS_RANGE}80:8080"  # Web UI for Spark master
     depends_on:
       - mongo
       - postgres
@@ -261,6 +262,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.141
 
+  # Ports (UI): 8091
   spark-worker-1:
     container_name: ${COMPOSE_PREFIX}biggie_spark-worker-1
     build: spark_cluster
@@ -271,8 +273,8 @@ services:
       - spark-master
       - mongo
       - postgres
-    ports:
-      - "${SPARK_PORTS_RANGE}91:8091"  # Web UI for this worker
+    # ports:
+    #   - "${SPARK_PORTS_RANGE}91:8091"  # Web UI for this worker
     # volumes:
     #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
@@ -283,6 +285,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.142
 
+  # Ports (UI): 8092
   spark-worker-2:
     container_name: ${COMPOSE_PREFIX}biggie_spark-worker-2
     build: spark_cluster
@@ -293,8 +296,8 @@ services:
       - spark-master
       - mongo
       - postgres
-    ports:
-      - "${SPARK_PORTS_RANGE}92:8092"  # Web UI for this worker
+    # ports:
+    #   - "${SPARK_PORTS_RANGE}92:8092"  # Web UI for this worker
     # volumes:
     #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
