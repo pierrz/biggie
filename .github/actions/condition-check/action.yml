@@ -44,7 +44,7 @@ runs:
         echo "2: ${{ github.ref_name }}"
         echo "3: ${{ github.head_ref }}"
         echo "RUN_DEPLOYMENT=true" >> $GITHUB_OUTPUT
-        if [ -z "${{ github.github.head_ref }}" ]; then
+        if [ -z "${{ github.ref_name }}" ]; then
           echo "3: ${{ github.head_ref }}"
           echo "REPO_BRANCH=${{ github.github.head_ref }}" >> $GITHUB_OUTPUT
         else
