@@ -135,6 +135,7 @@ jobs:
     - name: Set Secrets for Pull Request
       if: github.event_name == 'pull_request'
       run: |
+          echo "${{ needs.check-condition.outputs.RUN_DEPLOYMENT }}"
           echo "${{ needs.check-condition.outputs.REPO_BRANCH }}"
           echo "TF_VAR_github_repo_branch=${{ github.head_ref }}" >> $GITHUB_ENV
           echo "TF_VAR_github_repo_branch is set to: ${{ github.head_ref }}"
@@ -143,6 +144,7 @@ jobs:
     - name: Set repository branch environment variable
       if: github.event_name != 'pull_request'
       run: |
+        echo "${{ needs.check-condition.outputs.RUN_DEPLOYMENT }}"
         echo "0: ${{ needs.check-condition.outputs.REPO_BRANCH }}"
         echo "1: ${{ github.event_name }}"
         echo "2: ${{ github.ref_name }}"
