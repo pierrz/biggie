@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "biggie"
-version = "0.5.6"
+version = "0.5.7"
 package-mode = false
 description = "Biggie. Orchestrator containers (test & prod). Based on Celery"
 authors = ["Pierre-Edouard Barrault"]

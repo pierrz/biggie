@@ -107,6 +107,8 @@ services:
     profiles:
       - prod_analytics
       - prod_full
+    ports:
+      - "11000:11000"
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.111
@@ -186,7 +188,7 @@ services:
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: python3 -m pytest -vv
+    command: python3 -m pytest -vv  # test/spark_jobs/commons/test_1_session.py
     profiles:
       - test
     restart: on-failure
@@ -242,12 +244,17 @@ services:
     depends_on:
       - mongo
       - postgres
+    ports:
+      - "8080:8080"
+      # - "11000:11000"  # Driver Port
+      # - "11001:11001"  # Block Manager Port
     # volumes:
     #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
       - test
       - prod_full
       - prod_acquisition
+      - prod_analytics
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.141
@@ -263,12 +270,15 @@ services:
       - spark-master
       - mongo
       - postgres
+    ports:
+      - "8091:8081"
     # volumes:
     #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
       - test
       - prod_full
       - prod_acquisition
+      - prod_analytics
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.142
@@ -284,12 +294,15 @@ services:
       - spark-master
       - mongo
       - postgres
+    ports:
+      - "8092:8081"
     # volumes:
     #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
       - test
       - prod_full
       - prod_acquisition
+      - prod_analytics
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.143
