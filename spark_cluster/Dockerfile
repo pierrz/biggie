@@ -1,7 +1,7 @@
 # TODO: fix/investigate the error message at startup:
 # "Unable to load native-hadoop library for your platform... using builtin-java classes where applicable"
 
-FROM bitnami/spark:3.5.2
+FROM bitnami/spark:3.5.3
 
 # Install Python 3.11 to align with the version used in the Celery container
 # NB: this Bitnami image comes with Python 3.12 installed, but it is not stable enough for our use case
@@ -17,30 +17,6 @@ RUN rm -f /opt/bitnami/python/bin/python3 \
 # Set environment variables
 ENV PYSPARK_PYTHON=/opt/bitnami/python/bin/python3 \
     PYSPARK_DRIVER_PYTHON=/opt/bitnami/python/bin/python3
-
-# RUN install_packages python3.11 \
-#     && ln -s /usr/bin/python3.11 /usr/local/bin/python3.11
-
-# # Set environment variables
-# ENV PYSPARK_PYTHON=/usr/local/bin/python3.11 \
-#     PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3.11
-
-# Comprehensive Python management
-# RUN install_packages python3.11 \
-#     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
-#     && update-alternatives --set python3 /usr/bin/python3.11
-
-# Explicit, absolute path configurations
-# ENV PYSPARK_PYTHON=/usr/bin/python3.11 \
-#     PYSPARK_DRIVER_PYTHON=/usr/bin/python3.11 \
-#     PYTHON_EXECUTABLE=/usr/bin/python3.11
-
-# RUN install_packages curl python3.11 \
-#     && ln -s /usr/bin/python3.11 /usr/local/bin/python3.11
-
-# # Set environment variables for PySpark (aligned with the Celery container)
-# ENV PYSPARK_PYTHON=/usr/local/bin/python3.11 \
-# PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3.11
 
 # DISABLED (not working): Install drivers and connectors for Spark
 # Cf. https://github.com/bitnami/containers/tree/main/bitnami/spark#installing-additional-jars

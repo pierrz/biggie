@@ -19,7 +19,7 @@ pandas = "==2.2.2"
 psycopg2 = "==2.9.9 "
 pydantic-settings = "==2.4.0"
 pymongo = "==4.8.0"
-pyspark = "==3.5.2"
+pyspark = "==3.5.3"
 requests = "==2.32.3"
 setuptools = "==75.1.0"
 SQLAlchemy = "==2.0.34"             # previous version was 1.4.54
