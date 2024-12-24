@@ -132,6 +132,7 @@ async def download_github_events(
     :return: the filtered data
     """
 
+    print(data)
     raw_df = pd.DataFrame(data)
     if filtered:
         mask = raw_df["type"].isin(harvester_config.EVENTS)
@@ -139,6 +140,7 @@ async def download_github_events(
     else:
         df = raw_df
 
+    print(df.head(5))
     if output == "df":
         return df
     return df.to_dict("records")

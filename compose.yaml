@@ -103,8 +103,8 @@ services:
     profiles:
       - prod_analytics
       - prod_full
-    ports:
-      - "11000:11000"
+    # ports:
+    #   - "11000:11000"
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.111
@@ -119,6 +119,7 @@ services:
     environment:
       <<: *biggie-common-env
       DOCKER_SUBNET_BASE: ${DOCKER_SUBNET_BASE}
+      API_PORT: ${API_PORT}
     command: pytest -vv
     depends_on:
       - mongo
@@ -181,7 +182,7 @@ services:
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: python3 -m pytest -vv
+    command: python3 -m pytest -vv test/harvester/github_events
     profiles:
       - test
     restart: on-failure

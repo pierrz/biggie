@@ -17,7 +17,8 @@ class MainConfig(BaseSettings):
     Config class.
     """
 
-    API_PORT: int = 8100  # default port
+    # API_PORT: int = 8100  # default port
+    API_PORT: str
     DOCKER_SUBNET_BASE: str
     DB_NAME: str
     MONGODB_URI: str
