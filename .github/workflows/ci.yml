@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
 
       - name: Run 'build-push' local action
         uses: ./.github/actions/build-push
@@ -55,7 +55,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
 
       - name: Run 'build-push' local action
         uses: ./.github/actions/build-push
@@ -91,7 +91,7 @@ jobs:
     steps:
 
     - name: Checkout repository
-      uses: actions/checkout@v4.1.7
+      uses: actions/checkout@v4.2.2
 
     - name: Log in to the Container registry
       uses: docker/login-action@v3.3.0
