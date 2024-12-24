@@ -59,7 +59,6 @@ networks:
 
 services:
 
-  # Port: 27017
   mongo:
     container_name: ${COMPOSE_PREFIX}biggie_mongo
     build: db/mongo
@@ -75,7 +74,6 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.101
 
-  # Port: 5432
   postgres:
     container_name: ${COMPOSE_PREFIX}biggie_postgres
     build: db/postgres
@@ -92,7 +90,6 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.102
 
-  # Port: 8888
   jupyterlab:
     container_name: ${COMPOSE_PREFIX}biggie_jupyterlab
     build:
@@ -100,7 +97,6 @@ services:
       args:
         - JUPYTER_HASHED_PASSWORD=${JUPYTER_HASHED_PASSWORD}
         - HOST_USER_UID=${HOST_USER_UID}
-        # - JUPYTER_SUBDOMAIN=${JUPYTER_SUBDOMAIN}    # TODO: refine jupyter config
     restart: always
     volumes:
       - ${DATA_DIR}/jupyterlab:/home/jovyan/work
@@ -141,7 +137,6 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.121
 
-  # Port: 8100
   api-prod:
     container_name: ${COMPOSE_PREFIX}biggie_api-prod
     build:
@@ -188,7 +183,7 @@ services:
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: python3 -m pytest -vv  # test/spark_jobs/commons/test_1_session.py
+    command: python3 -m pytest -vv
     profiles:
       - test
     restart: on-failure
@@ -196,7 +191,6 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.131
 
-  # Port: 5678
   orchestrator-prod:
     container_name: ${COMPOSE_PREFIX}biggie_orchestrator-prod
     build:
@@ -219,7 +213,6 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.132
 
-  # Ports: 5672/15672
   rabbitmq:
     container_name: ${COMPOSE_PREFIX}biggie_rabbitmq
     image: rabbitmq:3.13.7-management
@@ -235,7 +228,6 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.133
 
-  # Ports (service/UI): 7077/8080
   spark-master:
     container_name: ${COMPOSE_PREFIX}biggie_spark-master
     build: spark_cluster
@@ -246,8 +238,6 @@ services:
       - postgres
     ports:
       - "8080:8080"
-      # - "11000:11000"  # Driver Port
-      # - "11001:11001"  # Block Manager Port
     # volumes:
     #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
@@ -259,7 +249,6 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.141
 
-  # Ports (UI): 8091
   spark-worker-1:
     container_name: ${COMPOSE_PREFIX}biggie_spark-worker-1
     build: spark_cluster
@@ -283,7 +272,6 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.142
 
-  # Ports (UI): 8092
   spark-worker-2:
     container_name: ${COMPOSE_PREFIX}biggie_spark-worker-2
     build: spark_cluster

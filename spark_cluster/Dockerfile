@@ -1,10 +1,10 @@
 # TODO: fix/investigate the error message at startup:
 # "Unable to load native-hadoop library for your platform... using builtin-java classes where applicable"
 
+# This Bitnami image is embedded with Python 3.12, but it is not stable enough for our use case
 FROM bitnami/spark:3.5.3
 
-# Install Python 3.11 to align with the version used in the Celery container
-# NB: this Bitnami image comes with Python 3.12 installed, but it is not stable enough for our use case
+# Install Python 3.11 to align with the version used in the Orchestrator and Notebook containers
 USER root
 
 RUN install_packages python3.11 python3.11-dev python3.11-distutils
@@ -18,7 +18,8 @@ RUN rm -f /opt/bitnami/python/bin/python3 \
 ENV PYSPARK_PYTHON=/opt/bitnami/python/bin/python3 \
     PYSPARK_DRIVER_PYTHON=/opt/bitnami/python/bin/python3
 
-# DISABLED (not working): Install drivers and connectors for Spark
+# DISABLED (not working, instead handled in the Spark session module)
+# Install drivers and connectors for Spark
 # Cf. https://github.com/bitnami/containers/tree/main/bitnami/spark#installing-additional-jars
 # USER 1001
 # RUN curl https://jdbc.postgresql.org/download/postgresql-42.7.4.jar \

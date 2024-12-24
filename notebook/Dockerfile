@@ -1,7 +1,6 @@
 # TODO: go through all config parameters to be sure it is all relevant/required
-# (at least it is working though ...)
 
-# python-3.12  spark-3.5.3
+# This version is embedded with Python 3.11
 FROM quay.io/jupyter/pyspark-notebook:spark-3.5.3
 
 ARG JUPYTER_HASHED_PASSWORD \
@@ -38,5 +37,6 @@ RUN mkdir -p /home/jovyan/work && chown -R jovyan:users /home/jovyan
 # RUN apt update && apt install -y net-tools iputils-ping netcat-traditional
 
 USER jovyan
+
 # --ip=0.0.0.0 --no-browser
 CMD jupyter lab --port=11000 --debug
