@@ -145,7 +145,7 @@ services:
     environment:
       <<: *biggie-common-env
       DOCKER_SUBNET_BASE: ${DOCKER_SUBNET_BASE}
-      API_PORT: ${API_PORT}
+      # API_PORT: ${API_PORT}
     command: ["uvicorn", "main:app",
             "--host", "${DOCKER_SUBNET_BASE}.122",
             "--port", "8100",
@@ -228,6 +228,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.133
 
+  # NB: uncomment ports to access the Spark UI
   spark-master:
     container_name: ${COMPOSE_PREFIX}biggie_spark-master
     build: spark_cluster
@@ -236,8 +237,8 @@ services:
     depends_on:
       - mongo
       - postgres
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
     # volumes:
     #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
@@ -259,8 +260,8 @@ services:
       - spark-master
       - mongo
       - postgres
-    ports:
-      - "8091:8081"
+    # ports:
+    #   - "8091:8081"
     # volumes:
     #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
@@ -282,8 +283,8 @@ services:
       - spark-master
       - mongo
       - postgres
-    ports:
-      - "8092:8081"
+    # ports:
+    #   - "8092:8081"
     # volumes:
     #   - ${LOGS_DIR}/spark:/opt/bitnami/spark/logs
     profiles:
