@@ -9,6 +9,7 @@ volumes:
 
 services:
 
+  # Port: 5555
   flower:
     container_name: ${COMPOSE_PREFIX}biggie_flower
     image: mher/flower:2.0.1
@@ -25,6 +26,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.151
 
+  # Port: 8081
   mongo-express:
     image: mongo-express:1.0.2-20
     container_name: ${COMPOSE_PREFIX}biggie_mongoex
@@ -46,6 +48,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.152
 
+  # Port: 8978
   dbeaver:
     container_name: ${COMPOSE_PREFIX}biggie_dbeaver
     image: dbeaver/cloudbeaver:24.2.2

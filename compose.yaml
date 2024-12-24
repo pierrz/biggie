@@ -59,6 +59,7 @@ networks:
 
 services:
 
+  # Port: 27017
   mongo:
     container_name: ${COMPOSE_PREFIX}biggie_mongo
     build: db/mongo
@@ -74,6 +75,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.101
 
+  # Port: 5432
   postgres:
     container_name: ${COMPOSE_PREFIX}biggie_postgres
     build: db/postgres
@@ -90,6 +92,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.102
 
+  # Port: 8888
   jupyterlab:
     container_name: ${COMPOSE_PREFIX}biggie_jupyterlab
     build:
@@ -137,6 +140,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.121
 
+  # Port: 8100
   api-prod:
     container_name: ${COMPOSE_PREFIX}biggie_api-prod
     build:
@@ -191,6 +195,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.131
 
+  # Port: 5678
   orchestrator-prod:
     container_name: ${COMPOSE_PREFIX}biggie_orchestrator-prod
     build:
@@ -213,6 +218,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.132
 
+  # Ports: 5672/15672
   rabbitmq:
     container_name: ${COMPOSE_PREFIX}biggie_rabbitmq
     image: rabbitmq:3.13.7-management
@@ -250,6 +256,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.141
 
+  # Ports (UI): 8091
   spark-worker-1:
     container_name: ${COMPOSE_PREFIX}biggie_spark-worker-1
     build: spark_cluster
@@ -273,6 +280,7 @@ services:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.142
 
+  # Ports (UI): 8092
   spark-worker-2:
     container_name: ${COMPOSE_PREFIX}biggie_spark-worker-2
     build: spark_cluster
