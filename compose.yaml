@@ -103,8 +103,6 @@ services:
     profiles:
       - prod_analytics
       - prod_full
-    # ports:
-    #   - "11000:11000"
     networks:
       biggie-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.111
@@ -144,9 +142,10 @@ services:
     environment:
       <<: *biggie-common-env
       DOCKER_SUBNET_BASE: ${DOCKER_SUBNET_BASE}
+      API_PORT: 8000                                # default port
     command: ["uv", "run", "uvicorn", "main:app",
             "--host", "${DOCKER_SUBNET_BASE}.122",
-            "--port", "8100",
+            "--port", "${API_PORT}",
             "--reload", "--log-level", "info"]
     depends_on:
       - mongo
