@@ -1,38 +1,36 @@
-[tool.poetry]
+[project]
 name = "biggie"
 version = "0.5.7"
-package-mode = false
 description = "Biggie. Orchestrator containers (test & prod). Based on Celery"
 authors = ["Pierre-Edouard Barrault"]
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "aiohttp==3.11.11",
+    "asyncio==3.4.3",
+    "celery==5.4.0",
+    "loguru==0.7.3",
+    "pandas==2.2.3",
+    "psycopg2==2.9.10",
+    "pydantic-settings==2.7.0",
+    "pymongo==4.10.1",
+    "pyspark==3.5.3",
+    "requests==2.32.3",
+    "setuptools==75.6.0",
+    "SQLAlchemy==2.0.36",             # previous version was 1.4.54
+    "typing==3.7.4.3"                  # issues with installing the latest version 3.10.0.0
+]
 
-[build-system]
-requires = ["poetry_core>=1.8.3"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.dependencies]
-python = ">=3.11,<3.13"
-aiohttp = "==3.11.11"
-asyncio = "==3.4.3"
-celery = "==5.4.0"
-loguru = "==0.7.3"
-pandas = "==2.2.3"
-psycopg2 = "==2.9.10"
-pydantic-settings = "==2.7.0"
-pymongo = "==4.10.1"
-pyspark = "==3.5.3"
-requests = "==2.32.3"
-setuptools = "==75.6.0"
-SQLAlchemy = "==2.0.36"             # previous version was 1.4.54
-typing = "3.7.4.3"                  # issues with installing the latest version 3.10.0.0
-
-[tool.poetry.group.security.dependencies]
-certifi = "==2024.12.14"
-idna = "==3.10"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "==8.3.4"
-pytest-asyncio = "==0.25.0"
-pytest-cov = "==6.0.0"
+[dependency-groups]
+test = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.25.0",
+    "pytest-cov==6.0.0"
+]
+security = [
+    "certifi==2024.12.14",
+    "idna==3.10"
+]
 
 [tool.pytest.ini_options]
 pythonpath = [ "/opt/orchestrator", ]

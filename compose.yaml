@@ -119,7 +119,7 @@ services:
     environment:
       <<: *biggie-common-env
       DOCKER_SUBNET_BASE: ${DOCKER_SUBNET_BASE}
-    command: pytest -vv
+    command: uv run pytest -vv
     depends_on:
       - mongo
       - postgres
@@ -144,7 +144,7 @@ services:
     environment:
       <<: *biggie-common-env
       DOCKER_SUBNET_BASE: ${DOCKER_SUBNET_BASE}
-    command: ["uvicorn", "main:app",
+    command: ["uv", "run", "uvicorn", "main:app",
             "--host", "${DOCKER_SUBNET_BASE}.122",
             "--port", "8100",
             "--reload", "--log-level", "info"]
@@ -181,7 +181,7 @@ services:
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: python3 -m pytest -vv # test/harvester/github_events
+    command: uv run pytest -vv # test/harvester/github_events
     profiles:
       - test
     restart: on-failure
@@ -202,7 +202,7 @@ services:
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: sh run.sh
+    command: uv run ./run.sh
     profiles:
       - prod_full
       - prod_acquisition
