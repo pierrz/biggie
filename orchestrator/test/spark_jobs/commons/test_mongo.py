@@ -9,6 +9,7 @@ TODO: investigate why we need to use .simpleString() to get identical schemas
 from test.spark_jobs.fixtures.mongo_schema import test_mongo_schema
 from test.spark_jobs.utils.base_test import MongoDFTest, MongoTestReader
 
+from config import main_config
 from pandas.testing import assert_frame_equal
 from src.db.mongo.mongo_db import init_pymongo_client
 
@@ -53,5 +54,7 @@ def test_mongo_loader_reader():
     MongoLoaderReaderTest(
         collection=MongoTestReader.collection, schema=test_mongo_schema
     )
-    mongodb = init_pymongo_client()
+    mongo_client = init_pymongo_client()  # pylint: disable=C0103
+    mongodb = mongo_client[main_config.DB_NAME]
     mongodb.drop_collection(MongoTestReader.collection)
+    mongo_client.close()

@@ -9,12 +9,12 @@ authors = ["Pierre-Edouard Barrault"]
 python = ">=3.11,<3.13"
 
 [tool.poetry.group.dev.dependencies]
-black = "==24.8.0"
+black = "==24.10.0"
 flake8 = "==7.1.1"
 isort = "==5.13.2"
-pre-commit = "==3.8.0"
-pylint = "==3.2.7"
-debugpy = "==1.8.5"
+pre-commit = "==4.0.1"
+pylint = "==3.3.3"
+debugpy = "==1.8.11"
 
 [build-system]
 requires = ["poetry_core>=1.8.3"]
