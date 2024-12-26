@@ -178,8 +178,8 @@ jobs:
           --network=${{ env.NETWORK }} \
           --volume ${{ secrets.DATA_DIR }}:/opt/data \
           ghcr.io/pierrz/biggie_api_img:latest \
-          sh -c "poetry install --only dev && \
-          pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
+          sh -c "uv sync --only-group test && \
+          uv run pytest -vv --cov-config=pyproject.toml --cov=. --cov-report=html && \
           mkdir /opt/data/api_coverage && cp .coverage /opt/data/api_coverage/.coverage"
 
     - name: Orchestrator tests
@@ -197,8 +197,8 @@ jobs:
           --network=${{ env.NETWORK }} \
           --volume ${{ secrets.DATA_DIR }}:/opt/data \
           ghcr.io/pierrz/biggie_orchestrator_img:latest \
-          sh -c "poetry install --only dev && \
-          python3.11 -m pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
+          sh -c "uv sync --only-group test && \
+          uv run pytest -vv --asyncio-mode=strict --cov-config=pyproject.toml --cov=. --cov-report=html && \
           mkdir /opt/data/orchestrator_coverage && cp .coverage /opt/data/orchestrator_coverage/.coverage"
 
     - name: Upload coverage reports

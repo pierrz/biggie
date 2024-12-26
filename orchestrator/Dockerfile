@@ -24,7 +24,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Copy only requirements to cache them in docker layer
 WORKDIR /opt/orchestrator
-COPY ./orchestrator/pyproject.toml ./orchestrator/uv.lock* ./
+COPY ./orchestrator/pyproject.toml ./orchestrator/uv.lock* ./orchestrator/run.sh ./
 
 # Project initialization (only main and security groups installed here)
 RUN uv sync --group security
@@ -33,7 +33,7 @@ RUN uv sync --group security
 ARG TEST_MODE="False"
 RUN if [ $(echo $TEST_MODE | tr -d '\"') = "True" ]; then \
         echo "Running in TEST mode"; \
-        uv sync --only-group test ; \
+        uv sync --only-group test; \
     else \
         echo "Running in normal mode"; \
         chmod +x run.sh; \

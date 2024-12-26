@@ -181,7 +181,7 @@ services:
       - spark-master
       - spark-worker-1
       - spark-worker-2
-    command: uv run pytest -vv # test/harvester/github_events
+    command: uv run pytest -vv
     profiles:
       - test
     restart: on-failure

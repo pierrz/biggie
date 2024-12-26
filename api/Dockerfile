@@ -23,7 +23,7 @@ RUN uv sync --group security
 ARG TEST_MODE="False"
 RUN if [ $(echo $TEST_MODE | tr -d '\"') = "True" ]; then \
         echo "Running in TEST mode"; \
-        uv sync --only-group test ; \
+        uv sync --only-group test; \
     else \
         echo "Running in normal mode"; \
     fi
