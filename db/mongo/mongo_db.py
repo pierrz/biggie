@@ -7,5 +7,5 @@ from pymongo import MongoClient
 
 
 def init_pymongo_client():
-    mongo = MongoClient(main_config.MONGODB_URI)
-    return mongo[main_config.DB_NAME]
+    mongo_client = MongoClient(main_config.MONGODB_URI)
+    return mongo_client

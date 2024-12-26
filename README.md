@@ -33,6 +33,7 @@ The repository itself is based on the ['Papel' repository](https://github.com/pi
 - [Teleport and Terraform](#teleport-and-terraform)
 - [Nginx deployment](#nginx-deployment-only-exposing-the-api-jupyter-and-monitoring-containers)
 - [Local URLs](#local-urls)
+- [Default Ports](#default-ports)
 - [Development](#development)
 - [Contribute](#contribute)
 
@@ -177,6 +178,23 @@ Monitoring
 - [Mongo-Express](http://localhost:8081)
 - [Flower](http://localhost:49555)
 - [DBeaver](http://localhost:8978)
+
+<br>
+
+### Default Ports
+For all the services, these are the default ports (backend/UI):
+- Mongo: 27017
+- Postgres: 5432
+- Jupyterlab: 8888
+- FastAPI: 8100
+- Celery: 5678
+- RabbitMQ: 5672/15672
+- Spark
+    - master: 7077/8080
+    - worker: 8081
+- Flower: 5555
+- Mongo-Express: 8081
+- DBeaver: 8978
 
 <br>
 

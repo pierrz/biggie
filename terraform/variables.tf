@@ -81,14 +81,6 @@ variable "compose_prefix" {
   description = "Compose prefix used to name containers and volumes"
   type        = string
 }
-variable "spark_ports_range" {
-  description = "Prefix used to change the range of Spark ports"
-  type        = number
-}
-variable "rabbitmq_port" {
-  description = "RabbitMQ port"
-  type        = number
-}
 variable "logs_dir" {
   description = "Logs directory path"
   type        = string
@@ -137,10 +129,6 @@ variable "postgres_app_password" {
   description = "PostgreSQL password for clients"
   type        = string
 }
-variable "postgres_port" {
-  description = "Host port for PostgreSQL"
-  type        = number
-}
 # Mongo variables
 variable "mongo_initdb_root_username" {
   description = "MongoDB username for initialization"
@@ -158,10 +146,6 @@ variable "mongo_password" {
   description = "MongoDB password for clients"
   type        = string
 }
-variable "mongo_port" {
-  description = "Host port for MongoDB"
-  type        = number
-}
 
 
 # Orchestrator variables
@@ -169,29 +153,9 @@ variable "token_github_api" {
   description = "GitHub API token"
   type        = string
 }
-# API variables
-variable "api_port" {
-  description = "Host port for the API"
-  type        = number
-}
-# Jupyter variables
-variable "jupyter_port" {
-  description = "Host port for Jupyter"
-  type        = number
-}
 
 
 # Monitoring
-# Flower variables
-variable "flower_port" {
-  description = "Host port for FLower"
-  type        = number
-}
-# DBeaver variables
-variable "dbeaver_port" {
-  description = "Host port for DBeaver"
-  type        = number
-}
 # Mongo-Express variables
 variable "me_config_mongodb_adminusername" {
   description = "Admin username for Mongo Express"
@@ -211,8 +175,4 @@ variable "me_config_basicauth_username" {
 variable "me_config_basicauth_password" {
   description = "Basic auth password for Mongo Express"
   type        = string
-}
-variable "me_config_port" {
-  description = "Host port for Mongo Express"
-  type        = number
 }

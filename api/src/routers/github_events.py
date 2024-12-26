@@ -4,6 +4,7 @@ All API endpoints.
 
 from datetime import datetime, timedelta, timezone
 
+from config import main_config
 from fastapi import APIRouter, HTTPException, Request
 
 # from src import logger
@@ -40,11 +41,13 @@ async def counts(limit: str | int = 50):
     :param limit: size of the response, can be changed with '?limit=<int>' query parameter.
     :return: a json response
     """
-    mongodb = init_pymongo_client()  # pylint: disable=C0103
+    mongo_client = init_pymongo_client()  # pylint: disable=C0103
+    mongodb = mongo_client[main_config.DB_NAME]
 
     type_query = {"type": EventType.PullRequestEvent}
     count = mongodb.events.count_documents(type_query)
     if count == 0:
+        mongo_client.close()
         raise HTTPException(status_code=404, detail="No events data available.")
 
     db_data = mongodb.events.aggregate(
@@ -54,6 +57,7 @@ async def counts(limit: str | int = 50):
             {"$limit": int(limit)},
         ]
     )
+    mongo_client.close()
 
     results_df = dataframe_from_mongo_data(db_data)
     return EventPerRepoCountList(
@@ -71,9 +75,11 @@ async def count(repo_name: str):
     :param repo_name: name of the repository
     :return: a json response
     """
-    mongodb = init_pymongo_client()  # pylint: disable=C0103
+    mongo_client = init_pymongo_client()  # pylint: disable=C0103
+    mongodb = mongo_client[main_config.DB_NAME]
     query = {"repo_name": repo_name, "type": EventType.PullRequestEvent}
     count = mongodb.events.count_documents(query)
+    mongo_client.close()
 
     if count == 0:
         raise HTTPException(
@@ -93,7 +99,8 @@ async def count_per_type_all(offset: str = "0"):
     :return: a json response
     """
 
-    mongodb = init_pymongo_client()
+    mongo_client = init_pymongo_client()  # pylint: disable=C0103
+    mongodb = mongo_client[main_config.DB_NAME]
 
     iso_date_with_delta = datetime.now(timezone.utc) - timedelta(minutes=int(offset))
     offset_query = {"created_at": {"$lte": iso_date_with_delta}}
@@ -101,6 +108,7 @@ async def count_per_type_all(offset: str = "0"):
     # if repo_name is None:
     count = mongodb.events.count_documents(offset_query)
     if count == 0:
+        mongo_client.close()
         raise HTTPException(
             status_code=404,
             detail=f"No events retrieved with an offset of {offset} minutes.",
@@ -118,6 +126,7 @@ async def count_per_type_all(offset: str = "0"):
     ]
     db_data = mongodb.events.aggregate(aggregation_pipeline)
     results_df = dataframe_from_mongo_data(db_data)
+    mongo_client.close()
 
     return EventTypeCountList(
         count_per_type=[
@@ -137,13 +146,15 @@ async def count_per_type(repo_name: str, offset: str = "0"):
     :return: a json response
     """
 
-    mongodb = init_pymongo_client()
+    mongo_client = init_pymongo_client()  # pylint: disable=C0103
+    mongodb = mongo_client[main_config.DB_NAME]
 
     iso_date_with_delta = datetime.now(timezone.utc) - timedelta(minutes=int(offset))
     offset_query = {"created_at": {"$lte": iso_date_with_delta}}
     query = {"repo_name": repo_name, **offset_query}
     db_data = mongodb.events.find(query)
     results_df = dataframe_from_mongo_data(db_data)
+    mongo_client.close()
 
     if results_df.shape[0] == 0:
         raise HTTPException(
@@ -174,12 +185,14 @@ async def pr_average_delta(repo_name: str):
     :return: a json response
     """
 
-    mongodb = init_pymongo_client()  # pylint: disable=C0103
+    mongo_client = init_pymongo_client()  # pylint: disable=C0103
+    mongodb = mongo_client[main_config.DB_NAME]
     query = {"repo_name": repo_name, "type": EventType.PullRequestEvent}
     count = mongodb.events.count_documents(query)
     average_time = None
 
     if not count > 1:
+        mongo_client.close()
         raise HTTPException(
             status_code=404,
             detail=f"Not enough PullRequestEvent data retrieved for '{repo_name}' (2 PRs minimum).",
@@ -188,6 +201,7 @@ async def pr_average_delta(repo_name: str):
     db_data = mongodb.events.find(query)
     valid_data = validate_data(db_data, model=Event)
     results_df = dataframe_from_mongo_data(valid_data, "created_at")
+    mongo_client.close()
 
     deltas = results_df["created_at"].diff().dt.total_seconds()
     average_time = round(
@@ -207,10 +221,13 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = 0):
     :return: a json response
     """
 
-    mongodb = init_pymongo_client()  # pylint: disable=C0103
+    mongo_client = init_pymongo_client()  # pylint: disable=C0103
+    mongodb = mongo_client[main_config.DB_NAME]
 
     query = {"repo_name": repo_name, "type": EventType.PullRequestEvent}
     count = mongodb.events.count_documents(query)
+    mongo_client.close()
+
     if count == 0:
         raise HTTPException(
             status_code=404,
@@ -256,11 +273,13 @@ async def details(request: Request, repo_name: str):
     Detailed page for each event, with embedded average PR time and diagram
     """
 
-    mongodb = init_pymongo_client()  # pylint: disable=C0103
+    mongo_client = init_pymongo_client()  # pylint: disable=C0103
+    mongodb = mongo_client[main_config.DB_NAME]
     average_delta = await pr_average_delta(repo_name)
     pr_count = await count(repo_name)
     results_df = delta_timeline_data(mongodb, repo_name, pr_count.count)
     diagram_filepath = generate_diagram(results_df, repo_name, pr_count.count)
+    mongo_client.close()
 
     return templates.TemplateResponse(
         f"{ns.github_events}/details.html",

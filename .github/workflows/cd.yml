@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
       - name: Run condition check
         uses: ./.github/actions/condition-check
         with:
@@ -25,7 +25,7 @@ jobs:
     if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }} == 'true'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
       - name: Run approval timeout mechanism
         uses: ./.github/actions/approval-timeout
         with:
@@ -84,7 +84,6 @@ jobs:
         TF_VAR_docker_subnet_base: ${{ secrets.DOCKER_SUBNET_BASE }}
         TF_VAR_compose_prefix: ${{ secrets.COMPOSE_PREFIX }}
         TF_VAR_spark_ports_range: ${{ secrets.SPARK_PORTS_RANGE }}
-        TF_VAR_rabbitmq_port: ${{ secrets.RABBITMQ_PORT }}
         TF_VAR_logs_dir: ${{ secrets.LOGS_DIR }}
         TF_VAR_data_dir: ${{ secrets.DATA_DIR }}
         TF_VAR_celery_broker_url: ${{ secrets.CELERY_BROKER_URL }}
@@ -99,34 +98,22 @@ jobs:
         TF_VAR_postgres_password: ${{ secrets.POSTGRES_PASSWORD }}
         TF_VAR_postgres_app_user: ${{ secrets.POSTGRES_APP_USER }}
         TF_VAR_postgres_app_password: ${{ secrets.POSTGRES_APP_PASSWORD }}
-        TF_VAR_postgres_port: ${{ secrets.POSTGRES_PORT }}
         # Mongo secrets
         TF_VAR_mongo_initdb_root_username: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
         TF_VAR_mongo_initdb_root_password: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
         TF_VAR_mongo_username: ${{ secrets.MONGO_USERNAME }}
         TF_VAR_mongo_password: ${{ secrets.MONGO_PASSWORD }}
-        TF_VAR_mongo_port: ${{ secrets.MONGO_PORT }}
 
         # SERVICES
         # Orchestrator secrets
         TF_VAR_token_github_api: ${{ secrets.TOKEN_GITHUB_API }}
-        # API secrets
-        TF_VAR_api_port: ${{ secrets.API_PORT }}
-        # Jupyter secrets
-        TF_VAR_jupyter_port: ${{ secrets.JUPYTER_PORT }}
-        # TF_VAR_jupyter_subdomain: ${{ secrets.JUPYTER_SUBDOMAIN }}    # TODO: refine jupyter config
 
         # Monitoring
-        # Flower secrets
-        TF_VAR_flower_port: ${{ secrets.FLOWER_PORT }}
-        # DBeaver secrets
-        TF_VAR_dbeaver_port: ${{ secrets.DBEAVER_PORT }}
         # Mongo-Express secrets
         TF_VAR_me_config_mongodb_adminusername: ${{ secrets.ME_CONFIG_MONGODB_ADMINUSERNAME }}
         TF_VAR_me_config_mongodb_adminpassword: ${{ secrets.ME_CONFIG_MONGODB_ADMINPASSWORD }}
         TF_VAR_me_config_basicauth_username: ${{ secrets.ME_CONFIG_BASICAUTH_USERNAME }}
         TF_VAR_me_config_basicauth_password: ${{ secrets.ME_CONFIG_BASICAUTH_PASSWORD }}
-        TF_VAR_me_config_port: ${{ secrets.ME_CONFIG_PORT }}
 
     needs: check-condition
     if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }} == 'true'
@@ -141,7 +128,7 @@ jobs:
         fi
 
     - name: Checkout repository
-      uses: actions/checkout@v4.1.7
+      uses: actions/checkout@v4.2.2
 
     - name: Set up Python
       uses: actions/setup-python@v5.2.0
