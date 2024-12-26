@@ -142,7 +142,7 @@ services:
     environment:
       <<: *biggie-common-env
       DOCKER_SUBNET_BASE: ${DOCKER_SUBNET_BASE}
-      API_PORT: 8000                                # default port
+      API_PORT: ${API_PORT}                                # default port
     command: ["uv", "run", "uvicorn", "main:app",
             "--host", "${DOCKER_SUBNET_BASE}.122",
             "--port", "${API_PORT}",
