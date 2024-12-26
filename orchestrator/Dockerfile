@@ -36,10 +36,13 @@ RUN if [ $(echo $TEST_MODE | tr -d '\"') = "True" ]; then \
         uv sync --only-group test; \
     else \
         echo "Running in normal mode"; \
-        chmod +x run.sh; \
     fi
 
 # Include project files
 COPY ./orchestrator ./
 COPY ./db ./src/db
 COPY ./commons ./src/commons
+
+RUN if [ $(echo $TEST_MODE | tr -d '\"') != "True" ]; then \
+        chmod +x run.sh; \
+    fi
