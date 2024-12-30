@@ -1,6 +1,6 @@
 [project]
 name = "biggie"
-version = "0.5.7"
+version = "0.5.8"
 description = "Biggie. Orchestrator containers (test & prod). Based on Celery"
 authors = ["Pierre-Edouard Barrault"]
 readme = "README.md"

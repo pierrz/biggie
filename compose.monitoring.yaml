@@ -52,7 +52,6 @@ services:
     restart: always
     volumes:
       - biggie-vdbeaver:/opt/cloudbeaver/workspace
-      - ./db/dbeaver/mongodb-driver.json:/opt/cloudbeaver/drivers/mongodb/mongodb-driver.json:ro
     depends_on:
       - postgres
     profiles:
