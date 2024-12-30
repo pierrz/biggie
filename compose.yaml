@@ -146,7 +146,6 @@ services:
       API_PORT: ${API_PORT}                                # default port
     command: ["uv", "run", "uvicorn", "main:app",
             "--host", "${DOCKER_SUBNET_BASE}.122",
-            "--port", "${API_PORT}",
             "--reload", "--log-level", "info"]
     depends_on:
       - mongo
