@@ -107,7 +107,6 @@ jobs:
         # SERVICES
         # API secrets
         TF_VAR_api_port: ${{ secrets.API_PORT }}
-        TF_VAR_uvicorn_port: ${{ secrets.UVICORN_PORT }}
         # Orchestrator secrets
         TF_VAR_token_github_api: ${{ secrets.TOKEN_GITHUB_API }}
 

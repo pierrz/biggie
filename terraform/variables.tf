@@ -158,10 +158,6 @@ variable "api_port" {
   description = "API port"
   type        = number
 }
-variable "uvicorn_port" {
-  description = "Uvicorn port"
-  type        = number
-}
 
 # Monitoring
 # Mongo-Express variables

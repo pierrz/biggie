@@ -138,7 +138,6 @@ resource "null_resource" "compose_setup" {
         echo "TOKEN_GITHUB_API=${var.token_github_api}" >> .env
         echo "# API" >> .env
         echo "API_PORT=${var.api_port}" >> .env
-        echo "UVICORN_PORT=${var.uvicorn_port}" >> .env
         echo "# Jupyter" >> .env
         echo "JUPYTER_HASHED_PASSWORD=$(cat /opt/biggie/hashed_password.txt)" >> .env
         rm /opt/biggie/hashed_password.txt
