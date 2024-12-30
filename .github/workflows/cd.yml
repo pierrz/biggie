@@ -105,6 +105,8 @@ jobs:
         TF_VAR_mongo_password: ${{ secrets.MONGO_PASSWORD }}
 
         # SERVICES
+        # API secrets
+        TF_VAR_api_port: ${{ secrets.API_PORT }}
         # Orchestrator secrets
         TF_VAR_token_github_api: ${{ secrets.TOKEN_GITHUB_API }}
 

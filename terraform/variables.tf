@@ -153,6 +153,11 @@ variable "token_github_api" {
   description = "GitHub API token"
   type        = string
 }
+# API variables
+variable "api_port" {
+  description = "API port"
+  type        = number
+}
 
 
 # Monitoring
