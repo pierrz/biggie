@@ -117,6 +117,7 @@ services:
     environment:
       <<: *biggie-common-env
       DOCKER_SUBNET_BASE: ${DOCKER_SUBNET_BASE}
+      API_PORT: ${API_PORT}
     command: uv run pytest -vv
     depends_on:
       - mongo
