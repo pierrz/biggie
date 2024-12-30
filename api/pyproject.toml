@@ -1,6 +1,6 @@
 [project]
 name = "biggie"
-version = "0.5.7"
+version = "0.5.8"
 package-mode = false
 description = "Biggie. API containers (test & prod). Based on FastAPI"
 authors = ["Pierre-Edouard Barrault"]

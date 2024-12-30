@@ -1,6 +1,6 @@
 [project]
 name = "biggie"
-version = "0.5.7"
+version = "0.5.8"
 description = "Biggie. Dev setup"
 authors = ["Pierre-Edouard Barrault"]
 readme = "README.md"
