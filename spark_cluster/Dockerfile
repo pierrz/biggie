@@ -13,7 +13,7 @@ RUN install_packages python3.11 python3.11-dev python3.11-distutils
 # Remove the symlink to Python 3.12 and create new ones for 3.11
 RUN rm -f /opt/bitnami/python/bin/python3 \
     && ln -sf /usr/bin/python3.11 /opt/bitnami/python/bin/python3 \
-    && ln -sf /usr/bin/python3.11 /opt/local/bin/python3.11
+    && ln -sf /usr/bin/python3.11 /usr/local/bin/python3.11
 
 # Set environment variables
 ENV PYSPARK_PYTHON=/opt/bitnami/python/bin/python3 \
