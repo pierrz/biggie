@@ -2,7 +2,7 @@
 # "Unable to load native-hadoop library for your platform... using builtin-java classes where applicable"
 
 # This Bitnami image is embedded with Python 3.12, but it is not stable enough for our use case
-FROM bitnami/spark:3.5.3
+FROM bitnamilegacy/spark:3.5.3
 
 # Install Python 3.11 to align with the version used in the Orchestrator and Notebook containers
 USER root
