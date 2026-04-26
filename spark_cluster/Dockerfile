@@ -2,7 +2,8 @@
 # "Unable to load native-hadoop library for your platform... using builtin-java classes where applicable"
 
 # This Bitnami image is embedded with Python 3.12, but it is not stable enough for our use case
-FROM bitnami/spark:3.5.3
+# Bitnami left Docker Hub in Aug 2025 — use bitnamilegacy mirror
+FROM bitnamilegacy/spark:3.5.3
 
 # Install Python 3.11 to align with the version used in the Orchestrator and Notebook containers
 USER root
@@ -12,7 +13,7 @@ RUN install_packages python3.11 python3.11-dev python3.11-distutils
 # Remove the symlink to Python 3.12 and create new ones for 3.11
 RUN rm -f /opt/bitnami/python/bin/python3 \
     && ln -sf /usr/bin/python3.11 /opt/bitnami/python/bin/python3 \
-    && ln -sf /usr/bin/python3.11 /usr/local/bin/python3.11
+    && ln -sf /usr/bin/python3.11 /opt/local/bin/python3.11
 
 # Set environment variables
 ENV PYSPARK_PYTHON=/opt/bitnami/python/bin/python3 \
